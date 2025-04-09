@@ -13,7 +13,7 @@ class clsConexion
         $this->server = "localhost";
         $this->user   = "root";
         $this->pass   = "";
-        $this->dbname = "";
+        $this->dbname = "AppPlaneamientoEstrategico";
 
         $this->conexion = new mysqli($this->server, $this->user, $this->pass, $this->dbname);
 
