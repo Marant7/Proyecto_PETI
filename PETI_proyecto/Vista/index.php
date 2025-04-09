@@ -20,25 +20,25 @@
 	
 	
 	<body class="cover" style="display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0;">
-	<div class="container-login" style="max-width: 500px;">
-		<p class="text-center" style="font-size: 100px;">
-			<i class="zmdi zmdi-account-circle"></i>
-		</p>
-		<p class="text-center text-condensedLight" style="font-size: 24px;">Inicia Sesion con tu Cuenta</p>
-		<form>
-			<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width: 100%; font-size: 18px;">
-			    <input class="mdl-textfield__input" type="text" id="userName" style="font-size: 18px;">
-			    <label class="mdl-textfield__label" for="userName">Usuario</label>
-			</div>
-			<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width: 100%; font-size: 18px;">
-			    <input class="mdl-textfield__input" type="password" id="pass" style="font-size: 18px;">
-			    <label class="mdl-textfield__label" for="pass">Contraseña</label>
-			</div>
-			<button id="SingIn" class="mdl-button mdl-js-button mdl-js-ripple-effect" style="color: #3F51B5; float:right; font-size: 16px;">
-				Iniciar Sesión <i class="zmdi zmdi-mail-send"></i>
-			</button>
-		</form>
-	</div>
+    <div class="container-login" style="max-width: 500px;">
+        <p class="text-center" style="font-size: 100px;">
+            <i class="zmdi zmdi-account-circle"></i>
+        </p>
+        <p class="text-center text-condensedLight" style="font-size: 24px;">Inicia Sesión con tu Cuenta</p>
+        <form action="../Controller/AuthController.php" method="POST">
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width: 100%; font-size: 18px;">
+                <input class="mdl-textfield__input" type="text" name="usuario" id="userName" required style="font-size: 18px;">
+                <label class="mdl-textfield__label" for="userName">Usuario</label>
+            </div>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width: 100%; font-size: 18px;">
+                <input class="mdl-textfield__input" type="password" name="clave" id="pass" required style="font-size: 18px;">
+                <label class="mdl-textfield__label" for="pass">Contraseña</label>
+            </div>
+            <button type="submit" id="SingIn" class="mdl-button mdl-js-button mdl-js-ripple-effect" style="color: #3F51B5; float:right; font-size: 16px;">
+                Iniciar Sesión <i class="zmdi zmdi-mail-send"></i>
+            </button>
+        </form>
+    </div>
 </body>
 
 
