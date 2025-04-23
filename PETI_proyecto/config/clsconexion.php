@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 class clsConexion
 {
     private $server;
@@ -7,49 +8,32 @@ class clsConexion
     private $dbname;
     private $conexion;
 
-    // CONSTRUCTOR DE LA CLASE
     public function __construct()
     {
         $this->server = "localhost";
         $this->user   = "root";
         $this->pass   = "";
-        $this->dbname = "AppPlaneamientoEstrategico";
+        $this->dbname = "appplanestrategico";
 
+        // Creación de la conexión con MySQLi
         $this->conexion = new mysqli($this->server, $this->user, $this->pass, $this->dbname);
 
+        // Verificamos si hay algún error de conexión
         if ($this->conexion->connect_error) {
             die("Error en la conexión a la base de datos: " . $this->conexion->connect_error);
         }
-        
+
+        // Establecemos la codificación de caracteres a utf8
         $this->conexion->set_charset('utf8');
     }
 
-    // DESTRUCTOR DE LA CLASE
-    public function __destruct()
+    // Método para obtener la conexión
+    public function getConexion()
     {
-        $this->Cerrarconex();
+        return $this->conexion;
     }
 
-    // MANDAR UNA CONSULTA INSERT, UPDATE, DELETE
-    public function Consulta($sql)
-    {
-        return $this->conexion->query($sql);
-    }
-
-    // MANDAR UNA CONSULTA PARA RETORNAR DATOS
-    public function ConsultaResult($sql)
-    {
-        $resultado = $this->conexion->query($sql);
-        return $resultado;
-    }
-
-    // CERRAMOS LA CONSULTA PARA LIBERAR MEMORIA
-    public function Liberar($sql)
-    {
-        $sql->free();
-    }
-
-    // CERRAR CONEXIÓN
+    // Método para cerrar la conexión
     public function Cerrarconex()
     {
         if ($this->conexion) {
@@ -57,3 +41,4 @@ class clsConexion
         }
     }
 }
+?>
