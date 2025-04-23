@@ -34,24 +34,12 @@
 				<li class="full-width divider-menu-h"></li>
 
 				<li class="full-width">
-					<a href="mision.php" class="full-width">
+					<a href="vision_mision.php" class="full-width">
 						<div class="navLateral-body-cl">
 							<i class="zmdi zmdi-assignment"></i>
 						</div>
 						<div class="navLateral-body-cr hide-on-tablet">
-							MISIÓN
-						</div>
-					</a>
-				</li>
-				<li class="full-width divider-menu-h"></li>
-
-				<li class="full-width">
-					<a href="vision.php" class="full-width">
-						<div class="navLateral-body-cl">
-							<i class="zmdi zmdi-eye"></i>
-						</div>
-						<div class="navLateral-body-cr hide-on-tablet">
-							VISIÓN
+							MISIÓN/VISIÓN
 						</div>
 					</a>
 				</li>
