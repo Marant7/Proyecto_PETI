@@ -25,6 +25,7 @@ if (!isset($_SESSION['user_id'])) {
 		<script src="../public/js/sweetalert2.min.js"></script>
 		<script src="../public/js/jquery.mCustomScrollbar.concat.min.js"></script>
 		<script src="../public/js/main.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script src="../public/js/valores.js"></script>
 
 </head>
@@ -90,7 +91,6 @@ if (!isset($_SESSION['user_id'])) {
     </div>
   </div>
 
-  <script src="/PETI_proyecto/public/js/valores.js"></script>
 </body>
 </html>
 
