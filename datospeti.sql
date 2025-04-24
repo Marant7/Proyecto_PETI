@@ -18,7 +18,17 @@
 -- Volcando estructura de base de datos para appplanestrategico
 CREATE DATABASE IF NOT EXISTS `appplanestrategico` /*!40100 DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci */;
 USE `appplanestrategico`;
-
+\
+CREATE TABLE IF NOT EXISTS `tb_usuario` (
+  `id_usuario` int(11) NOT NULL AUTO_INCREMENT,
+  `nombre` varchar(100) DEFAULT NULL,
+  `apellido` varchar(100) DEFAULT NULL,
+  `usuario` varchar(100) DEFAULT NULL,
+  `correo` varchar(150) DEFAULT NULL,
+  `password` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id_usuario`),
+  UNIQUE KEY `usuario` (`usuario`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 -- Volcando estructura para tabla appplanestrategico.tb_empresa
 CREATE TABLE IF NOT EXISTS `tb_empresa` (
   `id_empresa` int(11) NOT NULL AUTO_INCREMENT,
@@ -46,6 +56,17 @@ CREATE TABLE IF NOT EXISTS `tb_obj_estra` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 -- Volcando datos para la tabla appplanestrategico.tb_obj_estra: ~0 rows (aproximadamente)
+-- Volcando estructura para la tabla appplanestrategico.tb_obj_especificos
+CREATE TABLE IF NOT EXISTS `tb_obj_especificos` (
+  `id_obj_espe` int(11) NOT NULL AUTO_INCREMENT,
+  `descripcion_espe` text DEFAULT NULL,
+  `id_obj_estra` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id_obj_espe`),
+  KEY `id_obj_estra` (`id_obj_estra`),
+  CONSTRAINT `tb_obj_especificos_ibfk_1` FOREIGN KEY (`id_obj_estra`) REFERENCES `tb_obj_estra` (`id_obj_estra`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- Volcando datos para la tabla appplanestrategico.tb_obj_especificos: ~0 rows (aproximadamente)
 
 -- Volcando estructura para tabla appplanestrategico.tb_uen
 CREATE TABLE IF NOT EXISTS `tb_uen` (
@@ -60,16 +81,7 @@ CREATE TABLE IF NOT EXISTS `tb_uen` (
 -- Volcando datos para la tabla appplanestrategico.tb_uen: ~0 rows (aproximadamente)
 
 -- Volcando estructura para tabla appplanestrategico.tb_usuario
-CREATE TABLE IF NOT EXISTS `tb_usuario` (
-  `id_usuario` int(11) NOT NULL AUTO_INCREMENT,
-  `nombre` varchar(100) DEFAULT NULL,
-  `apellido` varchar(100) DEFAULT NULL,
-  `usuario` varchar(100) DEFAULT NULL,
-  `correo` varchar(150) DEFAULT NULL,
-  `password` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id_usuario`),
-  UNIQUE KEY `usuario` (`usuario`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
 
 -- Volcando datos para la tabla appplanestrategico.tb_usuario: ~0 rows (aproximadamente)
 
@@ -82,6 +94,33 @@ CREATE TABLE IF NOT EXISTS `tb_valores` (
   KEY `id_empresa` (`id_empresa`),
   CONSTRAINT `tb_valores_ibfk_1` FOREIGN KEY (`id_empresa`) REFERENCES `tb_empresa` (`id_empresa`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- Insertar usuario
+INSERT INTO `tb_usuario` (`nombre`, `apellido`, `usuario`, `correo`, `password`) 
+VALUES 
+('Juan', 'Pérez', 'juanperez', 'juan', 'juan');
+
+-- Insertar empresa
+INSERT INTO `tb_empresa` (`id_usuario`, `nombre_empresa`, `mision`, `vision`, `fecha_creacion`, `descripcion`)
+VALUES
+(1, 'Empresa XYZ', 'Nuestra misión es liderar el mercado', 'Ser la empresa más innovadora', '2025-04-24', 'Descripción de la empresa XYZ');
+
+-- Insertar objetivo estratégico
+INSERT INTO `tb_obj_estra` (`id_empresa`, `nombre_obj_estra`)
+VALUES
+(1, 'Objetivo Estratégico de Expansión Global');
+
+-- Insertar objetivo específico
+INSERT INTO `tb_obj_especificos` (`descripcion_espe`, `id_obj_estra`)
+VALUES
+('Expandir la presencia de la empresa en 5 nuevos mercados internacionales', 1);
+
+INSERT INTO `tb_obj_especificos` (`descripcion_espe`, `id_obj_estra`)
+VALUES
+('asdasdasd', 1);
+
+SELECT * FROM tb_obj_especificos
+
 
 -- Volcando datos para la tabla appplanestrategico.tb_valores: ~0 rows (aproximadamente)
 

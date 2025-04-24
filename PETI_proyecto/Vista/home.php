@@ -1,12 +1,3 @@
-<?php
-session_start();
-
-// Verificar si el usuario está autenticado
-if (!isset($_SESSION['user_id'])) {
-    header('Location: /PETI_proyecto/login.php');
-    exit();
-}
-?>
 
 <!DOCTYPE html>
 <html lang="es">
