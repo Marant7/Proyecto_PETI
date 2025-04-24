@@ -1,5 +1,10 @@
-
-<!DOCTYPE html>
+<?php
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header("Location: ../Vista/index.php");
+    exit();
+}
+?>TYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -40,9 +45,11 @@
                         <div class="mdl-tooltip" for="notifications">Notifications</div>
                     </li>
                     <li class="btn-exit" id="btn-exit">
+                    <a href="../Controllers/logout.php" style="color: inherit; text-decoration: none;">
                         <i class="zmdi zmdi-power"></i>
-                        <div class="mdl-tooltip" for="btn-exit">LogOut</div>
-                    </li>
+                    </a>
+                    <div class="mdl-tooltip" for="btn-exit">LogOut</div>
+                </li>
                     <!-- Muestra el nombre del usuario -->
                     <li class="text-condensedLight noLink">
                         <small><?php echo $_SESSION['usuario']; ?></small>
