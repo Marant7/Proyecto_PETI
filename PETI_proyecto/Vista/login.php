@@ -13,12 +13,12 @@ if (isset($_SESSION['error_message'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Iniciar Sesión</title>
-    <link rel="stylesheet" href="/PETI_proyecto/public/css/normalize.css">
-    <link rel="stylesheet" href="/PETI_proyecto/public/css/sweetalert2.css">
-    <link rel="stylesheet" href="/PETI_proyecto/public/css/material.min.css">
-    <link rel="stylesheet" href="/PETI_proyecto/public/css/material-design-iconic-font.min.css">
-    <link rel="stylesheet" href="/PETI_proyecto/public/css/main.css">
-    <script src="/PETI_proyecto/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="../public/css/normalize.css">
+    <link rel="stylesheet" href="../public/css/sweetalert2.css">
+    <link rel="stylesheet" href="../public/css/material.min.css">
+    <link rel="stylesheet" href="../public/css/material-design-iconic-font.min.css">
+    <link rel="stylesheet" href="../public/css/main.css">
+    <script src="../public/js/sweetalert2.min.js"></script>
 </head>
 <body class="cover" style="display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0;">
 

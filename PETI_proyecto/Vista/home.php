@@ -14,18 +14,18 @@ if (!isset($_SESSION['user_id'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Home</title>
-    <link rel="stylesheet" href="/PETI_proyecto/public/css/normalize.css">
-    <link rel="stylesheet" href="/PETI_proyecto/public/css/sweetalert2.css">
-    <link rel="stylesheet" href="/PETI_proyecto/public/css/material.min.css">
-    <link rel="stylesheet" href="/PETI_proyecto/public/css/material-design-iconic-font.min.css">
-    <link rel="stylesheet" href="/PETI_proyecto/public/css/jquery.mCustomScrollbar.css">
-    <link rel="stylesheet" href="/PETI_proyecto/public/css/main.css">
+    <link rel="stylesheet" href="../public/css/normalize.css">
+    <link rel="stylesheet" href="../public/css/sweetalert2.css">
+    <link rel="stylesheet" href="../public/css/material.min.css">
+    <link rel="stylesheet" href="../public/css/material-design-iconic-font.min.css">
+    <link rel="stylesheet" href="../public/css/jquery.mCustomScrollbar.css">
+    <link rel="stylesheet" href="../public/css/main.css">
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-    <script>window.jQuery || document.write('<script src="/PETI_proyecto/public/js/jquery-1.11.2.min.js"><\/script>')</script>
-    <script src="/PETI_proyecto/public/js/material.min.js"></script>
-    <script src="/PETI_proyecto/public/js/sweetalert2.min.js"></script>
-    <script src="/PETI_proyecto/public/js/jquery.mCustomScrollbar.concat.min.js"></script>
-    <script src="/PETI_proyecto/public/js/main.js"></script>
+    <script>window.jQuery || document.write('<script src="../public/js/jquery-1.11.2.min.js"><\/script>')</script>
+    <script src="../public/js/material.min.js"></script>
+    <script src="../public/js/sweetalert2.min.js"></script>
+    <script src="../public/js/jquery.mCustomScrollbar.concat.min.js"></script>
+    <script src="../public/js/main.js"></script>
 </head>
 <body>
     <!-- Notifications area -->
@@ -58,7 +58,7 @@ if (!isset($_SESSION['user_id'])) {
                     </li>
                     <li class="noLink">
                         <figure>
-                            <img src="assets/img/avatar-male.png" alt="Avatar" class="img-responsive">
+                            <img src="../public/assets/img/avatar-male.png" alt="Avatar" class="img-responsive">
                         </figure>
                     </li>
                 </ul>
