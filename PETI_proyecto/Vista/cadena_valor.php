@@ -81,7 +81,11 @@ if (!isset($_SESSION['user_id'])) {
                 <table>
                     <thead>
                         <tr class="header-row">
-                            <th class="statement">VALORACIÓN</th>
+                            <th class="statement">AUTODIAGNÓSTICO DE LA CADENA DE VALOR INTERNA</th>
+                            <th colspan="5">VALORACIÓN</th>
+                        </tr>
+                        <tr>
+                            <th></th>
                             <th>0</th>
                             <th>1</th>
                             <th>2</th>

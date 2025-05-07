@@ -25,6 +25,10 @@ th {
     background-color: #005a87;
     color: white;
 }
+thead tr:first-child th:first-child {
+    text-align: left;
+    font-weight: bold;
+}
 input[type="radio"] {
     margin: 0;
     transform: scale(1.2);
