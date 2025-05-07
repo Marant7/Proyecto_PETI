@@ -3,14 +3,14 @@
 	<section class="full-width text-center" style="padding: 40px 0;">
 		<h3 class="text-center tittles">INFORMACION DE LA EMPRESA</h3>
 
-		<article class="full-width tile" onclick="window.location.href='mision.php';" style="cursor: pointer;">
+		<article class="full-width tile" onclick="window.location.href='vision_mision.php';" style="cursor: pointer;">
 			<div class="tile-text">
 				<span class="text-condensedLight">1<br><small>MISIÓN</small></span>
 			</div>
 			<i class="zmdi zmdi-assignment tile-icon"></i>
 		</article>
 
-		<article class="full-width tile" onclick="window.location.href='vision.php';" style="cursor: pointer;">
+		<article class="full-width tile" onclick="window.location.href='vision_mision.php';" style="cursor: pointer;">
 			<div class="tile-text">
 				<span class="text-condensedLight">2<br><small>VISIÓN</small></span>
 			</div>
@@ -31,7 +31,7 @@
 			<i class="zmdi zmdi-flag tile-icon"></i>
 		</article>
 
-		<article class="full-width tile" onclick="window.location.href='analisis.php';" style="cursor: pointer;">
+		<article class="full-width tile" onclick="window.location.href='analisis_interno_externo.php';" style="cursor: pointer;">
 			<div class="tile-text">
 				<span class="text-condensedLight">5<br><small>ANÁLISIS INTERNO Y EXTERNO</small></span>
 			</div>

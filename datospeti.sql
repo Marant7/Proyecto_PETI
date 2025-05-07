@@ -121,6 +121,71 @@ VALUES
 
 SELECT * FROM tb_obj_especificos
 
+-- Tabla de Fortalezas
+CREATE TABLE IF NOT EXISTS `tb_fortalezas` (
+  `id_fortaleza` int(11) NOT NULL AUTO_INCREMENT,
+  `id_empresa` int(11) NOT NULL,
+  `descripcion` text NOT NULL,
+  `fecha_creacion` datetime DEFAULT current_timestamp(),
+  PRIMARY KEY (`id_fortaleza`),
+  KEY `id_empresa` (`id_empresa`),
+  CONSTRAINT `tb_fortalezas_ibfk_1` FOREIGN KEY (`id_empresa`) REFERENCES `tb_empresa` (`id_empresa`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- Tabla de Oportunidades
+CREATE TABLE IF NOT EXISTS `tb_oportunidades` (
+  `id_oportunidad` int(11) NOT NULL AUTO_INCREMENT,
+  `id_empresa` int(11) NOT NULL,
+  `descripcion` text NOT NULL,
+  `fecha_creacion` datetime DEFAULT current_timestamp(),
+  PRIMARY KEY (`id_oportunidad`),
+  KEY `id_empresa` (`id_empresa`),
+  CONSTRAINT `tb_oportunidades_ibfk_1` FOREIGN KEY (`id_empresa`) REFERENCES `tb_empresa` (`id_empresa`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- Tabla de Debilidades
+CREATE TABLE IF NOT EXISTS `tb_debilidades` (
+  `id_debilidad` int(11) NOT NULL AUTO_INCREMENT,
+  `id_empresa` int(11) NOT NULL,
+  `descripcion` text NOT NULL,
+  `fecha_creacion` datetime DEFAULT current_timestamp(),
+  PRIMARY KEY (`id_debilidad`),
+  KEY `id_empresa` (`id_empresa`),
+  CONSTRAINT `tb_debilidades_ibfk_1` FOREIGN KEY (`id_empresa`) REFERENCES `tb_empresa` (`id_empresa`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- Tabla de Amenazas
+CREATE TABLE IF NOT EXISTS `tb_amenazas` (
+  `id_amenaza` int(11) NOT NULL AUTO_INCREMENT,
+  `id_empresa` int(11) NOT NULL,
+  `descripcion` text NOT NULL,
+  `fecha_creacion` datetime DEFAULT current_timestamp(),
+  PRIMARY KEY (`id_amenaza`),
+  KEY `id_empresa` (`id_empresa`),
+  CONSTRAINT `tb_amenazas_ibfk_1` FOREIGN KEY (`id_empresa`) REFERENCES `tb_empresa` (`id_empresa`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- Insertar datos en cada tabla para la empresa con id_empresa = 1
+
+-- Fortalezas
+INSERT INTO `tb_fortalezas` (`id_empresa`, `descripcion`) VALUES
+(1, 'Equipo altamente capacitado'),
+(1, 'Buena reputación en el mercado');
+
+-- Oportunidades
+INSERT INTO `tb_oportunidades` (`id_empresa`, `descripcion`) VALUES
+(1, 'Crecimiento del sector en la región'),
+(1, 'Nuevas tecnologías disponibles');
+
+-- Debilidades
+INSERT INTO `tb_debilidades` (`id_empresa`, `descripcion`) VALUES
+(1, 'Infraestructura tecnológica obsoleta'),
+(1, 'Falta de presencia en redes sociales');
+
+-- Amenazas
+INSERT INTO `tb_amenazas` (`id_empresa`, `descripcion`) VALUES
+(1, 'Entrada de competidores internacionales'),
+(1, 'Cambios en regulaciones del sector');
 
 -- Volcando datos para la tabla appplanestrategico.tb_valores: ~0 rows (aproximadamente)
 
