@@ -1,5 +1,6 @@
 <?php
 ob_start();
+session_start(); 
 header('Content-Type: application/json');  
 require_once "../Models/visiMisi.php";  
 
