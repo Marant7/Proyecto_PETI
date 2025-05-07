@@ -34,5 +34,29 @@ class Usuario {
 
         return false; // Usuario o contraseña incorrectos
     }
+    // Función para registrar un nuevo usuario
+    public function registerUser($nombre, $apellido, $usuario, $correo, $password) {
+        // Hashear la contraseña
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+        // Consulta SQL para insertar el usuario
+        $sql = "INSERT INTO tb_usuario (nombre, apellido, usuario, correo, password) 
+                VALUES (?, ?, ?, ?, ?)";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param("sssss", $nombre, $apellido, $usuario, $correo, $hashed_password);
+
+        return $stmt->execute();
+    }
+    // Verificar si el nombre de usuario ya existe
+    public function userExists($usuario) {
+        $sql = "SELECT * FROM tb_usuario WHERE usuario = ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param("s", $usuario);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        return $result->num_rows > 0;  // Si existe, devuelve true
+    }
 }
 ?>
