@@ -83,8 +83,8 @@ if (!isset($_SESSION['user_id'])) {
                 <input type="text" name="valores[]" required>
               </div>
             </div>
-            <button type="button" id="addValor">Agregando otro valor</button>
-            <button>Guardar</button>
+            <button type="button" id="addValor">Agregar otro valor</button>
+            <button type="submit">Guardar</button>
           </form>
         </div>
       </div>
