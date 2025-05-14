@@ -165,6 +165,44 @@ CREATE TABLE IF NOT EXISTS `tb_amenazas` (
   CONSTRAINT `tb_amenazas_ibfk_1` FOREIGN KEY (`id_empresa`) REFERENCES `tb_empresa` (`id_empresa`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
+
+CREATE TABLE IF NOT EXISTS `tb_evaluacion_cadena_valor` (
+  `id_evaluacion` int(11) NOT NULL AUTO_INCREMENT,
+  `id_empresa` int(11) NOT NULL,
+  `fecha_evaluacion` datetime DEFAULT CURRENT_TIMESTAMP,
+  `q1` tinyint(1) DEFAULT NULL,
+  `q2` tinyint(1) DEFAULT NULL,
+  `q3` tinyint(1) DEFAULT NULL,
+  `q4` tinyint(1) DEFAULT NULL,
+  `q5` tinyint(1) DEFAULT NULL,
+  `q6` tinyint(1) DEFAULT NULL,
+  `q7` tinyint(1) DEFAULT NULL,
+  `q8` tinyint(1) DEFAULT NULL,
+  `q9` tinyint(1) DEFAULT NULL,
+  `q10` tinyint(1) DEFAULT NULL,
+  `q11` tinyint(1) DEFAULT NULL,
+  `q12` tinyint(1) DEFAULT NULL,
+  `q13` tinyint(1) DEFAULT NULL,
+  `q14` tinyint(1) DEFAULT NULL,
+  `q15` tinyint(1) DEFAULT NULL,
+  `q16` tinyint(1) DEFAULT NULL,
+  `q17` tinyint(1) DEFAULT NULL,
+  `q18` tinyint(1) DEFAULT NULL,
+  `q19` tinyint(1) DEFAULT NULL,
+  `q20` tinyint(1) DEFAULT NULL,
+  `q21` tinyint(1) DEFAULT NULL,
+  `q22` tinyint(1) DEFAULT NULL,
+  `q23` tinyint(1) DEFAULT NULL,
+  `q24` tinyint(1) DEFAULT NULL,
+  `q25` tinyint(1) DEFAULT NULL,
+  `porcentaje_resultado` decimal(5,2) DEFAULT NULL,
+  PRIMARY KEY (`id_evaluacion`),
+  KEY `id_empresa` (`id_empresa`),
+  CONSTRAINT `tb_evaluacion_cadena_valor_ibfk_1` FOREIGN KEY (`id_empresa`) REFERENCES `tb_empresa` (`id_empresa`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+
+
 -- Insertar datos en cada tabla para la empresa con id_empresa = 1
 
 -- Fortalezas

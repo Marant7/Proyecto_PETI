@@ -11,7 +11,7 @@ if (!isset($_SESSION['user_id'])) {
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Valores</title>
+  <title>Cadena de Valor</title>
   <link rel="stylesheet" href="../public/css/valores.css">
   <link rel="stylesheet" href="../public/css/normalize.css">
 		<link rel="stylesheet" href="../public/css/sweetalert2.css">
@@ -77,7 +77,7 @@ if (!isset($_SESSION['user_id'])) {
             4=En total acuerdo. En caso de no cumplimentar una casilla o duplicar su respuesta le aparecerá el mensaje de error ("¡REF!)</h8>
             <br>
 
-            <form id="evaluationForm">
+            <form id="evaluationForm" action="../controlador/ControladorCadenaValor.php" method="POST">
                 <table>
                     <thead>
                         <tr class="header-row">
@@ -302,47 +302,15 @@ if (!isset($_SESSION['user_id'])) {
                 </table>
             </form>
 
-            <div class="fortalezas-debilidades">
-                <table>
-                    <tr>
-                        <th colspan="2">FORTALEZAS</th>
-                    </tr>
-                    <tr>
-                        <td>F1)</td>
-                        <td><input type="text" style="width: 95%;"></td>
-                    </tr>
-                    <tr>
-                        <td>F2)</td>
-                        <td><input type="text" style="width: 95%;"></td>
-                    </tr>
-                </table>
-                
-                <table>
-                    <tr>
-                        <th colspan="2">DEBILIDADES</th>
-                    </tr>
-                    <tr>
-                        <td>D1)</td>
-                        <td><input type="text" style="width: 95%;"></td>
-                    </tr>
-                    <tr>
-                        <td>D2)</td>
-                        <td><input type="text" style="width: 95%;"></td>
-                    </tr>
-                </table>
-            </div>
-
             <div class="buttons">
-                <button type="button" id="calculateBtn">CÁLCULO DE VALOR</button>
-                <button type="reset" id="resetBtn">BORRAR</button>
+                <button type="button" id="calculateButton">Calcular Valor</button>
+                <button type="submit" class="btn btn-primary">Enviar Evaluación</button>
             </div>
+            <br>
 
         </div>
       </div>
     </div>
-
-
-
 
   </div>
 
