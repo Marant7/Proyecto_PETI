@@ -324,6 +324,49 @@ if (!isset($_SESSION['user_id'])) {
 <script>
 
 document.addEventListener("DOMContentLoaded", function() {
+    // Función para cargar respuestas guardadas si existen
+    function cargarRespuestasGuardadas() {
+        fetch("../Controllers/obtener_respuestas.php")
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error en la respuesta del servidor');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success && data.data) {
+                    const evaluacion = data.data;
+                    
+                    // Marcar las respuestas guardadas
+                    for (let i = 1; i <= 25; i++) {
+                        const valor = evaluacion[`q${i}`];
+                        if (valor !== null) {
+                            const radio = document.querySelector(`input[name="q${i}"][value="${valor}"]`);
+                            if (radio) {
+                                radio.checked = true;
+                            }
+                        }
+                    }
+                    
+                    // Mostrar el porcentaje guardado
+                    if (evaluacion.porcentaje_resultado !== null) {
+                        document.getElementById("result-percentage").textContent = 
+                            evaluacion.porcentaje_resultado + "%";
+                    }
+                    
+                    console.log("Respuestas cargadas exitosamente");
+                } else if (data.message) {
+                    console.log(data.message);
+                }
+            })
+            .catch(error => {
+                console.error("Error al cargar respuestas:", error);
+            });
+    }
+    
+    // Intentar cargar respuestas al iniciar la página
+    cargarRespuestasGuardadas();
+    
     // Función para calcular el porcentaje basado en las respuestas seleccionadas
     function calcularPorcentaje() {
         const inputs = document.querySelectorAll('input[type="radio"]:checked');
@@ -346,7 +389,6 @@ document.addEventListener("DOMContentLoaded", function() {
         
         // Calcular porcentaje (100 - porcentaje de mejora)
         // Valor máximo posible: 25 preguntas * 4 puntos = 100
-        // La fórmula sería: (total obtenido / total posible) * 100
         const porcentajeMejora = Math.round((1 - (total / 100)) * 100);
         return porcentajeMejora;
     }
@@ -359,19 +401,23 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
     
+    // Modificamos el formulario para incluir un campo oculto para el porcentaje
+    const form = document.getElementById("evaluationForm");
+    const porcentajeInput = document.createElement("input");
+    porcentajeInput.type = "hidden";
+    porcentajeInput.name = "porcentaje";
+    form.appendChild(porcentajeInput);
+    
     // Asignar evento al botón "Enviar evaluación"
     document.querySelector(".buttons button[type='submit']").addEventListener("click", function(e) {
         e.preventDefault(); // Prevenir el comportamiento por defecto del botón
         
         // Verificar que todas las preguntas tengan respuesta
-        const respuestas = [];
         let todasRespondidas = true;
         
         for (let i = 1; i <= 25; i++) {
             const selected = document.querySelector(`input[name="q${i}"]:checked`);
-            if (selected) {
-                respuestas.push(parseInt(selected.value));
-            } else {
+            if (!selected) {
                 todasRespondidas = false;
                 Swal.fire({
                     icon: 'error',
@@ -387,16 +433,8 @@ document.addEventListener("DOMContentLoaded", function() {
         const porcentaje = calcularPorcentaje();
         if (porcentaje === null) return;
         
-        // Crear un objeto FormData para enviar los datos
-        const formData = new FormData();
-        
-        // Agregar cada respuesta individualmente
-        respuestas.forEach((valor, index) => {
-            formData.append(`q${index+1}`, valor);
-        });
-        
-        // Agregar el porcentaje calculado
-        formData.append('porcentaje', porcentaje);
+        // Actualizar el campo oculto con el porcentaje calculado
+        porcentajeInput.value = porcentaje;
         
         // Mostrar indicador de carga
         Swal.fire({
@@ -405,46 +443,21 @@ document.addEventListener("DOMContentLoaded", function() {
             allowOutsideClick: false,
             didOpen: () => {
                 Swal.showLoading();
+                
+                // Enviar el formulario de manera tradicional
+                form.submit();
+                
+                // Añadir un timeout para cerrar el indicador de carga después de algunos segundos
+                // ya que no podemos capturar la respuesta con este método
+                setTimeout(() => {
+                    Swal.close();
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Formulario enviado',
+                        text: 'El formulario ha sido enviado al servidor.'
+                    });
+                }, 3000);
             }
-        });
-        
-        // Enviar datos al controlador - Usar la misma URL del action del formulario
-        fetch(document.getElementById("evaluationForm").action, {
-            method: "POST",
-            body: formData
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Error en la respuesta del servidor: ' + response.status);
-            }
-            return response.json();
-        })
-        .then(data => {
-            Swal.close(); // Cerrar indicador de carga
-            
-            if (data.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Éxito',
-                    text: 'Evaluación guardada correctamente'
-                });
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: data.error || 'Error al guardar la evaluación'
-                });
-                console.error('Error del servidor:', data.error);
-            }
-        })
-        .catch(error => {
-            Swal.close(); // Cerrar indicador de carga
-            console.error("Error en la solicitud:", error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Ocurrió un error al procesar la solicitud: ' + error.message
-            });
         });
     });
 });
