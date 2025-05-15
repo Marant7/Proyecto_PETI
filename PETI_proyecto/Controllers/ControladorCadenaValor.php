@@ -4,68 +4,85 @@ header('Content-Type: application/json');
 require_once "../Models/ClsCadenaValor.php";
 session_start();
 
-class ControladorCadenaValor
-{
+class ControladorCadenaValor {
     private $modelo;
-
-    public function __construct()
-    {
+    
+    public function __construct() {
         $this->modelo = new ClsCadenaValor();
     }
-
-    public function guardar()
-    {
+    
+    public function guardar() {
+        // Verificar autenticación
         if (!isset($_SESSION['user_id'])) {
+            error_log("Error: Usuario no autenticado");
             echo json_encode(["success" => false, "error" => "Usuario no autenticado."]);
             exit();
         }
-
-        if (!isset($_POST['respuestas']) || !is_array($_POST['respuestas'])) {
-            echo json_encode(["success" => false, "error" => "No se han recibido respuestas válidas."]);
-            exit();
-        }
-
-        $respuestas = $_POST['respuestas'];
+        
         $id_usuario = $_SESSION['user_id'];
-
-        if (count($respuestas) !== 25) {
-            echo json_encode(["success" => false, "error" => "Debe haber exactamente 25 respuestas."]);
-            exit();
-        }
-
-        // Verificar que todas las respuestas sean valores enteros válidos entre 1 y 5 (por ejemplo)
-        foreach ($respuestas as $r) {
-            if (!is_numeric($r) || $r < 1 || $r > 5) {
-                echo json_encode(["success" => false, "error" => "Las respuestas deben ser números válidos entre 1 y 5."]);
+        
+        try {
+            // Log para depuración
+            error_log("Datos recibidos: " . print_r($_POST, true));
+            
+            // Verificar que las preguntas existan en el POST
+            $respuestas = [];
+            for ($i = 1; $i <= 25; $i++) {
+                if (isset($_POST["q$i"])) {
+                    $respuestas["q$i"] = intval($_POST["q$i"]);
+                } else {
+                    error_log("Falta respuesta a la pregunta $i");
+                    echo json_encode(["success" => false, "error" => "Faltan respuestas a todas las preguntas."]);
+                    exit();
+                }
+            }
+            
+            // Verificar si existe el porcentaje
+            if (isset($_POST['porcentaje'])) {
+                $porcentaje = floatval($_POST['porcentaje']);
+            } else {
+                error_log("Falta el porcentaje");
+                echo json_encode(["success" => false, "error" => "Falta el porcentaje de evaluación."]);
                 exit();
             }
+            
+            // Obtener el ID de la empresa asociada al usuario
+            require_once __DIR__ . '/../config/clsconexion.php';
+            $conexion = (new clsConexion())->getConexion();
+            
+            $stmt = $conexion->prepare("SELECT id_empresa FROM tb_empresa WHERE id_usuario = ?");
+            $stmt->bind_param("i", $id_usuario);
+            $stmt->execute();
+            $resultado = $stmt->get_result();
+            
+            if ($fila = $resultado->fetch_assoc()) {
+                $id_empresa = $fila['id_empresa'];
+                
+                // Llamar al modelo para guardar los datos
+                $resultado = $this->modelo->guardarEvaluacion($id_empresa, $respuestas, $porcentaje);
+                
+                if ($resultado) {
+                    echo json_encode(["success" => true, "porcentaje" => $porcentaje]);
+                } else {
+                    error_log("Error al guardar la evaluación");
+                    echo json_encode(["success" => false, "error" => "Error al guardar la evaluación."]);
+                }
+            } else {
+                error_log("No se encontró la empresa del usuario");
+                echo json_encode(["success" => false, "error" => "No se encontró la empresa del usuario."]);
+            }
+        } catch (Exception $e) {
+            error_log("Excepción: " . $e->getMessage());
+            echo json_encode(["success" => false, "error" => "Error: " . $e->getMessage()]);
         }
-
-        // Convertir a enteros y calcular el porcentaje
-        $respuestas = array_map('intval', $respuestas);
-        $porcentaje = array_sum($respuestas) * 4; // ejemplo: escala de 1-5 y se multiplica por 4 para llevar a porcentaje
-
-        require_once __DIR__ . '/../config/clsconexion.php';
-        $conexion = (new clsConexion())->getConexion();
-
-        $stmt = $conexion->prepare("SELECT id_empresa FROM tb_empresa WHERE id_usuario = ?");
-        $stmt->bind_param("i", $id_usuario);
-        $stmt->execute();
-        $resultado = $stmt->get_result();
-
-        if ($fila = $resultado->fetch_assoc()) {
-            $id_empresa = $fila['id_empresa'];
-            $this->modelo->guardarEvaluacion($id_empresa, $respuestas, $porcentaje);
-            echo json_encode(["success" => true, "porcentaje" => $porcentaje]);
-        } else {
-            echo json_encode(["success" => false, "error" => "No se encontró la empresa del usuario."]);
-        }
-
+        
         exit();
     }
 }
 
+// Ejecutar cuando se recibe una solicitud POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $controlador = new ControladorCadenaValor();
     $controlador->guardar();
 }
+?>

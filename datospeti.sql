@@ -166,7 +166,7 @@ CREATE TABLE IF NOT EXISTS `tb_amenazas` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 
-CREATE TABLE IF NOT EXISTS `tb_evaluacion_cadena_valor` (
+CREATE TABLE IF NOT EXISTS `tb_cadena_valor` (
   `id_evaluacion` int(11) NOT NULL AUTO_INCREMENT,
   `id_empresa` int(11) NOT NULL,
   `fecha_evaluacion` datetime DEFAULT CURRENT_TIMESTAMP,
