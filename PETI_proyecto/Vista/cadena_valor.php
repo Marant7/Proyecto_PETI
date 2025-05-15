@@ -27,7 +27,6 @@ if (!isset($_SESSION['user_id'])) {
 		<script src="../public/js/jquery.mCustomScrollbar.concat.min.js"></script>
 		<script src="../public/js/main.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        <script src="../public/js/valores.js"></script>
 
 </head>
 <body>
@@ -408,6 +407,13 @@ document.addEventListener("DOMContentLoaded", function() {
     porcentajeInput.name = "porcentaje";
     form.appendChild(porcentajeInput);
     
+    // Añadimos un campo oculto para indicar redirección
+    const redirectInput = document.createElement("input");
+    redirectInput.type = "hidden";
+    redirectInput.name = "redirect";
+    redirectInput.value = "true";
+    form.appendChild(redirectInput);
+    
     // Asignar evento al botón "Enviar evaluación"
     document.querySelector(".buttons button[type='submit']").addEventListener("click", function(e) {
         e.preventDefault(); // Prevenir el comportamiento por defecto del botón
@@ -444,19 +450,46 @@ document.addEventListener("DOMContentLoaded", function() {
             didOpen: () => {
                 Swal.showLoading();
                 
-                // Enviar el formulario de manera tradicional
-                form.submit();
+                // Crear un objeto FormData con los datos del formulario
+                const formData = new FormData(form);
                 
-                // Añadir un timeout para cerrar el indicador de carga después de algunos segundos
-                // ya que no podemos capturar la respuesta con este método
-                setTimeout(() => {
+                // Enviar los datos mediante fetch
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
                     Swal.close();
+                    
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: '¡Valores guardados!',
+                            text: 'Serás redirigido a la página principal.',
+                            timer: 2000,
+                            showConfirmButton: false
+                        }).then(() => {
+                            // Redirección después de mostrar el mensaje
+                            window.location.href = "home.php";
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'No se pudo guardar los valores.'
+                        });
+                    }
+                })
+                .catch(error => {
+                    Swal.close();
+                    console.error('Error:', error);
                     Swal.fire({
-                        icon: 'info',
-                        title: 'Formulario enviado',
-                        text: 'El formulario ha sido enviado al servidor.'
+                        icon: 'error',
+                        title: 'Error de conexión',
+                        text: 'Ha ocurrido un error al enviar los datos.'
                     });
-                }, 3000);
+                });
             }
         });
     });
