@@ -1,0 +1,165 @@
+/* pest.css - Estilo para el cuestionario P.E.S.T */
+:root {
+    --primary-color: #3498db;
+    --secondary-color: #2980b9;
+    --text-color: #2c3e50;
+    --light-gray: #f5f5f5;
+    --white: #ffffff;
+    --border-color: #ddd;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: var(--text-color);
+    background-color: var(--light-gray);
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    color: var(--text-color);
+    text-align: center;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 3px solid var(--primary-color);
+    font-size: 28px;
+}
+
+form {
+    background-color: var(--white);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px var(--shadow-color);
+}
+
+.question-group {
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 2px dashed var(--primary-color);
+}
+
+.question-group:last-child {
+    border-bottom: none;
+}
+
+.group-title {
+    font-size: 22px;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    padding-left: 10px;
+    border-left: 5px solid var(--secondary-color);
+}
+
+.question-item {
+    margin-bottom: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background-color: var(--light-gray);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.question-item:hover {
+    background-color: #e8f4fc;
+    transform: translateY(-2px);
+}
+
+.question-text {
+    flex: 1;
+    min-width: 300px;
+    font-weight: 500;
+}
+
+.question-number {
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-right: 5px;
+}
+
+select {
+    padding: 10px 15px;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    background-color: var(--white);
+    font-size: 15px;
+    min-width: 220px;
+    cursor: pointer;
+    transition: all 0.3s;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232c3e50' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 15px;
+}
+
+select:hover {
+    border-color: var(--primary-color);
+}
+
+select:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+}
+
+input[type="submit"] {
+    display: block;
+    width: 250px;
+    padding: 12px;
+    margin: 40px auto 10px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+input[type="submit"]:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 10px var(--shadow-color);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .question-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    select {
+        width: 100%;
+    }
+    
+    body {
+        padding: 10px;
+    }
+    
+    form {
+        padding: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 24px;
+    }
+    
+    .group-title {
+        font-size: 20px;
+    }
+    
+    .question-text {
+        font-size: 15px;
+    }
+}
