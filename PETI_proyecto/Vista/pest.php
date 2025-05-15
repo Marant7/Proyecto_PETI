@@ -425,6 +425,7 @@ if (!isset($_SESSION['user_id'])) {
     <div id="economic-eval"></div>
     <div id="social-eval"></div>
     <div id="tech-eval"></div>
+    <div id="enviromental-eval"></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -594,6 +595,10 @@ function evaluateResults() {
         scores[3] >= 70 ?
         '<p class="high-impact">✓ Hay un notable impacto de factores tecnológicos en el funcionamiento de la empresa</p>' :
         '<p class="low-impact">✗ No hay un notable impacto de factores tecnológicos en el funcionamiento de la empresa</p>';
+     document.getElementById('enviromental-eval').innerHTML = 
+        scores[4] >= 70 ?
+        '<p class="high-impact">✓ Hay un notable impacto de factores medio ambientales en el funcionamiento de la empresa</p>' :
+        '<p class="low-impact">✗ No hay un notable impacto de factores medio ambientales en el funcionamiento de la empresa</p>';
 }
 
 
