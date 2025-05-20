@@ -18,7 +18,7 @@
 -- Volcando estructura de base de datos para appplanestrategico
 CREATE DATABASE IF NOT EXISTS `appplanestrategico` /*!40100 DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci */;
 USE `appplanestrategico`;
-\
+
 CREATE TABLE IF NOT EXISTS `tb_usuario` (
   `id_usuario` int(11) NOT NULL AUTO_INCREMENT,
   `nombre` varchar(100) DEFAULT NULL,
@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS `tb_usuario` (
   PRIMARY KEY (`id_usuario`),
   UNIQUE KEY `usuario` (`usuario`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
 -- Volcando estructura para tabla appplanestrategico.tb_empresa
 CREATE TABLE IF NOT EXISTS `tb_empresa` (
   `id_empresa` int(11) NOT NULL AUTO_INCREMENT,
@@ -56,7 +57,8 @@ CREATE TABLE IF NOT EXISTS `tb_obj_estra` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 -- Volcando datos para la tabla appplanestrategico.tb_obj_estra: ~0 rows (aproximadamente)
--- Volcando estructura para la tabla appplanestrategico.tb_obj_especificos
+
+-- Volcando estructura para tabla appplanestrategico.tb_obj_especificos
 CREATE TABLE IF NOT EXISTS `tb_obj_especificos` (
   `id_obj_espe` int(11) NOT NULL AUTO_INCREMENT,
   `descripcion_espe` text DEFAULT NULL,
@@ -79,11 +81,6 @@ CREATE TABLE IF NOT EXISTS `tb_uen` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 -- Volcando datos para la tabla appplanestrategico.tb_uen: ~0 rows (aproximadamente)
-
--- Volcando estructura para tabla appplanestrategico.tb_usuario
-
-
--- Volcando datos para la tabla appplanestrategico.tb_usuario: ~0 rows (aproximadamente)
 
 -- Volcando estructura para tabla appplanestrategico.tb_valores
 CREATE TABLE IF NOT EXISTS `tb_valores` (
@@ -119,7 +116,7 @@ INSERT INTO `tb_obj_especificos` (`descripcion_espe`, `id_obj_estra`)
 VALUES
 ('asdasdasd', 1);
 
-SELECT * FROM tb_obj_especificos
+SELECT * FROM tb_obj_especificos;
 
 -- Tabla de Fortalezas
 CREATE TABLE IF NOT EXISTS `tb_fortalezas` (
@@ -165,7 +162,6 @@ CREATE TABLE IF NOT EXISTS `tb_amenazas` (
   CONSTRAINT `tb_amenazas_ibfk_1` FOREIGN KEY (`id_empresa`) REFERENCES `tb_empresa` (`id_empresa`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
-
 CREATE TABLE IF NOT EXISTS `tb_cadena_valor` (
   `id_evaluacion` int(11) NOT NULL AUTO_INCREMENT,
   `id_empresa` int(11) NOT NULL,
@@ -200,8 +196,6 @@ CREATE TABLE IF NOT EXISTS `tb_cadena_valor` (
   KEY `id_empresa` (`id_empresa`),
   CONSTRAINT `tb_evaluacion_cadena_valor_ibfk_1` FOREIGN KEY (`id_empresa`) REFERENCES `tb_empresa` (`id_empresa`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
-
-
 
 -- Insertar datos en cada tabla para la empresa con id_empresa = 1
 
