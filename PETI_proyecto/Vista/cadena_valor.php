@@ -73,7 +73,7 @@ if (!isset($_SESSION['user_id'])) {
           <h2>Cadena de Valor</h2>
           <h8>A continuación marque con una X para valorar su empresa en función de cada una de las afirmaciones, 
             de tal forma que 0= En total en desacuerdo; 1= No está de acuerdo; 2=Está de acuerdo; 3= Está bastante de acuerdo; 
-            4=En total acuerdo. En caso de no cumplimentar una casilla o duplicar su respuesta le aparecerá el mensaje de error ("¡REF!)</h8>
+            4=En total acuerdo. En caso de no cumplimentar una casilla o duplicar su respuesta le aparecerá el mensaje de error</h8>
             <br>
 
             <form id="evaluationForm" action="../Controllers/ControladorCadenaValor.php" method="POST">
@@ -299,7 +299,16 @@ if (!isset($_SESSION['user_id'])) {
                         </tr>
                     </tbody>
                 </table>
+
+            <div class="buttons">
+                <label class="mdl-textfield__label" for="password">Reflexione sobre el resultado obtenido. Anote aquellas observaciones que puedan ser de su interés. 
+                    Identifique sus fortalezas y debilidades respecto a su cadena de valor </label>
+                <input type="text" id="password" class="mdl-textfield__input" name="password">
+            </div>
+
             </form>
+
+
 
             <div class="buttons">
                 <button type="button" id="btn-calcular" class="btn btn-primary">Calcular</button>

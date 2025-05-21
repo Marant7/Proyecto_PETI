@@ -1,24 +1,6 @@
--- --------------------------------------------------------
--- Host:                         127.0.0.1
--- Versión del servidor:         10.4.27-MariaDB - mariadb.org binary distribution
--- SO del servidor:              Win64
--- HeidiSQL Versión:             12.4.0.6659
--- --------------------------------------------------------
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET NAMES utf8 */;
-/*!50503 SET NAMES utf8mb4 */;
-/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
-/*!40103 SET TIME_ZONE='+00:00' */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-
-
--- Volcando estructura de base de datos para appplanestrategico
 CREATE DATABASE IF NOT EXISTS `appplanestrategico` /*!40100 DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci */;
 USE `appplanestrategico`;
-
+\
 CREATE TABLE IF NOT EXISTS `tb_usuario` (
   `id_usuario` int(11) NOT NULL AUTO_INCREMENT,
   `nombre` varchar(100) DEFAULT NULL,
@@ -29,7 +11,6 @@ CREATE TABLE IF NOT EXISTS `tb_usuario` (
   PRIMARY KEY (`id_usuario`),
   UNIQUE KEY `usuario` (`usuario`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
-
 -- Volcando estructura para tabla appplanestrategico.tb_empresa
 CREATE TABLE IF NOT EXISTS `tb_empresa` (
   `id_empresa` int(11) NOT NULL AUTO_INCREMENT,
@@ -57,8 +38,7 @@ CREATE TABLE IF NOT EXISTS `tb_obj_estra` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 -- Volcando datos para la tabla appplanestrategico.tb_obj_estra: ~0 rows (aproximadamente)
-
--- Volcando estructura para tabla appplanestrategico.tb_obj_especificos
+-- Volcando estructura para la tabla appplanestrategico.tb_obj_especificos
 CREATE TABLE IF NOT EXISTS `tb_obj_especificos` (
   `id_obj_espe` int(11) NOT NULL AUTO_INCREMENT,
   `descripcion_espe` text DEFAULT NULL,
@@ -81,6 +61,11 @@ CREATE TABLE IF NOT EXISTS `tb_uen` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 -- Volcando datos para la tabla appplanestrategico.tb_uen: ~0 rows (aproximadamente)
+
+-- Volcando estructura para tabla appplanestrategico.tb_usuario
+
+
+-- Volcando datos para la tabla appplanestrategico.tb_usuario: ~0 rows (aproximadamente)
 
 -- Volcando estructura para tabla appplanestrategico.tb_valores
 CREATE TABLE IF NOT EXISTS `tb_valores` (
@@ -116,7 +101,7 @@ INSERT INTO `tb_obj_especificos` (`descripcion_espe`, `id_obj_estra`)
 VALUES
 ('asdasdasd', 1);
 
-SELECT * FROM tb_obj_especificos;
+SELECT * FROM tb_obj_especificos
 
 -- tabla de pest
 CREATE TABLE `tb_respuestas_pest` (
@@ -208,6 +193,8 @@ CREATE TABLE IF NOT EXISTS `tb_amenazas` (
   CONSTRAINT `tb_amenazas_ibfk_1` FOREIGN KEY (`id_empresa`) REFERENCES `tb_empresa` (`id_empresa`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
+
+
 CREATE TABLE IF NOT EXISTS `tb_cadena_valor` (
   `id_evaluacion` int(11) NOT NULL AUTO_INCREMENT,
   `id_empresa` int(11) NOT NULL,
@@ -237,6 +224,7 @@ CREATE TABLE IF NOT EXISTS `tb_cadena_valor` (
   `q23` tinyint(1) DEFAULT NULL,
   `q24` tinyint(1) DEFAULT NULL,
   `q25` tinyint(1) DEFAULT NULL,
+  `resultado` text NOT NULL,
   `porcentaje_resultado` decimal(5,2) DEFAULT NULL,
   PRIMARY KEY (`id_evaluacion`),
   KEY `id_empresa` (`id_empresa`),
@@ -264,11 +252,3 @@ INSERT INTO `tb_debilidades` (`id_empresa`, `descripcion`) VALUES
 INSERT INTO `tb_amenazas` (`id_empresa`, `descripcion`) VALUES
 (1, 'Entrada de competidores internacionales'),
 (1, 'Cambios en regulaciones del sector');
-
--- Volcando datos para la tabla appplanestrategico.tb_valores: ~0 rows (aproximadamente)
-
-/*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
-/*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
-/*!40014 SET FOREIGN_KEY_CHECKS=IFNULL(@OLD_FOREIGN_KEY_CHECKS, 1) */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40111 SET SQL_NOTES=IFNULL(@OLD_SQL_NOTES, 1) */;

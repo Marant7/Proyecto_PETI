@@ -66,7 +66,7 @@
 			<i class="zmdi zmdi-balance-wallet tile-icon"></i>
 		</article>
 
-		<article class="full-width tile" onclick="window.location.href='estrategia.php';" style="cursor: pointer;">
+		<article class="full-width tile" onclick="window.location.href='identificacion_estrategia.php';" style="cursor: pointer;">
 			<div class="tile-text">
 				<span class="text-condensedLight">10<br><small>IDENTIFICACIÓN ESTRATEGIA</small></span>
 			</div>
