@@ -243,6 +243,18 @@ CREATE TABLE IF NOT EXISTS `tb_cadena_valor` (
   CONSTRAINT `tb_evaluacion_cadena_valor_ibfk_1` FOREIGN KEY (`id_empresa`) REFERENCES `tb_empresa` (`id_empresa`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
+
+CREATE TABLE IF NOT EXISTS tb_came (
+  id_came INT(11) NOT NULL AUTO_INCREMENT,
+  id_empresa INT(11) NOT NULL,
+  tipo ENUM('C','A','M','E') NOT NULL, -- Corregir, Afrontar, Mantener, Explotar
+  id_factor INT(11) NOT NULL,          -- FK a tabla correspondiente
+  descripcion_accion TEXT NOT NULL,
+  fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id_came),
+  KEY id_empresa (id_empresa),
+  FOREIGN KEY (id_empresa) REFERENCES tb_empresa(id_empresa) ON DELETE CASCADE
+);
 -- Insertar datos en cada tabla para la empresa con id_empresa = 1
 
 -- Fortalezas

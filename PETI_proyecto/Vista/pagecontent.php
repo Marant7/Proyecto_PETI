@@ -73,7 +73,7 @@
 			<i class="zmdi zmdi-check tile-icon"></i>
 		</article>
 
-		<article class="full-width tile" onclick="window.location.href='matriz_came.php';" style="cursor: pointer;">
+		<article class="full-width tile" onclick="window.location.href='came_formulario.php';" style="cursor: pointer;">
 			<div class="tile-text">
 				<span class="text-condensedLight">11<br><small>MATRIZ CAME</small></span>
 			</div>

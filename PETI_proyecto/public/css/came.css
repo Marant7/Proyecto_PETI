@@ -1,0 +1,87 @@
+/* came.css */
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f4f7f8;
+  margin: 20px;
+  color: #2c3e50;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 30px;
+  font-weight: 700;
+  font-size: 2em;
+  color: #34495e;
+}
+
+form {
+  max-width: 900px;
+  margin: 0 auto;
+  background: #fff;
+  padding: 25px 35px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgb(0 0 0 / 0.1);
+}
+
+h3 {
+  margin-top: 40px;
+  margin-bottom: 15px;
+  border-bottom: 3px solid #3498db;
+  padding-bottom: 6px;
+  color: #2980b9;
+  font-weight: 600;
+}
+
+p {
+  font-weight: 600;
+  margin-bottom: 6px;
+  font-size: 1rem;
+  color: #2c3e50;
+}
+
+textarea {
+  width: 100%;
+  min-height: 75px;
+  border: 1.5px solid #bdc3c7;
+  border-radius: 6px;
+  padding: 10px 15px;
+  font-size: 1rem;
+  resize: vertical;
+  transition: border-color 0.3s ease;
+  margin-bottom: 20px;
+  font-family: inherit;
+}
+
+textarea:focus {
+  outline: none;
+  border-color: #2980b9;
+  background-color: #eaf3fc;
+}
+
+button[type="submit"] {
+  background-color: #2980b9;
+  color: white;
+  border: none;
+  padding: 15px 35px;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  display: block;
+  margin: 30px auto 0 auto;
+}
+
+button[type="submit"]:hover {
+  background-color: #1f5f8b;
+}
+
+@media (max-width: 600px) {
+  form {
+    padding: 20px 15px;
+  }
+  button[type="submit"] {
+    width: 100%;
+  }
+}
