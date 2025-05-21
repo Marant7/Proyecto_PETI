@@ -1,0 +1,43 @@
+/* Mejoramos la apariencia del botón de envío */
+.btn-pest-submit {
+    display: inline-block;
+    padding: 12px 25px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    margin-top: 20px;
+    text-transform: uppercase;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.btn-pest-submit:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.text-center {
+    text-align: center;
+}
+
+/* Aseguramos que el select ocupe el espacio adecuado en dispositivos móviles */
+@media screen and (max-width: 767px) {
+    .question-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    select {
+        width: 100%;
+        flex: 1;
+    }
+    
+    .question-text {
+        margin-bottom: 10px;
+    }
+}

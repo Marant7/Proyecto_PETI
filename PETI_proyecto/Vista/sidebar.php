@@ -118,7 +118,7 @@
 				<li class="full-width divider-menu-h"></li>
 
 				<li class="full-width">
-					<a href="pest.php" class="full-width">
+					<a href="pest_nuevo.php" class="full-width">
 						<div class="navLateral-body-cl">
 							<i class="zmdi zmdi-balance-wallet"></i>
 						</div>

@@ -59,7 +59,7 @@
 			<i class="zmdi zmdi-accounts-list-alt tile-icon"></i>
 		</article>
 
-		<article class="full-width tile" onclick="window.location.href='pest.php';" style="cursor: pointer;">
+		<article class="full-width tile" onclick="window.location.href='pest_nuevo.php';" style="cursor: pointer;">
 			<div class="tile-text">
 				<span class="text-condensedLight">9<br><small>PEST</small></span>
 			</div>
