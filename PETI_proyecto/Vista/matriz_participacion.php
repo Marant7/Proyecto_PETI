@@ -245,66 +245,65 @@ $db = $conexion->getConexion();
 
 <div style="overflow-x:auto;">
     <table class="mdl-data-table mdl-js-data-table full-width" id="tablaTCM">
-        <thead>
-            <tr>
-                <th>PERIODO</th>
-                <th>Producto 1</th>
-                <th>Producto 2</th>
-                <th>Producto 3</th>
-                <th>Producto 4</th>
-                <th>Producto 5</th>
-            </tr>
+        <thead id="theadTCM">
+            <!-- Se llenará dinámicamente -->
         </thead>
         <tbody id="cuerpoTCM">
             <!-- Se llenará dinámicamente -->
         </tbody>
     </table>
 </div>
-    </div>
+</div>
 
-    <div>
-        <hr style="margin: 40px 0;">
+<div>
+<hr style="margin: 40px 0;">
 <h4 class="text-center">CUADRO BCG</h4>
 
 <div style="overflow-x:auto;">
     <table class="mdl-data-table mdl-js-data-table full-width" id="tablaBCG">
-        <thead>
-            <tr>
-                <th>BCG</th>
-                <th>Producto 1</th>
-                <th>Producto 2</th>
-                <th>Producto 3</th>
-                <th>Producto 4</th>
-                <th>Producto 5</th>
-            </tr>
+        <thead id="theadBCG">
+            <!-- Se llenará dinámicamente -->
         </thead>
-        <tbody>
-            <tr>
-                <td>TCM</td>
-                <td><input type="number" step="0.01" min="0" max="100" value="3.80" class="mdl-textfield__input" style="width: 70px;">%</td>
-                <td><input type="number" step="0.01" min="0" max="100" value="2.80" class="mdl-textfield__input" style="width: 70px;">%</td>
-                <td><input type="number" step="0.01" min="0" max="100" value="3.00" class="mdl-textfield__input" style="width: 70px;">%</td>
-                <td><input type="number" step="0.01" min="0" max="100" value="3.00" class="mdl-textfield__input" style="width: 70px;">%</td>
-                <td><input type="number" step="0.01" min="0" max="100" value="1.00" class="mdl-textfield__input" style="width: 70px;">%</td>
-            </tr>
-            <tr>
-                <td>PRM</td>
-                <td><input type="number" step="0.01" min="0" max="100" value="2.00" class="mdl-textfield__input" style="width: 70px;"></td>
-                <td><input type="number" step="0.01" min="0" max="100" value="5.00" class="mdl-textfield__input" style="width: 70px;"></td>
-                <td><input type="number" step="0.01" min="0" max="100" value="2.00" class="mdl-textfield__input" style="width: 70px;"></td>
-                <td><input type="number" step="0.01" min="0" max="100" value="2.00" class="mdl-textfield__input" style="width: 70px;"></td>
-                <td><input type="number" step="0.01" min="0" max="100" value="2.00" class="mdl-textfield__input" style="width: 70px;"></td>
-            </tr>
-            <tr>
-                <td>% S/VTAS</td>
-                <td><input type="number" step="0.01" min="0" max="100" value="20" class="mdl-textfield__input" style="width: 70px;">%</td>
-                <td><input type="number" step="0.01" min="0" max="100" value="1" class="mdl-textfield__input" style="width: 70px;">%</td>
-                <td><input type="number" step="0.01" min="0" max="100" value="78" class="mdl-textfield__input" style="width: 70px;">%</td>
-                <td><input type="number" step="0.01" min="0" max="100" value="0" class="mdl-textfield__input" style="width: 70px;">%</td>
-                <td><input type="number" step="0.01" min="0" max="100" value="0" class="mdl-textfield__input" style="width: 70px;">%</td>
-            </tr>
+        <tbody id="tbodyBCG">
+            <!-- Se llenará dinámicamente -->
         </tbody>
     </table>
+</div>
+</div>
+
+<div style="overflow-x:auto;">
+<hr style="margin: 40px 0;">
+<h4 class="text-center">EVOLUCIÓN DE LA DEMANDA GLOBAL SECTOR (en miles de soles)</h4>
+
+    <div class="text-center" style="margin-bottom: 20px;">
+        <button id="generarTablaDemanda" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">
+            Generar Tabla de Demanda Global
+        </button>
+    </div>
+
+    <div style="overflow-x:auto;">
+        <table class="mdl-data-table mdl-js-data-table full-width" id="tablaDemanda">
+            <thead id="theadDemanda"></thead>
+            <tbody id="tbodyDemanda"></tbody>
+        </table>
+    </div>
+
+</div>
+
+<div style="overflow-x:auto;">
+<hr style="margin: 40px 0;">
+<h4 class="text-center">NIVELES DE VENTA DE LOS COMPETIDORES DE CADA PRODUCTO</h4>
+
+<div id="contenedorNivelesCompetencia" style="display: flex; gap: 20px; overflow-x: auto; padding: 10px;">
+    <!-- Aquí se generarán dinámicamente las subtablas -->
+</div>
+
+<div class="text-center" style="margin-top: 20px;">
+    <button id="generarTablaCompetidores" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">
+        Generar Tabla de Competidores
+    </button>
+</div>
+
 </div>
 
     </div>
@@ -320,12 +319,36 @@ $db = $conexion->getConexion();
 </style>
 
 <script>
+// Variables globales
 let contadorProducto = 1;
-const cuerpo = document.getElementById("cuerpoVentas");
+const cuerpoVentas = document.getElementById("cuerpoVentas");
 const totalVentasEl = document.getElementById("totalVentas");
 
+// Función para obtener el número actual de productos
+function getNumeroProductos() {
+    return cuerpoVentas.querySelectorAll("tr").length;
+}
+
+// Función para obtener los nombres de los productos
+function getNombresProductos() {
+    const productos = [];
+    cuerpoVentas.querySelectorAll("tr").forEach(fila => {
+        productos.push(fila.querySelector("td").textContent);
+    });
+    return productos;
+}
+
+// Función para actualizar todas las tablas dependientes
+function actualizarTodasLasTablas() {
+    actualizarTablaTCM();
+    actualizarTablaBCG();
+    actualizarTablaDemanda();
+    actualizarTablaCompetidores();
+}
+
+// ========== TABLA DE VENTAS ==========
 function actualizarPorcentajes() {
-    const filas = cuerpo.querySelectorAll("tr");
+    const filas = cuerpoVentas.querySelectorAll("tr");
     let total = 0;
 
     // Sumar ventas
@@ -344,6 +367,9 @@ function actualizarPorcentajes() {
         const porcentaje = total > 0 ? (valor / total * 100).toFixed(2) : "0.00";
         porcentajeEl.textContent = porcentaje + "%";
     });
+    
+    // Actualizar otras tablas cuando cambian las ventas
+    actualizarTodasLasTablas();
 }
 
 function agregarFila(valor = 0) {
@@ -355,7 +381,7 @@ function agregarFila(valor = 0) {
         <td><button class="mdl-button mdl-js-button mdl-button--icon btn-eliminar"><i class="zmdi zmdi-delete"></i></button></td>
     `;
 
-    cuerpo.appendChild(tr);
+    cuerpoVentas.appendChild(tr);
     contadorProducto++;
 
     // Agregar eventos
@@ -364,14 +390,16 @@ function agregarFila(valor = 0) {
         tr.remove();
         renombrarProductos();
         actualizarPorcentajes();
+        actualizarTodasLasTablas();
     });
 
-    componentHandler.upgradeDom(); // Actualizar estilos MDL
+    componentHandler.upgradeDom();
     actualizarPorcentajes();
+    actualizarTodasLasTablas();
 }
 
 function renombrarProductos() {
-    const filas = cuerpo.querySelectorAll("tr");
+    const filas = cuerpoVentas.querySelectorAll("tr");
     contadorProducto = 1;
     filas.forEach(fila => {
         fila.querySelector("td").textContent = "Producto " + contadorProducto;
@@ -379,36 +407,139 @@ function renombrarProductos() {
     });
 }
 
-document.getElementById("btnAgregarProducto").addEventListener("click", () => {
-    agregarFila();
-});
-
-// Inicializar con 5 productos
-for (let i = 0; i < 5; i++) {
-    agregarFila([500, 30, 2000, 10, 10][i]); // valores iniciales
-}
-</script>
-
-<script>
-function generarFilasTCM(inicio, fin) {
-    const cuerpo = document.getElementById("cuerpoTCM");
-    cuerpo.innerHTML = "";
+// ========== TABLA TCM ==========
+function actualizarTablaTCM() {
+    const inicio = parseInt(document.getElementById("anioInicio").value);
+    const fin = parseInt(document.getElementById("anioFin").value);
+    const cuerpoTCM = document.getElementById("cuerpoTCM");
+    const numProductos = getNumeroProductos();
+    
+    cuerpoTCM.innerHTML = "";
 
     for (let anio = inicio; anio <= fin; anio++) {
         const fila = document.createElement("tr");
-        fila.innerHTML = `
-            <td>${anio} - ${anio + 1}</td>
-            <td><input type="number" min="0" max="100" step="0.01" value="3.00" class="mdl-textfield__input" style="width: 70px;">%</td>
-            <td><input type="number" min="0" max="100" step="0.01" value="2.00" class="mdl-textfield__input" style="width: 70px;">%</td>
-            <td><input type="number" min="0" max="100" step="0.01" value="3.00" class="mdl-textfield__input" style="width: 70px;">%</td>
-            <td><input type="number" min="0" max="100" step="0.01" value="3.00" class="mdl-textfield__input" style="width: 70px;">%</td>
-            <td><input type="number" min="0" max="100" step="0.01" value="1.00" class="mdl-textfield__input" style="width: 70px;">%</td>
-        `;
-        cuerpo.appendChild(fila);
+        let celdas = `<td>${anio} - ${anio + 1}</td>`;
+        
+        for (let i = 0; i < numProductos; i++) {
+            celdas += `<td><input type="number" min="0" max="100" step="0.01" value="3.00" class="mdl-textfield__input" style="width: 70px;">%</td>`;
+        }
+        
+        fila.innerHTML = celdas;
+        cuerpoTCM.appendChild(fila);
     }
 
-    componentHandler.upgradeDom(); // Para que se apliquen los estilos MDL
+    // Actualizar encabezados
+    const theadTCM = document.querySelector("#tablaTCM thead");
+    theadTCM.innerHTML = `<tr><th>PERIODO</th>${getNombresProductos().map(p => `<th>${p}</th>`).join("")}</tr>`;
+
+    componentHandler.upgradeDom();
 }
+
+// ========== TABLA BCG ==========
+function actualizarTablaBCG() {
+    const tablaBCG = document.getElementById("tablaBCG");
+    const numProductos = getNumeroProductos();
+    
+    // Crear encabezados
+    tablaBCG.querySelector("thead").innerHTML = `
+        <tr>
+            <th>BCG</th>
+            ${getNombresProductos().map(p => `<th>${p}</th>`).join("")}
+        </tr>
+    `;
+    
+    // Crear cuerpo
+    tablaBCG.querySelector("tbody").innerHTML = `
+        <tr>
+            <td>TCM</td>
+            ${Array(numProductos).fill('<td><input type="number" step="0.01" min="0" max="100" value="3.00" class="mdl-textfield__input" style="width: 70px;">%</td>').join("")}
+        </tr>
+        <tr>
+            <td>PRM</td>
+            ${Array(numProductos).fill('<td><input type="number" step="0.01" min="0" max="100" value="2.00" class="mdl-textfield__input" style="width: 70px;"></td>').join("")}
+        </tr>
+        <tr>
+            <td>% S/VTAS</td>
+            ${Array(numProductos).fill('<td><input type="number" step="0.01" min="0" max="100" value="20" class="mdl-textfield__input" style="width: 70px;">%</td>').join("")}
+        </tr>
+    `;
+    
+    componentHandler.upgradeDom();
+}
+
+// ========== TABLA DEMANDA GLOBAL ==========
+function actualizarTablaDemanda() {
+    const inicio = parseInt(document.getElementById("anioInicio").value);
+    const fin = parseInt(document.getElementById("anioFin").value);
+    const theadDemanda = document.getElementById("theadDemanda");
+    const tbodyDemanda = document.getElementById("tbodyDemanda");
+    
+    theadDemanda.innerHTML = "";
+    tbodyDemanda.innerHTML = "";
+
+    // Crear encabezado
+    const headerRow = document.createElement("tr");
+    headerRow.innerHTML = `<th>AÑOS</th>${getNombresProductos().map(p => `<th>${p}</th>`).join("")}`;
+    theadDemanda.appendChild(headerRow);
+
+    // Crear filas por año
+    for (let anio = inicio; anio <= fin; anio++) {
+        const row = document.createElement("tr");
+        row.innerHTML = `<td>${anio}</td>${Array(getNumeroProductos()).fill('<td><input type="number" class="mdl-textfield__input" style="width: 80px;"></td>').join("")}`;
+        tbodyDemanda.appendChild(row);
+    }
+
+    componentHandler.upgradeDom();
+}
+
+// ========== TABLA COMPETIDORES ==========
+function actualizarTablaCompetidores() {
+    const contenedor = document.getElementById("contenedorNivelesCompetencia");
+    contenedor.innerHTML = "";
+
+    getNombresProductos().forEach((producto, index) => {
+        const productoNum = index + 1;
+
+        const tabla = document.createElement("table");
+        tabla.className = "mdl-data-table mdl-js-data-table";
+        tabla.style.minWidth = "200px";
+
+        tabla.innerHTML = `
+            <thead>
+                <tr>
+                    <th colspan="2" style="text-align: center;">${producto}</th>
+                </tr>
+                <tr>
+                    <th>EMPRESA</th>
+                    <th><input type="number" value="0" class="mdl-textfield__input" style="width: 70px;"></th>
+                </tr>
+                <tr>
+                    <th>Competidor</th>
+                    <th>Ventas</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${Array.from({ length: 9 }, (_, i) => `
+                    <tr>
+                        <td>${producto.substring(0,2)}-${i + 1}</td>
+                        <td><input type="number" class="mdl-textfield__input" style="width: 70px;"></td>
+                    </tr>
+                `).join("")}
+                <tr>
+                    <td><strong>Mayor</strong></td>
+                    <td><input type="number" value="0" class="mdl-textfield__input" style="width: 70px;"></td>
+                </tr>
+            </tbody>
+        `;
+
+        contenedor.appendChild(tabla);
+    });
+
+    componentHandler.upgradeDom();
+}
+
+// ========== EVENT LISTENERS ==========
+document.getElementById("btnAgregarProducto").addEventListener("click", agregarFila);
 
 document.getElementById("generarTablaTCM").addEventListener("click", () => {
     const inicio = parseInt(document.getElementById("anioInicio").value);
@@ -419,12 +550,16 @@ document.getElementById("generarTablaTCM").addEventListener("click", () => {
         return;
     }
 
-    generarFilasTCM(inicio, fin);
+    actualizarTablaTCM();
 });
 
-// Inicializar con datos por defecto
-generarFilasTCM(2012, 2016);
-</script>
+document.getElementById("generarTablaDemanda").addEventListener("click", actualizarTablaDemanda);
+document.getElementById("generarTablaCompetidores").addEventListener("click", actualizarTablaCompetidores);
 
+// Inicialización
+for (let i = 0; i < 5; i++) {
+    agregarFila([500, 30, 2000, 10, 10][i]);
+}
+</script>
 </body>
 </html>

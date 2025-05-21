@@ -264,3 +264,27 @@ INSERT INTO `tb_debilidades` (`id_empresa`, `descripcion`) VALUES
 INSERT INTO `tb_amenazas` (`id_empresa`, `descripcion`) VALUES
 (1, 'Entrada de competidores internacionales'),
 (1, 'Cambios en regulaciones del sector');
+
+CREATE TABLE tb_venta (
+    id_venta INT(11) NOT NULL AUTO_INCREMENT,
+    id_empresa INT(11) NOT NULL,
+    nombre_producto VARCHAR(20) NOT NULL,
+    prevision_ventas INT(11) NOT NULL,
+    PRIMARY KEY (id_venta),
+    KEY id_empresa (id_empresa),
+    CONSTRAINT tb_venta_ibfk_1 FOREIGN KEY (id_empresa) REFERENCES tb_empresa (id_empresa) ON DELETE CASCADE
+);
+
+CREATE TABLE tb_tcm (
+    id_tcm INT(11) NOT NULL AUTO_INCREMENT,
+    id_empresa INT(11) NOT NULL,
+    id_venta INT(11) NOT NULL,
+    
+    PRIMARY KEY (id_tcm),
+    
+    KEY idx_empresa (id_empresa),
+    KEY idx_venta (id_venta),
+    
+    CONSTRAINT fk_tcm_empresa FOREIGN KEY (id_empresa) REFERENCES tb_empresa (id_empresa) ON DELETE CASCADE,
+    CONSTRAINT fk_tcm_venta FOREIGN KEY (id_venta) REFERENCES tb_venta (id_venta) ON DELETE CASCADE
+);
