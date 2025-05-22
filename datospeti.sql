@@ -142,10 +142,34 @@ AUTO_INCREMENT=3
 ;
 
 
-
-
-
-
+-- Volcando estructura para tabla appplanestrategico.tb_fuerza_porter
+CREATE TABLE IF NOT EXISTS `tb_fuerza_porter` (
+  `id_fp` int(11) NOT NULL AUTO_INCREMENT,
+  `id_empresa` int(11) NOT NULL,
+  `fecha_analisis` datetime DEFAULT current_timestamp(),
+  `q0` tinyint(4) DEFAULT NULL,
+  `q1` tinyint(4) DEFAULT NULL,
+  `q2` tinyint(4) DEFAULT NULL,
+  `q3` tinyint(4) DEFAULT NULL,
+  `q4` tinyint(4) DEFAULT NULL,
+  `q5` tinyint(4) DEFAULT NULL,
+  `q6` tinyint(4) DEFAULT NULL,
+  `q7` tinyint(4) DEFAULT NULL,
+  `q8` tinyint(4) DEFAULT NULL,
+  `q9` tinyint(4) DEFAULT NULL,
+  `q10` tinyint(4) DEFAULT NULL,
+  `q11` tinyint(4) DEFAULT NULL,
+  `q12` tinyint(4) DEFAULT NULL,
+  `q13` tinyint(4) DEFAULT NULL,
+  `q14` tinyint(4) DEFAULT NULL,
+  `q15` tinyint(4) DEFAULT NULL,
+  `q16` tinyint(4) DEFAULT NULL,
+  `puntaje_total` int(11) DEFAULT NULL,
+  `texto_conclusion_generada` text DEFAULT NULL,
+  PRIMARY KEY (`id_fp`),
+  KEY `FK_tb_fuerza_porter_tb_empresa` (`id_empresa`),
+  CONSTRAINT `FK_tb_fuerza_porter_tb_empresa` FOREIGN KEY (`id_empresa`) REFERENCES `tb_empresa` (`id_empresa`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 
 
