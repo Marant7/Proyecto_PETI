@@ -12,22 +12,20 @@ if (!isset($_SESSION['user_id'])) {
 <head>
   <meta charset="UTF-8">
   <title>Cadena de Valor</title>
-  <link rel="stylesheet" href="../public/css/valores.css">
-  <link rel="stylesheet" href="../public/css/normalize.css">
-		<link rel="stylesheet" href="../public/css/sweetalert2.css">
-		<link rel="stylesheet" href="../public/css/material.min.css">
-		<link rel="stylesheet" href="../public/css/material-design-iconic-font.min.css">
-		<link rel="stylesheet" href="../public/css/jquery.mCustomScrollbar.css">
-		<link rel="stylesheet" href="../public/css/main.css">
-        <link rel="stylesheet" href="../public/css/cadena_valor.css">
-		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-		<script>window.jQuery || document.write('<script src="../public/js/jquery-1.11.2.min.js"><\/script>')</script>
-		<script src="../public/js/material.min.js"></script>
-		<script src="../public/js/sweetalert2.min.js"></script>
-		<script src="../public/js/jquery.mCustomScrollbar.concat.min.js"></script>
-		<script src="../public/js/main.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+    <link rel="stylesheet" href="../public/css/cadena_valor.css">
+    <link rel="stylesheet" href="../public/css/normalize.css">
+    <link rel="stylesheet" href="../public/css/sweetalert2.css">
+    <link rel="stylesheet" href="../public/css/material.min.css">
+    <link rel="stylesheet" href="../public/css/material-design-iconic-font.min.css">
+    <link rel="stylesheet" href="../public/css/jquery.mCustomScrollbar.css">
+    <link rel="stylesheet" href="../public/css/main.css">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="../public/js/jquery-1.11.2.min.js"><\/script>')</script>
+    <script src="../public/js/material.min.js"></script>
+    <script src="../public/js/sweetalert2.min.js"></script>
+    <script src="../public/js/jquery.mCustomScrollbar.concat.min.js"></script>
+    <script src="../public/js/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
   <!-- navBar -->
@@ -300,11 +298,20 @@ if (!isset($_SESSION['user_id'])) {
                     </tbody>
                 </table>
 
-            <div class="buttons">
-                <label class="mdl-textfield__label" for="password">Reflexione sobre el resultado obtenido. Anote aquellas observaciones que puedan ser de su interés. 
-                    Identifique sus fortalezas y debilidades respecto a su cadena de valor </label>
-                <input type="text" id="password" class="mdl-textfield__input" name="password">
-            </div>
+                <div class="reflection-section" style="margin: 20px 0;">
+                    <label for="resultado" style="display: block; font-weight: bold; margin-bottom: 10px;">
+                        Reflexione sobre el resultado obtenido. Anote aquellas observaciones que puedan ser de su interés. 
+                        Identifique sus fortalezas y debilidades respecto a su cadena de valor:
+                    </label>
+                    <textarea 
+                        id="resultado" 
+                        name="resultado" 
+                        rows="5" 
+                        cols="80" 
+                        style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-family: Arial, sans-serif;"
+                        placeholder="Escriba aquí sus observaciones sobre los resultados obtenidos...">
+                    </textarea>
+                </div>
 
             </form>
 
@@ -360,6 +367,14 @@ document.addEventListener("DOMContentLoaded", function() {
                     if (evaluacion.porcentaje_resultado !== null) {
                         document.getElementById("result-percentage").textContent = 
                             evaluacion.porcentaje_resultado + "%";
+                    }
+                    
+                    // Cargar el resultado/reflexión guardado
+                    if (evaluacion.resultado && evaluacion.resultado.trim() !== '') {
+                        const textareaResultado = document.querySelector('textarea[name="resultado"]');
+                        if (textareaResultado) {
+                            textareaResultado.value = evaluacion.resultado;
+                        }
                     }
                     
                     console.log("Respuestas cargadas exitosamente");
@@ -445,6 +460,17 @@ document.addEventListener("DOMContentLoaded", function() {
         
         if (!todasRespondidas) return;
         
+        // Verificar que el textarea de resultado tenga contenido
+        const textareaResultado = document.querySelector('textarea[name="resultado"]');
+        if (!textareaResultado || textareaResultado.value.trim() === '') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Debes completar la reflexión sobre los resultados'
+            });
+            return;
+        }
+        
         const porcentaje = calcularPorcentaje();
         if (porcentaje === null) return;
         
@@ -486,7 +512,7 @@ document.addEventListener("DOMContentLoaded", function() {
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
-                            text: 'No se pudo guardar los valores.'
+                            text: data.error || 'No se pudo guardar los valores.'
                         });
                     }
                 })
@@ -503,4 +529,6 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 });
+
+
 </script>

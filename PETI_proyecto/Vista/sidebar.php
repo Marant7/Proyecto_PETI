@@ -130,7 +130,7 @@
 				<li class="full-width divider-menu-h"></li>
 
 				<li class="full-width">
-					<a href="estrategia.php" class="full-width">
+					<a href="identificacion_estrategia.php" class="full-width">
 						<div class="navLateral-body-cl">
                             <i class="zmdi zmdi-check"></i>
 						</div>

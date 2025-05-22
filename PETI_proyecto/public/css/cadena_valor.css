@@ -1,71 +1,397 @@
 body {
     font-family: Arial, sans-serif;
+    background-color: #f8f8f8;
     margin: 0;
-    padding: 20px;
+    padding: 0;
 }
+
+.pageContent {
+    width: 100%;
+    min-height: 100vh;
+}
+
+.content {
+    width: 100%;
+    padding: 20px 0;
+}
+
+.container {
+    margin: 20px auto;
+    width: 90%;
+    max-width: 1200px;
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 30px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+.container h2 {
+    color: #005a87;
+    font-size: 28px;
+    margin-bottom: 15px;
+    font-weight: bold;
+    text-align: center;
+    text-transform: uppercase;
+    border-bottom: 3px solid #005a87;
+    padding-bottom: 10px;
+}
+
+.container h8 {
+    display: block;
+    color: #666;
+    font-size: 14px;
+    font-weight: normal;
+    margin-bottom: 25px;
+    line-height: 1.5;
+    background-color: #f4f4f4;
+    padding: 15px;
+    border-radius: 5px;
+    border-left: 4px solid #005a87;
+}
+
+/* Estilos para el formulario */
+#evaluationForm {
+    margin: 20px 0;
+}
+
+/* Estilos para la tabla principal */
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 20px;
+    margin: 30px 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
 }
+
 th, td {
-    border: 1px solid #999;
-    padding: 8px 5px;
+    border: 1px solid #ddd;
+    padding: 12px 8px;
     text-align: center;
     font-size: 13px;
+    vertical-align: middle;
 }
+
 th {
-    background-color: #f2f2f2;
+    background-color: #f8f9fa;
+    font-weight: bold;
 }
-.statement {
-    text-align: left;
-    width: 80%;
-}
+
+/* Estilos para el header de la tabla */
 .header-row th {
     background-color: #005a87;
     color: white;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
+
 thead tr:first-child th:first-child {
+    text-align: center;
+    font-weight: bold;
+    padding: 15px 10px;
+}
+
+/* Estilos para las celdas de declaraciones */
+.statement {
     text-align: left;
+    width: 65%;
+    padding: 15px 20px;
+    background-color: #fafafa;
+    font-weight: 500;
+    line-height: 1.4;
+    border-right: 2px solid #005a87;
+}
+
+/* NUEVOS ESTILOS PARA CELDAS CLICKEABLES */
+/* Contenedor de cada celda de respuesta */
+.radio-cell {
+    position: relative;
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: #fff;
+    min-height: 45px;
+    user-select: none;
+}
+
+/* Hover effect para las celdas */
+.radio-cell:hover {
+    background-color: #e3f2fd;
+    transform: scale(1.02);
+}
+
+/* Celda seleccionada */
+.radio-cell.selected {
+    background-color: #005a87;
+    color: white;
     font-weight: bold;
 }
-input[type="radio"] {
+
+/* Ocultar el radio button pero mantener funcionalidad */
+.radio-cell input[type="radio"] {
+    opacity: 0;
+    position: absolute;
+    width: 100%;
+    height: 100%;
     margin: 0;
-    transform: scale(1.2);
+    cursor: pointer;
+    z-index: 2;
 }
+
+/* Contenido visible de la celda */
+.radio-cell-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    padding: 12px 8px;
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.2s ease;
+    position: relative;
+    z-index: 1;
+}
+
+/* Efecto visual cuando está seleccionado */
+.radio-cell.selected .radio-cell-content {
+    color: white;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Colores específicos para cada valor */
+.radio-cell[data-value="0"]:hover {
+    background-color: #ffebee;
+}
+
+.radio-cell[data-value="0"].selected {
+    background-color: #f44336;
+}
+
+.radio-cell[data-value="1"]:hover {
+    background-color: #fff3e0;
+}
+
+.radio-cell[data-value="1"].selected {
+    background-color: #ff9800;
+}
+
+.radio-cell[data-value="2"]:hover {
+    background-color: #fff8e1;
+}
+
+.radio-cell[data-value="2"].selected {
+    background-color: #ffc107;
+    color: #333;
+}
+
+.radio-cell[data-value="3"]:hover {
+    background-color: #f1f8e9;
+}
+
+.radio-cell[data-value="3"].selected {
+    background-color: #8bc34a;
+}
+
+.radio-cell[data-value="4"]:hover {
+    background-color: #e8f5e8;
+}
+
+.radio-cell[data-value="4"].selected {
+    background-color: #4caf50;
+}
+
+/* Hover effect para las filas */
+tbody tr:hover {
+    background-color: #f8f9fa;
+    transition: background-color 0.2s ease;
+}
+
+/* Estilos para la fila de resultado */
 .result-row td {
     font-weight: bold;
-    background-color: #f2f2f2;
-}
-.error {
-    color: red;
-    font-weight: bold;
-}
-.fortalezas-debilidades {
-    width: 100%;
-    margin-top: 30px;
-}
-.fortalezas-debilidades table {
-    margin-bottom: 10px;
-}
-.fortalezas-debilidades th {
-    background-color: #f8d7a3;
-    text-align: center;
-}
-.buttons {
-    margin-top: 20px;
-    display: flex;
-    gap: 10px;
-}
-.buttons button {
-    padding: 10px 15px;
-    background-color: #4aafcd;
+    background-color: #005a87;
     color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+    font-size: 14px;
+    padding: 15px;
+    text-transform: uppercase;
 }
+
 #result-percentage {
     font-weight: bold;
-    font-size: 16px;
+    font-size: 18px;
+    color: #fff;
+    background-color: #28a745;
+    padding: 8px 15px;
+    border-radius: 20px;
+    display: inline-block;
+    min-width: 60px;
+}
+
+/* Estilos para la sección de reflexión */
+.reflection-section {
+    margin: 30px 0;
+    padding: 25px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.reflection-section label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #005a87;
+    font-size: 15px;
+    line-height: 1.4;
+}
+
+.reflection-section textarea {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    resize: vertical;
+    min-height: 120px;
+    transition: border-color 0.3s ease;
+}
+
+.reflection-section textarea:focus {
+    outline: none;
+    border-color: #005a87;
+    box-shadow: 0 0 0 3px rgba(0, 90, 135, 0.1);
+}
+
+.reflection-section textarea::placeholder {
+    color: #999;
+    font-style: italic;
+}
+
+/* Estilos para los botones */
+.buttons {
+    margin-top: 30px;
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.buttons button {
+    padding: 12px 25px;
+    background-color: #005a87;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    min-width: 150px;
+}
+
+.buttons button:hover {
+    background-color: #004a73;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 90, 135, 0.3);
+}
+
+.buttons button:active {
+    transform: translateY(0);
+}
+
+.btn-primary {
+    background-color: #005a87;
+}
+
+.btn-primary:hover {
+    background-color: #004a73;
+}
+
+/* Estilos para mensajes de error */
+.error {
+    color: #dc3545;
+    font-weight: bold;
+    background-color: #f8d7da;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #f5c6cb;
+    margin: 10px 0;
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+    .container {
+        width: 95%;
+        padding: 20px;
+        margin: 10px auto;
+    }
+    
+    .container h2 {
+        font-size: 24px;
+    }
+    
+    table {
+        font-size: 12px;
+    }
+    
+    .statement {
+        width: 60%;
+        padding: 10px;
+    }
+    
+    th, td {
+        padding: 8px 4px;
+    }
+    
+    .radio-cell {
+        min-height: 35px;
+    }
+    
+    .radio-cell-content {
+        font-size: 14px;
+        padding: 8px 4px;
+    }
+    
+    .buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .buttons button {
+        width: 100%;
+        max-width: 300px;
+    }
+    
+    .reflection-section {
+        padding: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .container h2 {
+        font-size: 20px;
+    }
+    
+    .statement {
+        width: 55%;
+        font-size: 12px;
+        padding: 8px;
+    }
+    
+    .radio-cell {
+        min-height: 30px;
+    }
+    
+    .radio-cell-content {
+        font-size: 12px;
+        padding: 6px 4px;
+    }
 }
