@@ -114,11 +114,15 @@ if (!isset($_SESSION['user_id'])) {
                 </table>
 
                 <!-- Matriz 1: Fortalezas vs Oportunidades -->
-                <div class="matrix-section">
-                    <div class="matrix-title">Las fortalezas se usan para tomar ventaja en cada una las oportunidades.</div>
-                    <div class="matrix-subtitle">0=En total desacuerdo, 1= No está de acuerdo, 2= Está de acuerdo, 3= Bastante de acuerdo y 4=En total acuerdo.</div>
+                <div class="matrix-container">
+                    <div class="instructions">
+                        <strong>Instrucciones:</strong> Selecciona el nivel de acuerdo para cada intersección entre Fortalezas y Oportunidades.
+                    </div>
                     
-                    <table class="small-matrix">
+                    <div class="matrix-title">Matriz 2: Las fortalezas evaden el efecto negativo de  las amenazas.</div>
+                    <div class="matrix-subtitle">0=En total desacuerdo, 1=No está de acuerdo, 2=Está de acuerdo, 3=Bastante de acuerdo, 4=En total acuerdo</div>
+                    
+                    <table class="small-matrix" data-matrix="fo">
                         <thead>
                             <tr>
                                 <th></th>
@@ -131,208 +135,163 @@ if (!isset($_SESSION['user_id'])) {
                         <tbody>
                             <tr class="row-fortalezas">
                                 <td class="label-cell">F1</td>
-                                <td>1</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
                             </tr>
                             <tr class="row-fortalezas">
                                 <td class="label-cell">F2</td>
-                                <td></td>
-                                <td>2</td>
-                                <td></td>
-                                <td></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
                             </tr>
                             <tr class="row-fortalezas">
                                 <td class="label-cell">F3</td>
-                                <td>0</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
                             </tr>
                             <tr class="row-fortalezas">
                                 <td class="label-cell">F4</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
                             </tr>
                             <tr class="total-row">
                                 <td class="label-cell">Total</td>
-                                <td>1</td>
-                                <td>2</td>
-                                <td>0</td>
-                                <td>0</td>
+                                <td class="total-cell" id="total-fo-col1">0</td>
+                                <td class="total-cell" id="total-fo-col2">0</td>
+                                <td class="total-cell" id="total-fo-col3">0</td>
+                                <td class="total-cell" id="total-fo-col4">0</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-
-                <!-- Matriz 2: Fortalezas vs Amenazas -->
-                <div class="matrix-section">
-                    <div class="matrix-title">Las fortalezas evaden el efecto negativo de las amenazas.</div>
-                    <div class="matrix-subtitle">0=En total desacuerdo, 1= No está de acuerdo, 2= Está de acuerdo, 3= Bastante de acuerdo y 4=En total acuerdo.</div>
+                <!-- Matriz 2: Debilidades vs Amenazas -->
+                              <div class="matrix-container">
+                    <div class="instructions">
+                        <strong>Instrucciones:</strong> Selecciona el nivel de acuerdo para cada intersección entre Fortalezas y Oportunidades.
+                    </div>
                     
-                    <table class="small-matrix">
+                    <div class="matrix-title">Matriz 1: Las fortalezas se usan para tomar ventaja de cada una de las oportunidades</div>
+                    <div class="matrix-subtitle">0=En total desacuerdo, 1=No está de acuerdo, 2=Está de acuerdo, 3=Bastante de acuerdo, 4=En total acuerdo</div>
+                    
+                    <table class="small-matrix" data-matrix="fo">
                         <thead>
                             <tr>
                                 <th></th>
-                                <th class="header-amenazas">A1</th>
-                                <th class="header-amenazas">A2</th>
-                                <th class="header-amenazas">A3</th>
-                                <th class="header-amenazas">A4</th>
+                                <th class="header-oportunidades">A1</th>
+                                <th class="header-oportunidades">A2</th>
+                                <th class="header-oportunidades">A3</th>
+                                <th class="header-oportunidades">A4</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr class="row-fortalezas">
                                 <td class="label-cell">F1</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
                             </tr>
                             <tr class="row-fortalezas">
                                 <td class="label-cell">F2</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
                             </tr>
                             <tr class="row-fortalezas">
                                 <td class="label-cell">F3</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
                             </tr>
                             <tr class="row-fortalezas">
                                 <td class="label-cell">F4</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
                             </tr>
                             <tr class="total-row">
                                 <td class="label-cell">Total</td>
-                                <td>0</td>
-                                <td>0</td>
-                                <td>0</td>
-                                <td>0</td>
+                                <td class="total-cell" id="total-fo-col1">0</td>
+                                <td class="total-cell" id="total-fo-col2">0</td>
+                                <td class="total-cell" id="total-fo-col3">0</td>
+                                <td class="total-cell" id="total-fo-col4">0</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
-                <!-- Matriz 3: Debilidades vs Oportunidades -->
-                <div class="matrix-section">
-                    <div class="matrix-title">Superamos las debilidades tomando ventaja de las oportunidades</div>
-                    <div class="matrix-subtitle">0=En total desacuerdo, 1= No está de acuerdo, 2= Está de acuerdo, 3= Bastante de acuerdo y 4=En total acuerdo.</div>
+                <!-- Matriz 3: Debilidades vs Amenazas -->
+                <div class="matrix-container">
+                    <div class="instructions">
+                        <strong>Instrucciones:</strong> Selecciona el nivel de acuerdo para cada intersección entre Fortalezas y Oportunidades.
+                    </div>
                     
-                    <table class="small-matrix">
+                    <div class="matrix-title">Matriz 4:Las debilidades intensifican notablemente el efecto negativo de las amenazas</div>
+                    <div class="matrix-subtitle">0=En total desacuerdo, 1=No está de acuerdo, 2=Está de acuerdo, 3=Bastante de acuerdo, 4=En total acuerdo</div>
+                    
+                    <table class="small-matrix" data-matrix="fo">
                         <thead>
                             <tr>
                                 <th></th>
-                                <th class="header-oportunidades">O1</th>
-                                <th class="header-oportunidades">O2</th>
-                                <th class="header-oportunidades">O3</th>
-                                <th class="header-oportunidades">O4</th>
+                                <th class="header-oportunidades">A1</th>
+                                <th class="header-oportunidades">A2</th>
+                                <th class="header-oportunidades">A3</th>
+                                <th class="header-oportunidades">A4</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr class="row-debilidades">
+                            <tr class="row-fortalezas">
                                 <td class="label-cell">D1</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
                             </tr>
-                            <tr class="row-debilidades">
+                            <tr class="row-fortalezas">
                                 <td class="label-cell">D2</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
                             </tr>
-                            <tr class="row-debilidades">
+                            <tr class="row-fortalezas">
                                 <td class="label-cell">D3</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
                             </tr>
-                            <tr class="row-debilidades">
+                            <tr class="row-fortalezas">
                                 <td class="label-cell">D4</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
+                                <td><select onchange="updateTotals('fo')"><option value="">--</option><option value="0">0 - En total desacuerdo</option><option value="1">1 - No está de acuerdo</option><option value="2">2 - Está de acuerdo</option><option value="3">3 - Bastante de acuerdo</option><option value="4">4 - En total acuerdo</option></select></td>
                             </tr>
                             <tr class="total-row">
                                 <td class="label-cell">Total</td>
-                                <td>0</td>
-                                <td>0</td>
-                                <td>0</td>
-                                <td>0</td>
+                                <td class="total-cell" id="total-fo-col1">0</td>
+                                <td class="total-cell" id="total-fo-col2">0</td>
+                                <td class="total-cell" id="total-fo-col3">0</td>
+                                <td class="total-cell" id="total-fo-col4">0</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
+                
                 <!-- Matriz 4: Debilidades vs Amenazas -->
-                <div class="matrix-section">
-                    <div class="matrix-title">Las debilidades intensifican notablemente el efecto negativo de las amenazas.</div>
-                    <div class="matrix-subtitle">0=En total desacuerdo, 1= No está de acuerdo, 2= Está de acuerdo, 3= Bastante de acuerdo y 4=En total acuerdo.</div>
-                    
-                    <table class="small-matrix">
-                        <thead>
-                            <tr>
-                                <th></th>
-                                <th class="header-amenazas">A1</th>
-                                <th class="header-amenazas">A2</th>
-                                <th class="header-amenazas">A3</th>
-                                <th class="header-amenazas">A4</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="row-debilidades">
-                                <td class="label-cell">D1</td>
-                                <td>5</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr class="row-debilidades">
-                                <td class="label-cell">D2</td>
-                                <td>2</td>
-                                <td>1</td>
-                                <td></td>
-                                <td>2</td>
-                            </tr>
-                            <tr class="row-debilidades">
-                                <td class="label-cell">D3</td>
-                                <td></td>
-                                <td></td>
-                                <td>1</td>
-                                <td></td>
-                            </tr>
-                            <tr class="row-debilidades">
-                                <td class="label-cell">D4</td>
-                                <td></td>
-                                <td>1</td>
-                                <td></td>
-                                <td>2</td>
-                            </tr>
-                            <tr class="total-row">
-                                <td class="label-cell">Total</td>
-                                <td>7</td>
-                                <td>2</td>
-                                <td>1</td>
-                                <td>4</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
+                    Superamos las debilidades tomando ventaja de las oportunidades
                 <!-- Síntesis de Resultados -->
                 <div class="sintesis-section">
                     <div class="sintesis-title">Síntesis de Resultados</div>
@@ -393,3 +352,111 @@ if (!isset($_SESSION['user_id'])) {
 </html>
 
 
+<script>
+        // Función principal para actualizar totales de una matriz específica
+        function updateTotals(matrixType) {
+            const table = document.querySelector(`[data-matrix="${matrixType}"]`);
+            if (!table) return;
+            
+            // Obtener todas las filas que contienen selects (excluyendo la fila de totales)
+            const dataRows = table.querySelectorAll('tbody tr:not(.total-row)');
+            
+            // Inicializar totales para cada columna
+            const columnTotals = [0, 0, 0, 0];
+            
+            // Recorrer cada fila de datos
+            dataRows.forEach(row => {
+                const selects = row.querySelectorAll('select');
+                selects.forEach((select, columnIndex) => {
+                    // Obtener el valor seleccionado y convertir a número
+                    const value = parseInt(select.value) || 0;
+                    // Sumar al total de la columna correspondiente
+                    columnTotals[columnIndex] += value;
+                });
+            });
+            
+            // Actualizar las celdas de totales en la interfaz
+            for (let i = 0; i < 4; i++) {
+                const totalCell = document.getElementById(`total-${matrixType}-col${i + 1}`);
+                if (totalCell) {
+                    totalCell.textContent = columnTotals[i];
+                }
+            }
+            
+            // Calcular y actualizar el total general de la matriz
+            const generalTotal = columnTotals.reduce((sum, total) => sum + total, 0);
+            const generalTotalSpan = document.getElementById(`total-${matrixType}-general`);
+            if (generalTotalSpan) {
+                generalTotalSpan.textContent = generalTotal;
+            }
+            
+            // Log para debugging
+            console.log(`Totales de matriz ${matrixType.toUpperCase()}:`, {
+                'Columna 1': columnTotals[0],
+                'Columna 2': columnTotals[1],
+                'Columna 3': columnTotals[2],
+                'Columna 4': columnTotals[3],
+                'Total General': generalTotal
+            });
+        }
+        
+        // Función para obtener todos los valores de una matriz
+        function getMatrixValues(matrixType) {
+            const table = document.querySelector(`[data-matrix="${matrixType}"]`);
+            if (!table) return {};
+            
+            const values = {};
+            const dataRows = table.querySelectorAll('tbody tr:not(.total-row)');
+            
+            dataRows.forEach((row, rowIndex) => {
+                const rowLabel = row.querySelector('.label-cell').textContent;
+                values[rowLabel] = {};
+                
+                const selects = row.querySelectorAll('select');
+                selects.forEach((select, colIndex) => {
+                    const colLabel = table.querySelectorAll('thead th')[colIndex + 1].textContent;
+                    values[rowLabel][colLabel] = select.value || '0';
+                });
+            });
+            
+            return values;
+        }
+        
+        // Función para obtener todos los valores de todas las matrices
+        function getAllMatrixValues() {
+            return {
+                'Fortalezas_vs_Oportunidades': getMatrixValues('fo'),
+                'Fortalezas_vs_Amenazas': getMatrixValues('fa'),
+                'Debilidades_vs_Oportunidades': getMatrixValues('do'),
+                'Debilidades_vs_Amenazas': getMatrixValues('da')
+            };
+        }
+        
+        // Función para exportar datos (útil para debugging o exportación)
+        function exportData() {
+            const data = getAllMatrixValues();
+            console.log('Datos completos del análisis FODA:', JSON.stringify(data, null, 2));
+            return data;
+        }
+        
+        // Inicializar totales cuando la página carga
+        document.addEventListener('DOMContentLoaded', function() {
+            // Pequeño delay para asegurar que todo esté cargado
+            setTimeout(() => {
+                updateTotals('fo');
+                updateTotals('fa');
+                updateTotals('do');
+                updateTotals('da');
+            }, 100);
+        });
+        
+        // También actualizar totales cuando la página sea visible (para casos de cache)
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                updateTotals('fo');
+                updateTotals('fa');
+                updateTotals('do');
+                updateTotals('da');
+            }
+        });
+    </script>
