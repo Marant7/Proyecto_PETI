@@ -79,5 +79,11 @@
 			</div>
 			<i class="zmdi zmdi-format-list-bulleted tile-icon"></i>
 		</article>
+		<article class="full-width tile" onclick="window.location.href='resumen.php';" style="cursor: pointer;">
+			<div class="tile-text">
+				<span class="text-condensedLight">12<br><small>RESUMEN EJECUTIVO</small></span>
+			</div>
+			<i class="zmdi zmdi-format-list-bulleted tile-icon"></i>
+		</article>
 	</section>
 </section>

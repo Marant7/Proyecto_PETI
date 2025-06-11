@@ -1,0 +1,256 @@
+
+.container-resumen-vista {
+    max-width: 1000px;
+    margin: 20px auto;
+    background-color: #fff;
+    padding: 0;
+    border: 1px solid #d1d9e6;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    line-height: 1.6;
+}
+
+.header-bar-resumen-vista {
+    background-color: #0056b3;
+    color: white;
+    padding: 15px 25px;
+    text-align: center;
+    font-size: 1.4em;
+    font-weight: 600;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.action-button-resumen-vista {
+    background-color: #17a2b8;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.8em;
+    transition: background-color 0.2s ease;
+}
+.action-button-resumen-vista:hover {
+    background-color: #138496;
+}
+.action-button-resumen-vista i {
+    margin-right: 5px;
+}
+
+.company-info-resumen-vista {
+    padding: 25px;
+    border-bottom: 1px solid #e9ecef;
+    transition: background-color 0.3s ease;
+}
+
+.company-info-resumen-vista p {
+    margin: 8px 0;
+    font-size: 0.95em;
+}
+.company-info-resumen-vista .label-resumen-vista {
+    color: #0056b3;
+    font-weight: 600;
+    display: inline-block;
+    width: 180px;
+}
+.company-info-resumen-vista .value-resumen-vista {
+    display: inline-block;
+    color: #495057;
+}
+.logo-placeholder-resumen-vista {
+    font-size: 1em;
+    color: #0056b3;
+    font-weight: bold;
+    margin-bottom: 15px;
+    padding: 10px;
+    border: 2px dashed #0056b3;
+    border-radius: 4px;
+    text-align: center;
+    background-color: #e9f5ff;
+}
+
+.section-full-width-resumen-vista {
+    border-bottom: 1px solid #e9ecef;
+    transition: background-color 0.3s ease;
+}
+.section-full-width-resumen-vista:last-child {
+    border-bottom: none;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+.section-full-width-resumen-vista.section-hoverable:hover {
+    background-color: #f8f9fa; 
+}
+
+
+.section-label-horizontal-resumen-vista {
+    background-color: #0056b3;
+    color: white;
+    padding: 12px 25px;
+    font-weight: 600;
+    font-size: 1.1em;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: default; 
+}
+
+
+.collapsible-header {
+    cursor: pointer;
+}
+.collapsible-header:hover {
+    background-color: #004a99; 
+}
+.toggle-icon {
+    transition: transform 0.3s ease;
+}
+.collapsible-section.open .toggle-icon {
+    transform: rotate(180deg);
+}
+
+.section-content-resumen-vista {
+    padding: 20px 25px;
+    background-color: #ffffff;
+}
+.collapsible-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease-out, padding 0.5s ease-out;
+    padding: 0 25px; 
+}
+.collapsible-section.open .collapsible-content {
+    max-height: 2000px;
+    padding: 20px 25px;
+}
+
+.text-content-resumen-vista {
+    font-size: 0.95em;
+    color: #343a40;
+    white-space: pre-wrap; 
+}
+
+.table-container-resumen-vista {
+    width: auto;
+    overflow-x: auto;
+}
+
+.objetivos-table-resumen-vista {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9em;
+    margin-top: 10px; /* Espacio si es el primer elemento */
+}
+
+.objetivos-table-resumen-vista th, .objetivos-table-resumen-vista td {
+    border: 1px solid #dee2e6;
+    padding: 10px 12px;
+    text-align: left;
+    vertical-align: top;
+}
+
+.objetivos-table-resumen-vista th {
+    background-color: #e9ecef;
+    color: #495057;
+    font-weight: 600;
+}
+.objetivos-table-resumen-vista td { background-color: #fff; }
+.objetivos-table-resumen-vista tr:hover td {
+    background-color: #f1faff; 
+}
+
+
+.foda-grid-resumen-vista {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.foda-category-resumen-vista {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 15px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.foda-category-resumen-vista:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+}
+
+.foda-header-resumen-vista {
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ced4da;
+}
+.foda-header-resumen-vista h3 {
+    margin: 0;
+    font-size: 1.1em;
+    text-align: center;
+}
+
+.foda-item-list-resumen-vista {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+.foda-item-list-resumen-vista li {
+    padding: 8px 5px;
+    margin-bottom: 5px;
+    background-color: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    font-size: 0.9em;
+    transition: background-color 0.2s ease;
+}
+.foda-item-list-resumen-vista li:hover {
+    background-color: #e9f5ff;
+}
+
+
+#foda-fortalezas-resumen-vista .foda-header-resumen-vista h3 { color: #28a745; }
+#foda-debilidades-resumen-vista .foda-header-resumen-vista h3 { color: #dc3545; }
+#foda-oportunidades-resumen-vista .foda-header-resumen-vista h3 { color: #17a2b8; }
+#foda-amenazas-resumen-vista .foda-header-resumen-vista h3 { color: #ffc107; }
+
+.description-text-resumen-vista {
+    font-size: 0.9em;
+    padding: 0 0 10px 0;
+    color: #6c757d;
+    font-style: italic;
+}
+
+
+.editable-text-area-plan {
+    width: 100%;
+    min-height: 120px;
+    padding: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 0.95em;
+    box-sizing: border-box;
+    resize: vertical;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    margin-top: 5px; 
+}
+.editable-text-area-plan:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    outline: none;
+}
+.text-muted {
+    color: #6c757d !important; 
+}
+.text-center {
+    text-align: center !important;
+}
