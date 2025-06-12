@@ -329,4 +329,16 @@ CREATE TABLE IF NOT EXISTS `tb_sintesis_estrategias` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 
-
+CREATE TABLE IF NOT EXISTS `tb_matrices_foda` (
+  `id_matriz` int(11) NOT NULL AUTO_INCREMENT,
+  `id_empresa` int(11) NOT NULL,
+  `tipo_matriz` enum('fo','fa','do','da') NOT NULL,
+  `fila` varchar(10) NOT NULL,
+  `columna` varchar(10) NOT NULL,
+  `valor` tinyint(1) NOT NULL DEFAULT 0,
+  `fecha_actualizacion` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_matriz`),
+  UNIQUE KEY `unique_celda` (`id_empresa`, `tipo_matriz`, `fila`, `columna`),
+  KEY `id_empresa` (`id_empresa`),
+  CONSTRAINT `tb_matrices_foda_ibfk_1` FOREIGN KEY (`id_empresa`) REFERENCES `tb_empresa` (`id_empresa`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;

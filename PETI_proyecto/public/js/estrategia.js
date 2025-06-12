@@ -404,41 +404,29 @@ function obtenerDatosCelda(select) {
 // Función para cargar valores guardados de las matrices
 async function cargarMatricesGuardadas() {
     try {
-        const response = await fetch('obtener_matrices.php');
-        const matrices = await response.json();
-        
-        // Cargar valores en los selects
-        Object.keys(matrices).forEach(tipoMatriz => {
-            const matrizData = matrices[tipoMatriz];
-            Object.keys(matrizData).forEach(fila => {
-                Object.keys(matrizData[fila]).forEach(columna => {
-                    const valor = matrizData[fila][columna];
-                    const select = document.querySelector(
-                        `[data-matrix="${tipoMatriz}"] tr:has(.label-cell:contains("${fila}")) select:nth-of-type(${getColumnIndex(columna)})`
-                    );
-                    if (select) {
-                        select.value = valor;
-                    }
-                });
-            });
+        const res = await fetch('obtener_matrices.php');
+        const data = await res.json();
+        if (!data || !Array.isArray(data)) return;
+
+        data.forEach(celda => {
+            // Busca el select por tipo de matriz, fila y columna
+            const tabla = document.querySelector(`table[data-matrix="${celda.tipo_matriz}"]`);
+            if (!tabla) return;
+            const select = tabla.querySelector(
+                `select[data-fila="${celda.fila}"][data-columna="${celda.columna}"]`
+            );
+            if (select) select.value = celda.valor;
         });
-        
-        // Actualizar totales después de cargar
-        updateTotals('fo');
-        updateTotals('fa');
-        updateTotals('do');
-        updateTotals('da');
-        
-    } catch (error) {
-        console.error('Error al cargar matrices:', error);
+
+        // Opcional: recalcula los totales después de cargar
+        ['fo', 'fa', 'do', 'da'].forEach(updateTotals);
+
+    } catch (e) {
+        console.error('Error cargando matrices guardadas', e);
     }
 }
 
-// Función auxiliar para obtener el índice de columna
-function getColumnIndex(columna) {
-    const indices = {'O1': 1, 'O2': 2, 'O3': 3, 'O4': 4, 'A1': 1, 'A2': 2, 'A3': 3, 'A4': 4};
-    return indices[columna] || 1;
-}
+document.addEventListener('DOMContentLoaded', cargarMatricesGuardadas);
 
 document.addEventListener('DOMContentLoaded', function() {
     const btnGuardar = document.getElementById('btn-guardar-matrices');
