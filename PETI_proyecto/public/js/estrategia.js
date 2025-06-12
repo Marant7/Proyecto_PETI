@@ -1,3 +1,4 @@
+// Función principal para actualizar totales de una matriz específica
 function updateTotals(matrixType) {
     const table = document.querySelector(`[data-matrix="${matrixType}"]`);
     if (!table) return;
@@ -133,7 +134,8 @@ async function guardarSintesis() {
         const botonGuardar = document.getElementById('btn-guardar-sintesis');
         if (botonGuardar) {
             botonGuardar.disabled = true;
-            botonGuardar.textContent = 'Guardando...';
+            botonGuardar.textContent = '⏳ Guardando...';
+            botonGuardar.style.backgroundColor = '#cccccc';
         }
         
         // Obtener datos de la síntesis
@@ -174,7 +176,8 @@ async function guardarSintesis() {
         const botonGuardar = document.getElementById('btn-guardar-sintesis');
         if (botonGuardar) {
             botonGuardar.disabled = false;
-            botonGuardar.textContent = 'Guardar Síntesis';
+            botonGuardar.textContent = '💾 Guardar Síntesis';
+            botonGuardar.style.backgroundColor = '#4CAF50';
         }
     }
 }
@@ -223,14 +226,7 @@ function mostrarMensaje(mensaje, tipo = 'info') {
     }, 3000);
 }
 
-// NUEVA FUNCIÓN: Guardar automáticamente cuando cambien las puntuaciones
-function autoGuardarSintesis() {
-    // Debounce para evitar múltiples guardados
-    clearTimeout(window.autoGuardarTimeout);
-    window.autoGuardarTimeout = setTimeout(() => {
-        guardarSintesis();
-    }, 2000); // Esperar 2 segundos después del último cambio
-}
+// Función removida: autoGuardarSintesis() - Ya no se usa auto-guardado
 
 // Función para exportar datos (útil para debugging o exportación)
 function exportData() {
@@ -254,15 +250,14 @@ document.addEventListener('DOMContentLoaded', function() {
         // Agregar botón de guardar si no existe
         agregarBotonGuardar();
         
-        // Configurar auto-guardado cuando cambien los selects
+        // Configurar actualización de totales cuando cambien los selects
         const selects = document.querySelectorAll('select');
         selects.forEach(select => {
             select.addEventListener('change', () => {
-                // Primero actualizar totales, luego auto-guardar
+                // Solo actualizar totales, sin auto-guardar
                 const matrixType = select.closest('[data-matrix]')?.getAttribute('data-matrix');
                 if (matrixType) {
                     updateTotals(matrixType);
-                    autoGuardarSintesis();
                 }
             });
         });
@@ -290,26 +285,31 @@ function agregarBotonGuardar() {
     // Crear botón
     const botonGuardar = document.createElement('button');
     botonGuardar.id = 'btn-guardar-sintesis';
-    botonGuardar.textContent = 'Guardar Síntesis';
+    botonGuardar.textContent = '💾 Guardar Síntesis';
     botonGuardar.style.cssText = `
         background-color: #4CAF50;
         color: white;
         border: none;
-        padding: 10px 20px;
+        padding: 12px 25px;
         margin-top: 15px;
         border-radius: 5px;
         cursor: pointer;
-        font-size: 14px;
+        font-size: 16px;
         font-weight: bold;
-        transition: background-color 0.3s ease;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     `;
     
     // Agregar hover effect
     botonGuardar.addEventListener('mouseenter', () => {
         botonGuardar.style.backgroundColor = '#45a049';
+        botonGuardar.style.transform = 'translateY(-2px)';
+        botonGuardar.style.boxShadow = '0 4px 8px rgba(0,0,0,0.3)';
     });
     botonGuardar.addEventListener('mouseleave', () => {
         botonGuardar.style.backgroundColor = '#4CAF50';
+        botonGuardar.style.transform = 'translateY(0)';
+        botonGuardar.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
     });
     
     // Agregar evento click

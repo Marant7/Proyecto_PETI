@@ -312,3 +312,21 @@ CREATE TABLE tb_tcm (
     CONSTRAINT fk_tcm_empresa FOREIGN KEY (id_empresa) REFERENCES tb_empresa (id_empresa) ON DELETE CASCADE,
     CONSTRAINT fk_tcm_venta FOREIGN KEY (id_venta) REFERENCES tb_venta (id_venta) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS `tb_sintesis_estrategias` (
+  `id_sintesis` int(11) NOT NULL AUTO_INCREMENT,
+  `id_empresa` int(11) NOT NULL,
+  `relacion` varchar(10) NOT NULL COMMENT 'FO, AF, AD, OD',
+  `tipologia_estrategia` varchar(100) NOT NULL,
+  `puntuacion` int(11) DEFAULT 0,
+  `descripcion` text DEFAULT NULL,
+  `fecha_creacion` timestamp DEFAULT CURRENT_TIMESTAMP,
+  `fecha_actualizacion` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_sintesis`),
+  KEY `id_empresa` (`id_empresa`),
+  UNIQUE KEY `unique_empresa_relacion` (`id_empresa`, `relacion`),
+  CONSTRAINT `tb_sintesis_estrategias_ibfk_1` FOREIGN KEY (`id_empresa`) REFERENCES `tb_empresa` (`id_empresa`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+
+
