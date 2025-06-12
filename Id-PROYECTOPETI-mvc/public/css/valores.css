@@ -1,0 +1,105 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #f0f4f8;
+    margin: 0;
+}
+
+.main-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar - no se modifica */
+.sidebar {
+    width: 250px;
+    flex-shrink: 0;
+    background: #2c3e50;
+    color: white;
+    height: 100vh;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+/* Contenedor de la página (contenido a la derecha) */
+.content {
+    flex-grow: 1;
+    padding: 40px;
+    display: flex;
+    justify-content: flex-start;  /* Alineación de los elementos a la izquierda */
+    align-items: flex-start;  /* Alineación superior */
+}
+
+/* Contenedor del formulario */
+.container {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    width: 100%; /* Asegura que el formulario ocupe el máximo espacio disponible */
+    margin-left: 20px; /* Un pequeño margen para separarlo del borde izquierdo */
+    margin-top: 20px; /* Alineación desde la parte superior */
+}
+
+/* Estilos de título */
+h2 {
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+/* Estilo de los mensajes */
+p {
+    font-size: 14px;
+    margin-bottom: 1rem;
+}
+
+p[style*="green"] {
+    color: #27ae60;
+    font-weight: bold;
+}
+
+p[style*="red"] {
+    color: #c0392b;
+    font-weight: bold;
+}
+
+/* Formulario y campos */
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Campo de texto */
+form label {
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #555;
+}
+
+form input[type="text"] {
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+/* Estilo para el botón de submit */
+form button[type="submit"] {
+    background: #0066cc;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 10px;
+}
+
+form button[type="submit"]:hover {
+    background: #004c99;
+}
