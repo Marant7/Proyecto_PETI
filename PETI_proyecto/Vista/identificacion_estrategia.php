@@ -26,7 +26,7 @@ $fortalezas    = $datos['fortalezas'] ?? [];
 $debilidades   = $datos['debilidades'] ?? [];
 $oportunidades = $datos['oportunidades'] ?? [];
 $amenazas      = $datos['amenazas'] ?? [];
-?>s
+?>
 
 
 
@@ -435,12 +435,16 @@ $amenazas      = $datos['amenazas'] ?? [];
                     </div>
                 </div>
 
+                <div style="margin: 20px 0; text-align: right;">
+                    <button id="btn-guardar-matrices" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+                        Guardar Matrices FODA
+                    </button>
+                    <span id="mensaje-guardar-matrices" style="margin-left: 15px; color: green; font-weight: bold;"></span>
+                </div>
+
             </div>
         </div>
     </div>
-
-    
-  </div>
 
 </body>
 </html>

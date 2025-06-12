@@ -251,16 +251,35 @@ document.addEventListener('DOMContentLoaded', function() {
         agregarBotonGuardar();
         
         // Configurar actualización de totales cuando cambien los selects
-        const selects = document.querySelectorAll('select');
-        selects.forEach(select => {
-            select.addEventListener('change', () => {
-                // Solo actualizar totales, sin auto-guardar
-                const matrixType = select.closest('[data-matrix]')?.getAttribute('data-matrix');
-                if (matrixType) {
-                    updateTotals(matrixType);
-                }
-            });
-        });
+// Configurar actualización de totales cuando cambien los selects
+const selects = document.querySelectorAll('select');
+console.log('Total de selects encontrados:', selects.length);
+
+selects.forEach((select, index) => {
+    console.log(`Configurando select ${index}`);
+    
+    select.addEventListener('change', (event) => {
+        console.log('Select cambió, valor:', event.target.value);
+        
+        const {matrixType, fila, columna} = obtenerDatosCelda(select);
+        const valor = select.value || '0';
+        
+        console.log('Datos para guardar:', {matrixType, fila, columna, valor});
+        
+        if (matrixType) {
+            // Actualizar totales
+            updateTotals(matrixType);
+            
+            // Guardar automáticamente
+            guardarCeldaMatriz(matrixType, fila, columna, valor);
+        } else {
+            console.error('No se pudo obtener matrixType');
+        }
+    });
+});
+
+// NUEVO: Cargar datos al inicializar
+cargarMatricesGuardadas();
     }, 100);
 });
 
@@ -317,4 +336,165 @@ function agregarBotonGuardar() {
     
     // Agregar al DOM
     sintesisSection.appendChild(botonGuardar);
+}
+// Función para guardar automáticamente una celda
+// Función mejorada para guardar automáticamente una celda
+async function guardarCeldaMatriz(tipoMatriz, fila, columna, valor) {
+    console.log('Intentando guardar:', {tipoMatriz, fila, columna, valor});
+    
+    try {
+        const response = await fetch('guardar_celda_matriz.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                tipo_matriz: tipoMatriz,
+                fila: fila,
+                columna: columna,
+                valor: valor
+            })
+        });
+        
+        console.log('Response status:', response.status);
+        const texto = await response.text();
+        console.log('Response text:', texto);
+        
+        let resultado;
+        try {
+            resultado = JSON.parse(texto);
+            console.log('Resultado parseado:', resultado);
+        } catch (e) {
+            console.error('Error al parsear JSON:', e);
+            console.log('Texto recibido:', texto);
+            return;
+        }
+        
+        if (!resultado.exito) {
+            console.error('Error al guardar celda:', resultado.mensaje);
+        } else {
+            console.log('Celda guardada exitosamente');
+        }
+    } catch (error) {
+        console.error('Error en la petición:', error);
+    }
+}
+
+// Función mejorada para obtener datos de fila y columna
+function obtenerDatosCelda(select) {
+    const row = select.closest('tr');
+    const table = select.closest('[data-matrix]');
+    const matrixType = table.getAttribute('data-matrix');
+    
+    // Obtener la fila
+    const fila = row.querySelector('.label-cell').textContent.trim();
+    
+    // Obtener la columna basándose en el índice del select
+    const selects = row.querySelectorAll('select');
+    const selectIndex = Array.from(selects).indexOf(select);
+    
+    // Obtener headers de columna
+    const headers = table.querySelectorAll('thead th');
+    const columna = headers[selectIndex + 1].textContent.trim(); // +1 porque el primer th es vacío
+    
+    console.log('Datos de celda obtenidos:', {matrixType, fila, columna, selectIndex});
+    
+    return {matrixType, fila, columna};
+}
+// Función para cargar valores guardados de las matrices
+async function cargarMatricesGuardadas() {
+    try {
+        const response = await fetch('obtener_matrices.php');
+        const matrices = await response.json();
+        
+        // Cargar valores en los selects
+        Object.keys(matrices).forEach(tipoMatriz => {
+            const matrizData = matrices[tipoMatriz];
+            Object.keys(matrizData).forEach(fila => {
+                Object.keys(matrizData[fila]).forEach(columna => {
+                    const valor = matrizData[fila][columna];
+                    const select = document.querySelector(
+                        `[data-matrix="${tipoMatriz}"] tr:has(.label-cell:contains("${fila}")) select:nth-of-type(${getColumnIndex(columna)})`
+                    );
+                    if (select) {
+                        select.value = valor;
+                    }
+                });
+            });
+        });
+        
+        // Actualizar totales después de cargar
+        updateTotals('fo');
+        updateTotals('fa');
+        updateTotals('do');
+        updateTotals('da');
+        
+    } catch (error) {
+        console.error('Error al cargar matrices:', error);
+    }
+}
+
+// Función auxiliar para obtener el índice de columna
+function getColumnIndex(columna) {
+    const indices = {'O1': 1, 'O2': 2, 'O3': 3, 'O4': 4, 'A1': 1, 'A2': 2, 'A3': 3, 'A4': 4};
+    return indices[columna] || 1;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const btnGuardar = document.getElementById('btn-guardar-matrices');
+    if (btnGuardar) {
+        btnGuardar.addEventListener('click', guardarTodasLasMatrices);
+    }
+});
+
+async function guardarTodasLasMatrices() {
+    const mensaje = document.getElementById('mensaje-guardar-matrices');
+    mensaje.textContent = 'Guardando...';
+
+    // Recorre todas las matrices y sus selects
+    const matrices = ['fo', 'fa', 'do', 'da'];
+    let datos = [];
+
+    matrices.forEach(tipo => {
+        const tabla = document.querySelector(`table[data-matrix="${tipo}"]`);
+        if (!tabla) return;
+        const filas = tabla.querySelectorAll('tbody tr:not(.total-row)');
+        filas.forEach((filaTr, i) => {
+            const filaLabel = filaTr.querySelector('.label-cell')?.textContent.trim();
+            const selects = filaTr.querySelectorAll('select');
+            selects.forEach((select, j) => {
+                // Obtén la columna desde el thead
+                const ths = tabla.querySelectorAll('thead th');
+                const columnaLabel = ths[j + 1]?.textContent.trim(); // +1 porque th[0] es vacío
+                const valor = select.value === "" ? null : parseInt(select.value);
+                datos.push({
+                    tipo_matriz: tipo,
+                    fila: filaLabel,
+                    columna: columnaLabel,
+                    valor: valor
+                });
+            });
+        });
+    });
+
+    // Envía los datos al backend
+    try {
+        const res = await fetch('guardar_matrices.php', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({matrices: datos})
+        });
+        const result = await res.json();
+        if (result.exito) {
+            mensaje.style.color = 'green';
+            mensaje.textContent = '¡Matrices guardadas!';
+        } else {
+            mensaje.style.color = 'red';
+            mensaje.textContent = 'Error al guardar: ' + (result.mensaje || 'Desconocido');
+        }
+    } catch (e) {
+        mensaje.style.color = 'red';
+        mensaje.textContent = 'Error de red o servidor';
+    }
+    setTimeout(() => mensaje.textContent = '', 3000);
 }

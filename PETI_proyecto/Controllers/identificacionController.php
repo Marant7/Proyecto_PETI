@@ -227,4 +227,115 @@ class identificacionController
         header('Content-Type: application/json');
         echo json_encode($resultado);
     }
+
+    public function guardarCeldaMatriz($id_empresa, $tipoMatriz, $fila, $columna, $valor)
+{
+    $conexion = (new clsConexion())->getConexion();
+    
+    $query = "INSERT INTO tb_matrices_foda (id_empresa, tipo_matriz, fila, columna, valor) 
+              VALUES (?, ?, ?, ?, ?)
+              ON DUPLICATE KEY UPDATE 
+              valor = VALUES(valor),
+              fecha_actualizacion = CURRENT_TIMESTAMP";
+    
+    $stmt = $conexion->prepare($query);
+    $stmt->bind_param("isssi", $id_empresa, $tipoMatriz, $fila, $columna, $valor);
+    
+    if ($stmt->execute()) {
+        $stmt->close();
+        return ['exito' => true];
+    } else {
+        $error = $stmt->error;
+        $stmt->close();
+        return ['exito' => false, 'mensaje' => $error];
+    }
+}
+
+/**
+ * Obtiene todos los valores de las matrices de una empresa
+ * @param int $id_empresa
+ * @return array
+ */
+public function obtenerMatricesFODA($id_empresa)
+{
+    $conexion = (new clsConexion())->getConexion();
+    
+    $query = "SELECT tipo_matriz, fila, columna, valor 
+              FROM tb_matrices_foda 
+              WHERE id_empresa = ?
+              ORDER BY tipo_matriz, fila, columna";
+    
+    $stmt = $conexion->prepare($query);
+    $stmt->bind_param("i", $id_empresa);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $matrices = [];
+    while ($row = $result->fetch_assoc()) {
+        $matrices[$row['tipo_matriz']][$row['fila']][$row['columna']] = $row['valor'];
+    }
+    
+    $stmt->close();
+    return $matrices;
+}
+
+/**
+ * Procesa la solicitud AJAX para guardar una celda de matriz
+ */
+public function procesarGuardarCelda()
+{
+    error_log("procesarGuardarCelda iniciado");
+    
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        error_log("Método no es POST: " . $_SERVER['REQUEST_METHOD']);
+        http_response_code(405);
+        echo json_encode(['exito' => false, 'mensaje' => 'Método no permitido']);
+        return;
+    }
+    
+    session_start();
+    if (!isset($_SESSION['user_id'])) {
+        error_log("Usuario no autenticado");
+        http_response_code(401);
+        echo json_encode(['exito' => false, 'mensaje' => 'Usuario no autenticado']);
+        return;
+    }
+    
+    $id_usuario = $_SESSION['user_id'];
+    error_log("ID Usuario: " . $id_usuario);
+    
+    $id_empresa = $this->obtenerIdEmpresaPorUsuario($id_usuario);
+    error_log("ID Empresa: " . ($id_empresa ?? 'NULL'));
+    
+    if (!$id_empresa) {
+        error_log("No se encontró empresa para usuario: " . $id_usuario);
+        echo json_encode(['exito' => false, 'mensaje' => 'No se encontró empresa asociada']);
+        return;
+    }
+    
+    $input = file_get_contents('php://input');
+    error_log("Input recibido: " . $input);
+    
+    $datos = json_decode($input, true);
+    error_log("Datos decodificados: " . print_r($datos, true));
+    
+    if (!$datos || !isset($datos['tipo_matriz'], $datos['fila'], $datos['columna'], $datos['valor'])) {
+        error_log("Datos inválidos o faltantes");
+        echo json_encode(['exito' => false, 'mensaje' => 'Datos inválidos']);
+        return;
+    }
+    
+    $resultado = $this->guardarCeldaMatriz(
+        $id_empresa,
+        $datos['tipo_matriz'],
+        $datos['fila'],
+        $datos['columna'],
+        intval($datos['valor'])
+    );
+    
+    error_log("Resultado del guardado: " . print_r($resultado, true));
+    
+    header('Content-Type: application/json');
+    echo json_encode($resultado);
+}
 }
