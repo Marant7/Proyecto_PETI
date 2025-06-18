@@ -1,96 +1,26 @@
-<?php
-session_start();
-if (!isset($_SESSION['user_id'])) {
-    header("Location: index.php?controller=Usuario&action=login");
-    exit();
-}
-?>TYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
-    <link rel="stylesheet" href="../public/css/normalize.css">
-    <link rel="stylesheet" href="../public/css/sweetalert2.css">
-    <link rel="stylesheet" href="../public/css/material.min.css">
-    <link rel="stylesheet" href="../public/css/material-design-iconic-font.min.css">
-    <link rel="stylesheet" href="../public/css/jquery.mCustomScrollbar.css">
-    <link rel="stylesheet" href="../public/css/main.css">
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-    <script>window.jQuery || document.write('<script src="../public/js/jquery-1.11.2.min.js"><\/script>')</script>
-    <script src="../public/js/material.min.js"></script>
-    <script src="../public/js/sweetalert2.min.js"></script>
-    <script src="../public/js/jquery.mCustomScrollbar.concat.min.js"></script>
-    <script src="../public/js/main.js"></script>
+    <link rel="stylesheet" href="/public/css/main.css">
 </head>
 <body>
-    <!-- Notifications area -->
-    <section class="full-width container-notifications">
-        <div class="full-width container-notifications-bg btn-Notification"></div>
-        <section class="NotificationArea">
-            <div class="full-width text-center NotificationArea-title tittles">Notifications <i class="zmdi zmdi-close btn-Notification"></i></div>
-            <!-- Aquí van las notificaciones -->
-        </section>
-    </section>
-
-    <!-- navBar -->
-    <div class="full-width navBar">
-        <div class="full-width navBar-options">
-            <i class="zmdi zmdi-more-vert btn-menu" id="btn-menu"></i>
-            <div class="mdl-tooltip" for="btn-menu">Menu</div>
-            <nav class="navBar-options-list">
-                <ul class="list-unstyle">
-                    <li class="btn-Notification" id="notifications">
-                        <i class="zmdi zmdi-notifications"></i>
-                        <div class="mdl-tooltip" for="notifications">Notifications</div>
-                    </li>
-                    <li class="btn-exit" id="btn-exit">
-                    <a href="index.php?controller=Usuario&action=logout" style="color: inherit; text-decoration: none;">
-                        <i class="zmdi zmdi-power"></i>
-                    </a>
-                    <div class="mdl-tooltip" for="btn-exit">LogOut</div>
-                </li>
-                    <!-- Muestra el nombre del usuario -->
-                    <li class="text-condensedLight noLink">
-                        <small><?php echo $_SESSION['usuario']; ?></small>
-                    </li>
-                    <li class="noLink">
-                        <figure>
-                            <img src="../public/assets/img/avatar-male.png" alt="Avatar" class="img-responsive">
-                        </figure>
-                    </li>
-                </ul>
-            </nav>
-        </div>
+    <?php
+    session_start();
+    if (!isset($_SESSION['user'])) {
+        header('Location: login.php');
+        exit();
+    }
+    $user = $_SESSION['user'];
+    ?>    <h1>Bienvenido al Home</h1>
+    <p>Has iniciado sesión correctamente, <?php echo htmlspecialchars($user['nombre'] . ' ' . $user['apellido']); ?>!</p>
+    <p>Usuario: <?php echo htmlspecialchars($user['usuario']); ?></p>
+    
+    <div style="margin: 20px 0;">
+        <a href="nuevo_plan.php" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; margin-right: 10px;">Nuevo Plan</a>
+        <a href="logout.php" style="background-color: #dc3545; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Cerrar Sesión</a>
     </div>
-
-    <!-- Aquí sigue el contenido de la página -->
-    <?php include 'sidebar.php'; ?>
-    <?php include 'pageContent.php'; ?>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const logoutLink = document.querySelector('a[href*="action=logout"]');
-            if (logoutLink) {
-                logoutLink.addEventListener('click', function (event) {
-                    event.preventDefault(); // Evitar la redirección inmediata
-                    Swal.fire({
-                        title: '¿Estás seguro?',
-                        text: 'Se cerrará tu sesión actual.',
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#3085d6',
-                        cancelButtonColor: '#d33',
-                        confirmButtonText: 'Sí, cerrar sesión',
-                        cancelButtonText: 'Cancelar'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = logoutLink.href; // Redirigir al logout
-                        }
-                    });
-                });
-            }
-        });
-    </script>
 </body>
 </html>

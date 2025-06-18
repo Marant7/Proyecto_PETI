@@ -1,98 +1,101 @@
 <?php
 session_start();
-if (!isset($_SESSION['user_id'])) {
-    echo "No hay usuario en sesión";
+if (!isset($_SESSION['user'])) {
+    header('Location: login.php');
     exit();
 }
-
-
+$user = $_SESSION['user'];
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Valores</title>
-  <link rel="stylesheet" href="../public/css/valores.css">
-  <link rel="stylesheet" href="../public/css/normalize.css">
-		<link rel="stylesheet" href="../public/css/sweetalert2.css">
-		<link rel="stylesheet" href="../public/css/material.min.css">
-		<link rel="stylesheet" href="../public/css/material-design-iconic-font.min.css">
-		<link rel="stylesheet" href="../public/css/jquery.mCustomScrollbar.css">
-		<link rel="stylesheet" href="../public/css/main.css">
-		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-		<script>window.jQuery || document.write('<script src="../public/js/jquery-1.11.2.min.js"><\/script>')</script>
-		<script src="../public/js/material.min.js"></script>
-		<script src="../public/js/sweetalert2.min.js"></script>
-		<script src="../public/js/jquery.mCustomScrollbar.concat.min.js"></script>
-		<script src="../public/js/main.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        <script src="../public/js/valores.js"></script>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Valores Empresariales</title>
+  <link rel="stylesheet" href="/public/css/main.css">
 </head>
 <body>
-  <!-- navBar -->
-    <!-- navBar -->
-	<div class="full-width navBar">
-		<div class="full-width navBar-options">
-			<i class="zmdi zmdi-more-vert btn-menu" id="btn-menu"></i>	
-			<div class="mdl-tooltip" for="btn-menu">Menu</div>
-			<nav class="navBar-options-list">
-				<ul class="list-unstyle">
-					<li class="btn-Notification" id="notifications">
-						<i class="zmdi zmdi-notifications"></i>
-						<!-- <i class="zmdi zmdi-notifications-active btn-Notification" id="notifications"></i> -->
-						<div class="mdl-tooltip" for="notifications">Notifications</div>
-					</li>
-					<li class="btn-exit" id="btn-exit">
-						<i class="zmdi zmdi-power"></i>
-						<div class="mdl-tooltip" for="btn-exit">LogOut</div>
-					</li>
-                    <li class="text-condensedLight noLink">
-                        <small><?php echo $_SESSION['usuario']; ?></small>
-                    </li>
-                    <li class="noLink">
-                        <figure>
-                            <img src="../public/assets/img/avatar-male.png" alt="Avatar" class="img-responsive">
-                        </figure>
-                    </li>
-					</li>
-				</ul>
-			</nav>
-		</div>
-	</div>
-    <div class="main-layout">
-    <div class="navLateral"></div>
-    <?php include 'sidebar.php'; ?>
-    <div class="pageContent">
-      <div class="content">
-        <div class="container">
-          <h2>Registrar Valores Empresariales</h2>
-
-          <!-- Mostrar mensaje si viene en GET -->
-          <?php if (isset($_GET['msg'])): ?>
-            <p style="color: green;"><?= htmlspecialchars($_GET['msg']) ?></p>
-          <?php endif; ?>
-          <?php if (isset($_GET['error'])): ?>
-            <p style="color: red;"><?= htmlspecialchars($_GET['error']) ?></p>
-          <?php endif; ?>
-
-          <form action="../Controllers/ControladorValores.php" method="POST" id="formValores">
-            <div id="valoresFields">
-              <div class="input-group">
-                <label for="valor1">Valor:</label>
-                <input type="text" name="valores[]" required>
-              </div>
-            </div>
-            <button type="button" id="addValor">Agregar otro valor</button>
-            <button type="submit">Guardar</button>
-          </form>
-        </div>
-      </div>
+    <div class="header">
+        <h1>Definir Valores Empresariales</h1>
+        <p>Usuario: <?php echo htmlspecialchars($user['nombre'] . ' ' . $user['apellido']); ?></p>
     </div>
-  </div>
 
-</body>
-</html>
+    <div class="container">
+        <h2>Paso 3: Valores de la Empresa</h2>
 
+        <!-- Mostrar mensaje si viene en GET -->
+        <?php if (isset($_GET['msg'])): ?>
+            <p style="color: green;"><?= htmlspecialchars($_GET['msg']) ?></p>
+        <?php endif; ?>
+        <?php if (isset($_GET['error'])): ?>
+            <p style="color: red;"><?= htmlspecialchars($_GET['error']) ?></p>
+        <?php endif; ?>
+
+        <form action="../Controllers/ValoresController.php?action=save" method="POST" id="formValores">
+            <div id="valoresFields">
+                <div class="form-group">
+                    <label for="valor1">Valor 1:</label>
+                    <input type="text" name="valores[]" required placeholder="Ingrese un valor empresarial...">
+                </div>
+            </div>
+            
+            <div style="margin: 15px 0;">
+                <button type="button" id="addValor" style="background-color: #007bff; color: white; padding: 8px 15px; border: none; border-radius: 4px;">Agregar otro valor</button>
+            </div>
+            
+            <div class="buttons">
+                <button type="submit" style="background-color: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 5px; margin-right: 10px;">Siguiente</button>
+                <a href="vision_mision.php" style="background-color: #6c757d; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-right: 10px;">Anterior</a>
+                <a href="home.php" style="background-color: #dc3545; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Cancelar</a>
+            </div>
+        </form>
+    </div>
+
+    <style>
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: Arial, sans-serif;
+        }
+        .buttons {
+            margin-top: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+    </style>
+
+    <script>
+        document.getElementById('addValor').addEventListener('click', function() {
+            const valoresFields = document.getElementById('valoresFields');
+            const valorCount = valoresFields.children.length + 1;
+            
+            const newDiv = document.createElement('div');
+            newDiv.className = 'form-group';
+            newDiv.innerHTML = `
+                <label for="valor${valorCount}">Valor ${valorCount}:</label>
+                <input type="text" name="valores[]" required placeholder="Ingrese un valor empresarial...">
+                <button type="button" onclick="this.parentElement.remove()" style="background-color: #dc3545; color: white; padding: 5px 10px; border: none; border-radius: 3px; margin-left: 10px;">Eliminar</button>
+            `;
+            
+            valoresFields.appendChild(newDiv);
+        });
+    </script>
 </body>
 </html>

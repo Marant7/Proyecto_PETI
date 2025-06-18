@@ -39,5 +39,10 @@ class clsConexion
             $this->conexion = null;
         }
     }
+
+    // Método para preparar consultas
+    public function prepare($query) {
+        return $this->conexion->prepare($query);
+    }
 }
 ?>

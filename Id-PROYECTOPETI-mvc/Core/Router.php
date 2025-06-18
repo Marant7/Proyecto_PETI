@@ -6,10 +6,19 @@ class Router {
         $action = $_GET['action'] ?? 'index';  // Acción por defecto
         $id = $_GET['id'] ?? null;  // ID si lo hay
 
-        // Ajustar la ruta para que apunte al UsuarioController
+        // Redirigir rutas antiguas
         if ($controllerName === 'Login') {
             $controllerName = 'Usuario';
             $action = 'login';
+        }
+
+        // Si no hay parámetros, verificar si hay sesión activa
+        if (!isset($_GET['controller']) && !isset($_GET['action'])) {
+            if (isset($_SESSION['usuario_id'])) {
+                $action = 'index'; // Dashboard si está logueado
+            } else {
+                $action = 'login'; // Login si no está logueado
+            }
         }
 
         // Obtener la conexión de la base de datos
@@ -29,6 +38,9 @@ class Router {
             error_log("Controlador no encontrado: " . $controllerFile);
         }
 
+        // Agregar registro de depuración para verificar controlador y acción
+        error_log("Controlador: $controllerName, Acción: $action");
+
         if (file_exists($controllerFile)) {
             require_once $controllerFile;
             $className = $controllerName . "Controller";
@@ -38,13 +50,13 @@ class Router {
                 if (method_exists($controller, $action)) {
                     $controller->$action($id);
                 } else {
-                    echo "Método no encontrado.";
+                    echo "Método '$action' no encontrado en el controlador '$className'.";
                 }
             } else {
-                echo "Clase de controlador no existe.";
+                echo "Clase de controlador '$className' no existe.";
             }
         } else {
-            echo "Controlador no encontrado.";
+            echo "Controlador '$controllerName' no encontrado.";
         }
     }
 }

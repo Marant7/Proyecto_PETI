@@ -1,82 +1,76 @@
-<?php 
-session_start();
-if (!isset($_SESSION['user_id'])) {
-    echo "No hay usuario en sesión";
-    exit();
-}
-?>
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Ingresar Visión y Diseño</title>
-  <link rel="stylesheet" href="../public/css/vision_mision.css">
-  <link rel="stylesheet" href="../public/css/normalize.css">
-  <link rel="stylesheet" href="../public/css/sweetalert2.css">
-  <link rel="stylesheet" href="../public/css/material.min.css">
-  <link rel="stylesheet" href="../public/css/material-design-iconic-font.min.css">
-  <link rel="stylesheet" href="../public/css/jquery.mCustomScrollbar.css">
-  <link rel="stylesheet" href="../public/css/main.css">
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-  <script>window.jQuery || document.write('<script src="../public/js/jquery-1.11.2.min.js"><\/script>')</script>
-  <script src="../public/js/material.min.js"></script>
-  <script src="../public/js/sweetalert2.min.js"></script>
-  <script src="../public/js/jquery.mCustomScrollbar.concat.min.js"></script>
-  <script src="../public/js/main.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script src="../public/js/visiMisi.js"></script> <!-- Agregar el archivo JS -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visión y Misión</title>
+    <link rel="stylesheet" href="/public/css/main.css">
 </head>
 <body>
- <!-- navBar -->
- <div class="full-width navBar">
-        <div class="full-width navBar-options">
-            <i class="zmdi zmdi-more-vert btn-menu" id="btn-menu"></i>
-            <div class="mdl-tooltip" for="btn-menu">Menu</div>
-            <nav class="navBar-options-list">
-                <ul class="list-unstyle">
-                    <li class="btn-Notification" id="notifications">
-                        <i class="zmdi zmdi-notifications"></i>
-                        <div class="mdl-tooltip" for="notifications">Notifications</div>
-                    </li>
-                    <li class="btn-exit" id="btn-exit">
-                        <i class="zmdi zmdi-power"></i>
-                        <div class="mdl-tooltip" for="btn-exit">LogOut</div>
-                    </li>
-                    <!-- Muestra el nombre del usuario -->
-                    <li class="text-condensedLight noLink">
-                        <small><?php echo $_SESSION['usuario']; ?></small>
-                    </li>
-                    <li class="noLink">
-                        <figure>
-                            <img src="../public/assets/img/avatar-male.png" alt="Avatar" class="img-responsive">
-                        </figure>
-                    </li>
-                </ul>
-            </nav>
-        </div>
+    <?php
+    session_start();
+    if (!isset($_SESSION['user'])) {
+        header('Location: login.php');
+        exit();
+    }
+    $user = $_SESSION['user'];
+    ?>
+    
+    <div class="header">
+        <h1>Definir Visión y Misión</h1>
+        <p>Usuario: <?php echo htmlspecialchars($user['nombre'] . ' ' . $user['apellido']); ?></p>
     </div>
 
-  <div class="main-layout">
-    <div class="navLateral">  </div>
-    <?php include 'sidebar.php'; ?>
-    <div class="pageContent">
-      <div class="content">
-        <div class="container">
-          <form id="formVisionMision" action="../Controllers/visiMisiController.php" method="post">
-            <h2>Misión de la empresa</h2>
-            <label for="mision">Escriba la misión del proyecto:</label><br>
-            <textarea name="mision" id="mision" required></textarea><br><br>
-
-            <h2>Visión de la empresa</h2>
-            <label for="vision">Escriba la Visión del proyecto:</label><br>
-            <textarea name="vision" id="vision" required></textarea><br><br>
-
-            <button type="submit">Guardar Información</button>
-          </form>
-        </div>
-      </div>
+    <div class="container">
+        <h2>Paso 2: Visión y Misión de la Empresa</h2>
+        
+        <form action="../Controllers/VisionMisionController.php?action=save" method="POST">
+            <div class="form-group">
+                <label for="vision">Visión:</label>
+                <textarea id="vision" name="vision" rows="4" placeholder="Describe la visión de la empresa..." required></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="mision">Misión:</label>
+                <textarea id="mision" name="mision" rows="4" placeholder="Describe la misión de la empresa..." required></textarea>
+            </div>
+            
+            <div class="buttons">
+                <button type="submit" style="background-color: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 5px; margin-right: 10px;">Siguiente</button>
+                <a href="nuevo_plan.php" style="background-color: #6c757d; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-right: 10px;">Anterior</a>
+                <a href="home.php" style="background-color: #dc3545; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Cancelar</a>
+            </div>
+        </form>
     </div>
-  </div>
+
+    <style>
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group textarea, .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: Arial, sans-serif;
+        }
+        .buttons {
+            margin-top: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+    </style>
 </body>
 </html>
