@@ -1,16 +1,14 @@
 <?php
-session_start();
-if (!isset($_SESSION['user_id'])) {
-    echo "No hay usuario en sesión";
-    exit();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
 
-require_once '../config/clsconexion.php';
-require_once '../Controllers/BcgsController.php';
+require_once __DIR__ . '/../config/clsconexion.php';
+require_once __DIR__ . '/../Controllers/BcgsController.php';
 
-// Obtener datos del controlador BCG
+// Obtener datos de productos desde el controlador BCG
 $bcgsController = new BcgsController();
-$datosProductos = $bcgsController->index();
+$datosProductos = $bcgsController->index(); // debe retornar los datos, NO incluir la vista
 
 // Conexión para objetivos estratégicos
 $conexion = new clsConexion();
@@ -24,7 +22,6 @@ if (!$resultEstrategicos) {
     die("Error en la consulta: " . $db->error);
 }
 
-// Procesar resultados de objetivos
 $datosObjetivos = [];
 while ($estrategico = $resultEstrategicos->fetch_assoc()) {
     $queryEspecificos = "SELECT * FROM tb_obj_especificos WHERE id_obj_estra = ?";
@@ -37,7 +34,7 @@ while ($estrategico = $resultEstrategicos->fetch_assoc()) {
     while ($especifico = $resultEspecificos->fetch_assoc()) {
         $especificos[] = $especifico;
     }
-    
+
     $datosObjetivos[] = [
         'estrategico' => $estrategico,
         'especificos' => $especificos
@@ -48,6 +45,10 @@ while ($estrategico = $resultEstrategicos->fetch_assoc()) {
 
 // Cerrar conexión
 $conexion->Cerrarconex();
+
+// Aquí ya puedes usar $datosProductos y $datosObjetivos en tu vista
+
+
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -62,7 +63,7 @@ $conexion->Cerrarconex();
     <title>Matriz de Participación</title>
     <link rel="stylesheet" href="../public/css/valores.css">
     <link rel="stylesheet" href="../public/css/normalize.css">
-    <link rel="stylesheet" href="../public/css/sweetalert2.css">
+    
     <link rel="stylesheet" href="../public/css/material.min.css">
     <link rel="stylesheet" href="../public/css/material-design-iconic-font.min.css">
     <link rel="stylesheet" href="../public/css/jquery.mCustomScrollbar.css">
@@ -70,7 +71,7 @@ $conexion->Cerrarconex();
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
     <script>window.jQuery || document.write('<script src="../public/js/jquery-1.11.2.min.js"><\/script>')</script>
     <script src="../public/js/material.min.js"></script>
-    <script src="../public/js/sweetalert2.min.js"></script>
+    
     <script src="../public/js/jquery.mCustomScrollbar.concat.min.js"></script>
     <script src="../public/js/main.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -543,55 +544,62 @@ $conexion->Cerrarconex();
 
             // ========== TABLA COMPETIDORES ==========
             function actualizarTablaCompetidores() {
-                const contenedor = document.getElementById("contenedorNivelesCompetencia");
-                contenedor.innerHTML = "";
+    const contenedor = document.getElementById("contenedorNivelesCompetencia");
+    contenedor.innerHTML = "";
 
-                const productos = getNombresProductos();
-                const inputsVentas = Array.from(cuerpoVentas.querySelectorAll("input"));
+    const productos = getNombresProductos();
+    const inputsVentas = Array.from(cuerpoVentas.querySelectorAll("input"));
 
-                productos.forEach((producto, index) => {
-                    const valorEmpresa = parseFloat(inputsVentas[index]?.value || 0);
+    productos.forEach((producto, index) => {
+        const valorEmpresa = parseFloat(inputsVentas[index]?.value || 0);
+        const tabla = document.createElement("table");
+        tabla.className = "mdl-data-table mdl-js-data-table tabla-competencia";
+        tabla.dataset.index = index;
+        tabla.style.minWidth = "200px";
 
-                    const tabla = document.createElement("table");
-                    tabla.className = "mdl-data-table mdl-js-data-table tabla-competencia";
-                    tabla.dataset.index = index;
-                    tabla.style.minWidth = "200px";
+        const competidores = datosProductosBD[index]?.competidores || [];
 
-                    tabla.innerHTML = `
-                        <thead>
-                            <tr>
-                                <th colspan="2" style="text-align: center;">${producto}</th>
-                            </tr>
-                            <tr>
-                                <th>EMPRESA</th>
-                                <th><input type="number" value="${valorEmpresa}" class="mdl-textfield__input input-empresa" style="width: 70px;"></th>
-                            </tr>
-                            <tr>
-                                <th>Competidor</th>
-                                <th>Ventas</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${Array.from({ length: 9 }, (_, i) => `
-                                <tr>
-                                    <td>${producto.substring(0,2)}-${i + 1}</td>
-                                    <td><input type="number" class="mdl-textfield__input input-competidor" style="width: 70px;"></td>
-                                </tr>
-                            `).join("")}
-                            <tr>
-                                <td><strong>Mayor</strong></td>
-                                <td><input type="number" class="mdl-textfield__input input-mayor" style="width: 70px;" readonly></td>
-                            </tr>
-                        </tbody>
+        tabla.innerHTML = `
+            <thead>
+                <tr>
+                    <th colspan="2" style="text-align: center;">${producto}</th>
+                </tr>
+                <tr>
+                    <th>EMPRESA</th>
+                    <th><input type="number" value="${valorEmpresa}" class="mdl-textfield__input input-empresa" style="width: 70px;"></th>
+                </tr>
+                <tr>
+                    <th>Competidor</th>
+                    <th>Ventas</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${Array.from({ length: 9 }, (_, i) => {
+                    const comp = competidores[i] || {};
+                    const nombre = comp.nombre_competidor || `${producto.substring(0,2)}-${i + 1}`;
+                    const valor = comp.ventas || "";
+                    return `
+                        <tr>
+                            <td>${nombre}</td>
+                            <td><input type="number" class="mdl-textfield__input input-competidor" style="width: 70px;" value="${valor}"></td>
+                        </tr>
                     `;
+                }).join("")}
+                <tr>
+                    <td><strong>Mayor</strong></td>
+                    <td><input type="number" class="mdl-textfield__input input-mayor" style="width: 70px;" readonly></td>
+                </tr>
+            </tbody>
+        `;
 
-                    contenedor.appendChild(tabla);
-                });
+        contenedor.appendChild(tabla);
+    });
 
-                componentHandler.upgradeDom();
-                registrarEventosCompetencia();
-                actualizarTablaBCG(); 
-            }
+    componentHandler.upgradeDom();
+    registrarEventosCompetencia();
+    actualizarTablaBCG();
+}
+
 
             function registrarEventosCompetencia() {
                 const tablas = document.querySelectorAll(".tabla-competencia");
