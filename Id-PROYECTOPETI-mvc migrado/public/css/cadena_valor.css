@@ -1,0 +1,71 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+th, td {
+    border: 1px solid #999;
+    padding: 8px 5px;
+    text-align: center;
+    font-size: 13px;
+}
+th {
+    background-color: #f2f2f2;
+}
+.statement {
+    text-align: left;
+    width: 80%;
+}
+.header-row th {
+    background-color: #005a87;
+    color: white;
+}
+thead tr:first-child th:first-child {
+    text-align: left;
+    font-weight: bold;
+}
+input[type="radio"] {
+    margin: 0;
+    transform: scale(1.2);
+}
+.result-row td {
+    font-weight: bold;
+    background-color: #f2f2f2;
+}
+.error {
+    color: red;
+    font-weight: bold;
+}
+.fortalezas-debilidades {
+    width: 100%;
+    margin-top: 30px;
+}
+.fortalezas-debilidades table {
+    margin-bottom: 10px;
+}
+.fortalezas-debilidades th {
+    background-color: #f8d7a3;
+    text-align: center;
+}
+.buttons {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+}
+.buttons button {
+    padding: 10px 15px;
+    background-color: #4aafcd;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+#result-percentage {
+    font-weight: bold;
+    font-size: 16px;
+}

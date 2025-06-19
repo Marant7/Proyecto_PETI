@@ -1,0 +1,250 @@
+/* Estilos centralizados para todas las páginas del Plan Estratégico 
+   Archivo creado: 19/06/2025 */
+
+/* Estilos generales */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f9fa;
+    overflow-x: hidden;
+}
+
+.container {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    overflow-x: hidden;
+}
+
+/* Encabezados */
+h1, h2, h3, h4 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* Estilos para formularios */
+form {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group input[type="email"],
+.form-group input[type="password"],
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    display: block;
+}
+
+/* Botones */
+.buttons {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+    gap: 15px;
+}
+
+.btn, button[type="submit"], button[type="button"], a.btn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    transition: background-color 0.3s;
+}
+
+.btn:hover, button[type="submit"]:hover, button[type="button"]:hover {
+    background-color: #45a049;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+.btn-eliminar {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-eliminar:hover {
+    background-color: #c82333;
+}
+
+.btn-agregar {
+    background-color: #28a745;
+    margin-top: 10px;
+}
+
+.btn-agregar:hover {
+    background-color: #218838;
+}
+
+/* Tablas */
+table {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto 20px;
+    border-collapse: collapse;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+}
+
+table th, table td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: center;
+}
+
+table th {
+    background-color: #4CAF50;
+    color: white;
+    font-weight: bold;
+}
+
+/* Contenedores para tablas */
+.table-container {
+    overflow-x: auto;
+    width: 100%;
+    margin: 20px 0;
+}
+
+/* Títulos de secciones */
+.section-title {
+    background-color: #4CAF50;
+    color: white;
+    font-weight: bold;
+    padding: 15px;
+    margin: 20px 0 10px;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 16px;
+}
+
+/* Estilos para análisis FODA */
+.foda-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.foda-item input[type="text"] {
+    flex: 1;
+    padding: 10px;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    margin-right: 10px;
+}
+
+/* Estilos específicos para Matriz BCG */
+#tablaTCM, #tablaDemandaGlobal, #tablaCompetidores, #tablaMatrizBCG {
+    width: 100%;
+}
+
+#paso1 {
+    text-align: center;
+    padding: 40px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 2px dashed #4CAF50;
+    max-width: 800px;
+    margin: 0 auto 20px;
+}
+
+/* Estilos específicos para PEST */
+.pest-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.pest-item {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos específicos para Fuerzas de Porter */
+.porter-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* Estilos específicos para Cadena de Valor */
+.valor-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* Estilos específicos para Matriz CAME */
+.came-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* Media queries para responsive */
+@media (max-width: 768px) {
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        max-width: 100%;
+    }
+    
+    .buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .pest-container {
+        grid-template-columns: 1fr;
+    }
+}
