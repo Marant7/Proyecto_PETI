@@ -428,3 +428,79 @@ CREATE TABLE IF NOT EXISTS `tb_venta` (
 /*!40014 SET FOREIGN_KEY_CHECKS=IFNULL(@OLD_FOREIGN_KEY_CHECKS, 1) */;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40111 SET SQL_NOTES=IFNULL(@OLD_SQL_NOTES, 1) */;
+
+
+-- TABLA 1: Productos
+CREATE TABLE IF NOT EXISTS `tb_bcg_productos` (
+  `id_producto` INT(11) NOT NULL AUTO_INCREMENT,
+  `id_empresa` INT(11) NOT NULL,
+  `nombre_producto` VARCHAR(150) NOT NULL,
+  PRIMARY KEY (`id_producto`),
+  KEY `id_empresa` (`id_empresa`),
+  CONSTRAINT `fk_bcg_producto_empresa` FOREIGN KEY (`id_empresa`) REFERENCES `tb_empresa` (`id_empresa`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- TABLA 2: TCM por año
+CREATE TABLE IF NOT EXISTS `tb_bcg_tcm` (
+  `id_tcm` INT(11) NOT NULL AUTO_INCREMENT,
+  `id_producto` INT(11) NOT NULL,
+  `periodo` VARCHAR(20) NOT NULL, -- Ej: '2023-2024'
+  `porcentaje_tcm` DECIMAL(5,2) NOT NULL,
+  PRIMARY KEY (`id_tcm`),
+  KEY `id_producto` (`id_producto`),
+  CONSTRAINT `fk_tcm_producto` FOREIGN KEY (`id_producto`) REFERENCES `tb_bcg_productos` (`id_producto`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- TABLA 3: Ventas y PRM
+CREATE TABLE IF NOT EXISTS `tb_bcg_ventas` (
+  `id_venta` INT(11) NOT NULL AUTO_INCREMENT,
+  `id_producto` INT(11) NOT NULL,
+  `ventas` DECIMAL(10,2) NOT NULL,
+  `porcentaje_total` DECIMAL(5,2),
+  `prm` DECIMAL(5,2),
+  `mayor_venta_competidor` DECIMAL(10,2),
+  `fecha_registro` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_venta`),
+  KEY `id_producto` (`id_producto`),
+  CONSTRAINT `fk_ventas_producto` FOREIGN KEY (`id_producto`) REFERENCES `tb_bcg_productos` (`id_producto`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- INSERTAR PRODUCTOS (empresa con ID 1)
+INSERT INTO `tb_bcg_productos` (`id_empresa`, `nombre_producto`) VALUES
+(1, 'Producto A'),
+(1, 'Producto B'),
+(1, 'Producto C'),
+(1, 'Producto D');
+
+-- INSERTAR TCM (por producto y año)
+INSERT INTO `tb_bcg_tcm` (`id_producto`, `periodo`, `porcentaje_tcm`) VALUES
+(1, '2023-2024', 12.5),
+(2, '2023-2024', 8.4),
+(3, '2023-2024', 10.2),
+(4, '2023-2024', 6.9);
+
+-- INSERTAR VENTAS y PRM
+-- PRM = ventas / mayor_venta_competidor
+INSERT INTO `tb_bcg_ventas` (`id_producto`, `ventas`, `porcentaje_total`, `prm`, `mayor_venta_competidor`) VALUES
+(1, 100000, 35.00, 1.10, 90000),
+(2, 70000, 25.00, 0.85, 82000),
+(3, 50000, 20.00, 0.70, 71000),
+(4, 30000, 20.00, 1.20, 25000);
+
+
+CREATE TABLE tb_ventas_competidores (
+  id_venta_competidor INT AUTO_INCREMENT PRIMARY KEY,
+  id_empresa INT NOT NULL,
+  nombre_producto VARCHAR(100) NOT NULL,
+  nombre_competidor VARCHAR(50) NOT NULL,
+  ventas INT NOT NULL,
+  FOREIGN KEY (id_empresa) REFERENCES tb_empresa(id_empresa) ON DELETE CASCADE
+);
+
+INSERT INTO tb_ventas_competidores (id_empresa, nombre_producto, nombre_competidor, ventas) VALUES
+(1, 'Producto A', 'Pr-1', 90000),
+(1, 'Producto A', 'Pr-2', 85000),
+(1, 'Producto B', 'Pr-1', 60000),
+(1, 'Producto B', 'Pr-2', 55000),
+(1, 'Producto C', 'Pr-1', 40000),
+(1, 'Producto D', 'Pr-1', 25000);
