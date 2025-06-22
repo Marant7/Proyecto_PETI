@@ -188,12 +188,10 @@ if (!isset($plan_id)) $plan_id = $_GET['id_plan'] ?? '';
             })
             .then(text => {
                 console.log('Response text:', text);
-                try {
-                    const data = JSON.parse(text);
+                try {                    const data = JSON.parse(text);
                     if (data.success) {
                         alert('¡Valores guardados correctamente!');
-                        // Redirigir al siguiente paso
-                        window.location.href = 'cadena_valor.php?id_plan=' + document.querySelector('input[name="id_plan"]').value;
+                        // No redirigir automáticamente, solo mostrar el mensaje
                     } else {
                         alert('Error: ' + data.message);
                     }

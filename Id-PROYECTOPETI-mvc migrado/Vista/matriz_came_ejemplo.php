@@ -373,50 +373,100 @@ $came_data = $datos_previos ?? [];
                 </div>
             </div>
         </form>
-    </div>    <script>
-        // Función para guardar paso actual
+    </div>    <script>        // Función para guardar paso actual
         document.getElementById('formMatrizCame').addEventListener('submit', function(e) {
             e.preventDefault();
             
             const formData = new FormData(this);
             
+            // Mostrar estado de carga
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '⏳ Guardando...';
+            submitBtn.disabled = true;
+            
             fetch('../Controllers/PlanController.php?action=guardarMatrizCame', {
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Matriz CAME guardada correctamente');
-                } else {
-                    alert('Error al guardar: ' + data.message);
+            .then(response => {
+                console.log('Response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(text => {
+                console.log('Response text:', text);
+                try {
+                    const data = JSON.parse(text);
+                    if (data.success) {
+                        alert('✅ Matriz CAME guardada correctamente');
+                    } else {
+                        alert('❌ Error al guardar: ' + data.message);
+                    }
+                } catch (e) {
+                    console.error('Error parsing JSON:', e);
+                    console.error('Response was:', text);
+                    alert('❌ Error en la respuesta del servidor: ' + text.substring(0, 200));
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Error de conexión');
+                alert('❌ Error de conexión: ' + error.message);
+            })
+            .finally(() => {
+                // Restaurar botón
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
             });
         });        // Función para ir al resumen ejecutivo
         function irAResumenEjecutivo() {
             // Primero guardar CAME
             const formData = new FormData(document.getElementById('formMatrizCame'));
             
+            // Mostrar estado de carga
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '⏳ Guardando y continuando...';
+            btn.disabled = true;
+            
             fetch('../Controllers/PlanController.php?action=guardarMatrizCame', {
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Redirigir al resumen ejecutivo
-                    window.location.href = '../Controllers/PlanController.php?action=editarResumenEjecutivo&id_plan=<?php echo htmlspecialchars($plan_id); ?>';
-                } else {
-                    alert('Error al guardar CAME: ' + data.message);
+            .then(response => {
+                console.log('Response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(text => {
+                console.log('Response text:', text);
+                try {
+                    const data = JSON.parse(text);
+                    if (data.success) {
+                        // Redirigir al resumen ejecutivo
+                        window.location.href = '../Controllers/PlanController.php?action=editarResumenEjecutivo&id_plan=<?php echo htmlspecialchars($plan_id); ?>';
+                    } else {
+                        alert('❌ Error al guardar CAME: ' + data.message);
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                    }
+                } catch (e) {
+                    console.error('Error parsing JSON:', e);
+                    console.error('Response was:', text);
+                    alert('❌ Error en la respuesta del servidor: ' + text.substring(0, 200));
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Error al guardar CAME: ' + error.message);
+                alert('❌ Error al guardar CAME: ' + error.message);
+                btn.innerHTML = originalText;
+                btn.disabled = false;
             });
         }
         

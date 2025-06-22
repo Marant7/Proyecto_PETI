@@ -1006,6 +1006,64 @@ class PlanController {
             echo "<script>alert('Error al generar PDF: " . addslashes($e->getMessage()) . "'); window.history.back();</script>";
         }
     }
+    
+    /**
+     * Guardar matriz CAME
+     */
+    public function guardarMatrizCame() {
+        header('Content-Type: application/json');
+        
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        
+        if (!isset($_SESSION['user'])) {
+            echo json_encode(['success' => false, 'message' => 'No autenticado']);
+            exit();
+        }
+        
+        $plan_id = $_POST['id_plan'] ?? null;
+        
+        if (!$plan_id) {
+            echo json_encode(['success' => false, 'message' => 'ID del plan no encontrado']);
+            return;
+        }
+        
+        try {
+            $db = (new clsConexion())->getConexion();
+            $model = new PlanModel($db);
+            
+            // Recopilar todos los datos de la matriz CAME
+            $matriz_came_data = [];
+            
+            // Procesar todas las estrategias de los POST
+            foreach ($_POST as $key => $value) {
+                if (strpos($key, 'corregir_') === 0 || 
+                    strpos($key, 'afrontar_') === 0 || 
+                    strpos($key, 'mantener_') === 0 || 
+                    strpos($key, 'explotar_') === 0) {
+                    if (!empty(trim($value))) {
+                        $matriz_came_data[$key] = trim($value);
+                    }
+                }
+            }
+            
+            // Agregar metadatos
+            $matriz_came_data['fecha_guardado'] = date('Y-m-d H:i:s');
+            
+            // Guardar en la base de datos
+            $resultado = $model->guardarMatrizCame($plan_id, $matriz_came_data);
+            
+            if ($resultado) {
+                echo json_encode(['success' => true, 'message' => 'Matriz CAME guardada correctamente']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Error al guardar la matriz CAME']);
+            }
+        } catch (Exception $e) {
+            error_log("Error al guardar matriz CAME: " . $e->getMessage());
+            echo json_encode(['success' => false, 'message' => 'Error interno del servidor']);
+        }
+    }
 }
 
 if (basename(__FILE__) == basename($_SERVER['SCRIPT_FILENAME'])) {

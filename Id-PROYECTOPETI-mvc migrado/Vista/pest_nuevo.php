@@ -835,18 +835,17 @@ try {
                     if (data.success) {
                         btnGuardar.classList.add('success');
                         btnGuardar.textContent = '✅ Guardado Exitoso';
-                        
-                        Swal.fire({
+                          Swal.fire({
                             icon: 'success',
                             title: '¡Excelente!',
                             text: 'El análisis PEST se ha guardado correctamente',
-                            confirmButtonText: 'Continuar',
+                            confirmButtonText: 'OK',
                             confirmButtonColor: '#4CAF50'
                         }).then((result) => {
-                            if (result.isConfirmed) {
-                                // Redirigir al siguiente paso
-                                window.location.href = 'identificacion_de_estrategias.php?id_plan=<?php echo $plan_id; ?>';
-                            }
+                            // No redirigir automáticamente, solo mostrar el mensaje
+                            btnGuardar.classList.remove('loading');
+                            btnGuardar.textContent = '💾 GUARDAR ANÁLISIS PEST Y CONTINUAR';
+                            btnGuardar.disabled = false;
                         });
                     } else {
                         Swal.fire({
