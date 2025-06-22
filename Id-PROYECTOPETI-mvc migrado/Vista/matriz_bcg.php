@@ -1,13 +1,9 @@
 <?php
-session_start();
-if (!isset($_SESSION['user'])) {
-    header('Location: login.php');
-    exit();
-}
-
-// Cargar datos de Matriz BCG desde sesión si existen
-$plan_temporal = $_SESSION['plan_temporal'] ?? [];
-$datos_bcg = $plan_temporal['matriz_bcg'] ?? [];
+// Obtener datos del usuario desde la sesión
+$user = isset($_SESSION['user']) ? $_SESSION['user'] : null;
+// Inicializar variables para evitar warnings
+if (!isset($matriz_bcg_previa)) $matriz_bcg_previa = [];
+if (!isset($plan_id)) $plan_id = $_GET['id_plan'] ?? '';
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -208,23 +204,35 @@ tfoot td {
             margin-top: 10px;
             transition: background 0.3s;
         }
-        
-        .btn-agregar:hover {
+          .btn-agregar:hover {
             background: #218838;
-        }    </style>
+        }
+        .content {
+            margin-left: 270px;
+            padding: 20px;
+        }</style>
 </head>
 <body>
-    <div class="container">
-        <h2 class="text-center">Matriz BCG</h2>
-        <form action="../index.php?controller=PlanEstrategico&action=guardarPaso" method="POST" class="form-center">
-            <!-- Campo oculto para identificar el paso -->
-            <input type="hidden" name="paso" value="6">
-            <input type="hidden" name="nombre_paso" value="matriz_bcg">
+    <div style="display:flex; min-height:100vh;">
+        <!-- Barra lateral -->
+        <?php include 'sidebar.php'; ?>
+
+        <div class="content">
+            <div class="header" style="text-align: center; padding: 20px; background: #007bff; color: white; border-radius: 12px; margin-bottom: 30px;">
+                <h1>Paso 5: Matriz BCG</h1>
+                <p>Usuario: <?php echo $user ? htmlspecialchars($user['nombre'] . ' ' . $user['apellido']) : 'Invitado'; ?></p>
+            </div>
+
+            <div class="container">
+                <h2 class="text-center">Matriz BCG</h2>                <form id="matrizBCGForm" action="../Controllers/PlanController.php?action=guardarMatrizBCG" method="POST" class="form-center">
+                    <input type="hidden" name="id_plan" value="<?php echo htmlspecialchars($plan_id); ?>">
             
             <div class="section-title">Previsión de Ventas</div>
-            
-            <!-- Paso 1: Definir cantidad de productos -->
-            <div id="paso1" style="margin-bottom: 20px;">
+              <!-- Paso 1: Definir cantidad de productos -->            <div id="paso1" style="margin-bottom: 20px;">
+                <div id="mensajeDataPrevia" style="display: none; background: #e3f2fd; border: 1px solid #2196f3; border-radius: 8px; padding: 10px; margin-bottom: 15px;">
+                    <strong>💾 Datos Guardados:</strong> Se han cargado los datos previamente guardados. Puede modificar el número de productos y regenerar la tabla si es necesario.
+                    <button type="button" onclick="document.getElementById('mensajeDataPrevia').style.display='none'" style="float: right; background: transparent; border: none; font-size: 18px; cursor: pointer;" title="Cerrar mensaje">×</button>
+                </div>
                 <label for="numProductos" style="font-weight: bold;">¿Cuántos productos desea ingresar?</label>
                 <input type="number" id="numProductos" min="1" max="20" placeholder="Ej: 5" style="margin-left: 10px; padding: 5px;">
                 <button type="button" class="add-btn" onclick="generarTablaProductos()" style="margin-left: 10px;">Generar Tabla</button>
@@ -421,19 +429,9 @@ tfoot td {
                     <div id="clasificacionProductos" style="margin-top: 20px; background: #f8f9fa; padding: 20px; border-radius: 8px;">
                         <h4 style="margin: 0 0 15px 0; color: #673AB7;">Clasificación de Productos:</h4>
                         <div id="listaClasificacion"></div>
-                    </div>
-                </div>
-
-                <!-- Botones de acción -->
-                <div style="text-align: center; margin-top: 30px;">
-                    <button type="button" onclick="volverAlPaso1()" style="background: #6c757d; color: white; padding: 10px 20px; border: none; border-radius: 4px; margin-right: 10px;">
-                        ← Cambiar Cantidad de Productos
-                    </button>
-                    <button type="submit" class="add-btn" style="padding: 10px 30px; font-size: 16px;">
-                        Guardar y Continuar →
-                    </button>
-                </div>
-            </div>            <div class="section-title">Fortalezas y Debilidades</div>
+                    </div>                </div>
+            
+            <div class="section-title">Fortalezas y Debilidades</div>
             
             <!-- Fortalezas -->
             <div style="margin-bottom: 20px; text-align: center;">
@@ -458,8 +456,17 @@ tfoot td {
                 </div>
                 <button type="button" onclick="agregarItem('debilidadesContainer', 'debilidades')" class="btn-agregar">+ Agregar Debilidad</button>
             </div>
+
+            <!-- Botón de navegación -->
+            <div style="text-align: center; margin-top: 30px;">
+                <button type="submit" class="add-btn" style="padding: 10px 30px; font-size: 16px;">
+                    Guardar y Continuar →
+                </button>
+            </div>
         </form>
-    </div>    <script>
+            </div>
+        </div>
+    </div><script>
         let numProductos = 0;        // Funciones para manejar elementos de Fortalezas y Debilidades
         function agregarItem(containerId, fieldName) {
             const container = document.getElementById(containerId);
@@ -490,14 +497,29 @@ tfoot td {
             } else {
                 alert('Debe mantener al menos un elemento.');
             }
-        }
-
-        function generarTablaProductos() {
-            numProductos = parseInt(document.getElementById('numProductos').value);
+        }        function generarTablaProductos(manternerPaso1Visible = false) {
+            const nuevoNumProductos = parseInt(document.getElementById('numProductos').value);
             
-            if (numProductos < 1 || numProductos > 20) {
+            if (nuevoNumProductos < 1 || nuevoNumProductos > 20) {
                 alert('Por favor ingrese un número entre 1 y 20');
                 return;
+            }
+            
+            // Actualizar la variable global
+            numProductos = nuevoNumProductos;
+            
+            // Limpiar tablas relacionadas si se cambia el número de productos
+            const tbodyActual = document.getElementById('tablaProductos').querySelector('tbody');
+            const numFilasActuales = tbodyActual.children.length;
+            
+            if (numFilasActuales !== numProductos) {
+                // Si cambia el número de productos, resetear tablas relacionadas
+                document.getElementById('sectionTCM').style.display = 'none';
+                document.getElementById('sectionDemandaGlobal').style.display = 'none';
+                document.getElementById('sectionConfigCompetidores').style.display = 'none';
+                document.getElementById('sectionCompetidores').style.display = 'none';
+                document.getElementById('sectionMatrizBCG').style.display = 'none';
+                document.getElementById('sectionGraficoBCG').style.display = 'none';
             }
               const tbody = document.getElementById('tablaProductos').querySelector('tbody');
             tbody.innerHTML = '';
@@ -526,11 +548,15 @@ tfoot td {
             // Mostrar el paso 2
             document.getElementById('paso2').style.display = 'block';
             
-            // Ocultar el paso 1
-            document.getElementById('paso1').style.display = 'none';
+            // Solo ocultar el paso 1 si no se especifica mantenerlo visible
+            if (!manternerPaso1Visible) {
+                document.getElementById('paso1').style.display = 'none';
+            }
             
-            // Scroll hacia la tabla
-            document.getElementById('paso2').scrollIntoView({ behavior: 'smooth' });
+            // Scroll hacia la tabla solo si se oculta el paso 1
+            if (!manternerPaso1Visible) {
+                document.getElementById('paso2').scrollIntoView({ behavior: 'smooth' });
+            }
         }
 
         function calcularPorcentajes() {
@@ -1363,16 +1389,17 @@ tfoot td {
                         <br>
                         <small>TCM: ${tcm.toFixed(2)}% | PRM: ${prm.toFixed(2)} | Decisión: <strong>${decision}</strong></small>
                     </div>
-                `;
-                  listaClasificacion.appendChild(itemDiv);
+                `;                  listaClasificacion.appendChild(itemDiv);
             }
         }
-          // Función para guardar datos con AJAX
+        
+        // Función para guardar datos con AJAX
         function guardarDatos() {
             // Recopilar todos los datos del formulario
             const formData = new FormData();
             
-            // Datos básicos (sin id_empresa)
+            // Datos básicos (incluir id_plan)
+            formData.append('id_plan', '<?php echo htmlspecialchars($plan_id); ?>');
             formData.append('paso', '6');
             formData.append('nombre_paso', 'matriz_bcg');
             formData.append('numProductos', document.getElementById('numProductos').value || 0);
@@ -1391,8 +1418,7 @@ tfoot td {
             ventasInputs.forEach(input => {
                 formData.append('ventas[]', input.value || 0);
             });
-            
-            // Fortalezas
+              // Fortalezas
             const fortalezasInputs = document.querySelectorAll('input[name="fortalezas[]"]');
             fortalezasInputs.forEach(input => {
                 if (input.value.trim()) {
@@ -1408,80 +1434,253 @@ tfoot td {
                 }
             });
             
-            // Enviar datos por AJAX
-            fetch('../index.php?controller=PlanEstrategico&action=guardarPaso', {
+            // Porcentajes (calculados automáticamente)
+            const porcentajeSpans = document.querySelectorAll('.porcentaje');
+            porcentajeSpans.forEach(span => {
+                const porcentaje = span.textContent.replace('%', '');
+                formData.append('porcentaje_total[]', porcentaje);
+            });
+            
+            // Datos TCM (Tasas de Crecimiento del Mercado)
+            const tcmInputs = document.querySelectorAll('input[name^="tcm_"]');
+            tcmInputs.forEach(input => {
+                if (input.value) {
+                    formData.append(input.name, input.value);
+                }
+            });
+            
+            // Datos de Demanda Global
+            const demandaInputs = document.querySelectorAll('input[name^="demanda_"]');
+            demandaInputs.forEach(input => {
+                if (input.value) {
+                    formData.append(input.name, input.value);
+                }
+            });
+            
+            // Datos de Competidores
+            const competidorInputs = document.querySelectorAll('input[name^="competidor_"]');
+            competidorInputs.forEach(input => {
+                if (input.value) {
+                    formData.append(input.name, input.value);
+                }
+            });
+            
+            console.log('Enviando datos completos de Matriz BCG...');// Enviar datos por AJAX
+            fetch('../Controllers/PlanController.php?action=guardarMatrizBCG', {
                 method: 'POST',
                 body: formData
+            })            .then(response => {
+                console.log('Response status:', response.status);
+                return response.text();
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Datos guardados exitosamente en sesión');
-                    // Redirigir al siguiente paso del wizard
-                    window.location.href = 'fuerzas_porter.php';
-                } else {
-                    alert('Error al guardar: ' + data.message);
+            .then(text => {
+                console.log('Response text:', text);
+                try {
+                    const data = JSON.parse(text);                    if (data.success) {
+                        alert('✅ Matriz BCG guardada correctamente!');
+                        // Redirigir al siguiente paso: Fuerzas Porter
+                        setTimeout(() => {
+                            window.location.href = '../Controllers/PlanController.php?action=editarFuerzasPorter&id_plan=<?php echo htmlspecialchars($plan_id); ?>';
+                        }, 1000);
+                    } else {
+                        alert('❌ Error: ' + data.message);
+                    }
+                } catch (e) {
+                    console.error('Error parsing JSON:', e);
+                    alert('Error en la respuesta del servidor: ' + text);
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Error de conexión al guardar los datos');
+                alert('Error al guardar los datos: ' + error.message);
             });
         }
-          // Modificar el evento de submit del formulario
-        document.querySelector('form').addEventListener('submit', function(e) {
+        
+        // Modificar el evento de submit del formulario
+        document.getElementById('matrizBCGForm').addEventListener('submit', function(e) {
             e.preventDefault();
             guardarDatos();
-        });
-
-        // Cargar datos previos desde sesión si existen
+        });        // Cargar datos previos desde la base de datos si existen
         window.addEventListener('DOMContentLoaded', function() {
-            <?php if (!empty($datos_bcg)): ?>
+            <?php if (!empty($matriz_bcg_previa)): ?>
+                console.log('Cargando datos previos de Matriz BCG...');
+                
                 // Precargar datos básicos
-                <?php if (isset($datos_bcg['numProductos'])): ?>
-                    document.getElementById('numProductos').value = '<?php echo $datos_bcg['numProductos']; ?>';
-                    if (<?php echo $datos_bcg['numProductos']; ?> > 0) {
-                        generarTablaProductos();
+                <?php if (isset($matriz_bcg_previa['productos']) && is_array($matriz_bcg_previa['productos'])): ?>
+                    const numProductos = <?php echo count($matriz_bcg_previa['productos']); ?>;
+                    document.getElementById('numProductos').value = numProductos;
+                      if (numProductos > 0) {
+                        // Generar tabla de productos manteniendo visible el paso 1
+                        generarTablaProductos(true);
+                          // IMPORTANTE: Mantener visible el paso 1 para permitir modificaciones
+                        document.getElementById('paso1').style.display = 'block';
                         
-                        // Esperar un momento para que se genere la tabla y luego cargar datos
+                        // Mostrar mensaje informativo de datos previos
+                        document.getElementById('mensajeDataPrevia').style.display = 'block';
+                        
+                        // Esperar a que se genere la tabla y luego cargar datos
                         setTimeout(function() {
-                            <?php if (isset($datos_bcg['productos']) && is_array($datos_bcg['productos'])): ?>
-                                // Precargar productos
-                                <?php foreach ($datos_bcg['productos'] as $index => $producto): ?>
-                                    const productoInput<?php echo $index; ?> = document.querySelector('input[name="productos[]"]:nth-of-type(<?php echo $index + 1; ?>)');
-                                    if (productoInput<?php echo $index; ?>) {
-                                        productoInput<?php echo $index; ?>.value = '<?php echo htmlspecialchars($producto); ?>';
-                                    }
-                                <?php endforeach; ?>
-                            <?php endif; ?>
+                            // Cargar nombres de productos y ventas
+                            const productosInputs = document.querySelectorAll('input[name="productos[]"]');
+                            const ventasInputs = document.querySelectorAll('input[name="ventas[]"]');
                             
-                            <?php if (isset($datos_bcg['ventas']) && is_array($datos_bcg['ventas'])): ?>
-                                // Precargar ventas
-                                <?php foreach ($datos_bcg['ventas'] as $index => $venta): ?>
-                                    const ventaInput<?php echo $index; ?> = document.querySelector('input[name="ventas[]"]:nth-of-type(<?php echo $index + 1; ?>)');
-                                    if (ventaInput<?php echo $index; ?>) {
-                                        ventaInput<?php echo $index; ?>.value = '<?php echo $venta; ?>';
+                            <?php foreach ($matriz_bcg_previa['productos'] as $index => $producto): ?>
+                                if (productosInputs[<?php echo $index; ?>]) {
+                                    productosInputs[<?php echo $index; ?>].value = '<?php echo addslashes($producto); ?>';
+                                }
+                            <?php endforeach; ?>
+                            
+                            <?php if (isset($matriz_bcg_previa['ventas']) && is_array($matriz_bcg_previa['ventas'])): ?>
+                                <?php foreach ($matriz_bcg_previa['ventas'] as $index => $venta): ?>
+                                    if (ventasInputs[<?php echo $index; ?>]) {
+                                        ventasInputs[<?php echo $index; ?>].value = '<?php echo $venta; ?>';
                                     }
                                 <?php endforeach; ?>
                                 
                                 // Recalcular porcentajes
                                 calcularPorcentajes();
                             <?php endif; ?>
+                            
+                            // Cargar fortalezas si existen
+                            <?php if (isset($matriz_bcg_previa['fortalezas']) && is_array($matriz_bcg_previa['fortalezas'])): ?>
+                                const fortalezasContainer = document.getElementById('fortalezasContainer');
+                                fortalezasContainer.innerHTML = '';
+                                <?php foreach ($matriz_bcg_previa['fortalezas'] as $index => $fortaleza): ?>
+                                    <?php if (!empty(trim($fortaleza))): ?>
+                                        const fortalezaDiv = document.createElement('div');
+                                        fortalezaDiv.className = 'foda-item';
+                                        fortalezaDiv.innerHTML = `
+                                            <input type="text" name="fortalezas[]" value="<?php echo addslashes($fortaleza); ?>" style="width: 90%; margin-bottom: 5px;">
+                                            <button type="button" onclick="eliminarItem(this)" class="btn-eliminar">×</button>
+                                        `;
+                                        fortalezasContainer.appendChild(fortalezaDiv);
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                            
+                            // Cargar debilidades si existen
+                            <?php if (isset($matriz_bcg_previa['debilidades']) && is_array($matriz_bcg_previa['debilidades'])): ?>
+                                const debilidadesContainer = document.getElementById('debilidadesContainer');
+                                debilidadesContainer.innerHTML = '';
+                                <?php foreach ($matriz_bcg_previa['debilidades'] as $index => $debilidad): ?>
+                                    <?php if (!empty(trim($debilidad))): ?>
+                                        const debilidadDiv = document.createElement('div');
+                                        debilidadDiv.className = 'foda-item';
+                                        debilidadDiv.innerHTML = `
+                                            <input type="text" name="debilidades[]" value="<?php echo addslashes($debilidad); ?>" style="width: 90%; margin-bottom: 5px;">
+                                            <button type="button" onclick="eliminarItem(this)" class="btn-eliminar">×</button>
+                                        `;
+                                        debilidadesContainer.appendChild(debilidadDiv);
+                                    <?php endif; ?>
+                                <?php endforeach; ?>                            <?php endif; ?>
+                            
+                            <?php
+                            // Buscar datos TCM y extraer años
+                            $anios_encontrados = [];
+                            foreach ($matriz_bcg_previa as $key => $value) {
+                                if (strpos($key, 'tcm_') === 0) {
+                                    $parts = explode('_', $key);
+                                    if (count($parts) >= 2) {
+                                        $anios_encontrados[] = intval($parts[1]);
+                                    }
+                                }
+                            }
+                            
+                            // Buscar datos de competidores y extraer número
+                            $competidores_encontrados = [];
+                            foreach ($matriz_bcg_previa as $key => $value) {
+                                if (strpos($key, 'competidor_') === 0) {
+                                    $parts = explode('_', $key);
+                                    if (count($parts) >= 2) {
+                                        $competidores_encontrados[] = intval($parts[1]);
+                                    }
+                                }
+                            }
+                            ?>
+                            
+                            // Cargar datos de períodos TCM si existen
+                            <?php if (!empty($anios_encontrados)): ?>
+                                <?php 
+                                $anio_inicio = min($anios_encontrados);
+                                $anio_fin = max($anios_encontrados) + 1; // +1 porque TCM va de año a año+1
+                                ?>
+                                
+                                // Configurar años y generar tabla TCM
+                                document.getElementById('anioInicio').value = '<?php echo $anio_inicio; ?>';
+                                document.getElementById('anioFin').value = '<?php echo $anio_fin; ?>';
+                                
+                                setTimeout(() => {
+                                    console.log('Generando tabla TCM...');
+                                    generarTablaTCM();
+                                      // Cargar datos TCM después de generar la tabla
+                                    setTimeout(() => {
+                                        console.log('Cargando datos TCM...');
+                                        let tcmInput;
+                                        <?php foreach ($matriz_bcg_previa as $key => $value): ?>
+                                            <?php if (strpos($key, 'tcm_') === 0): ?>
+                                                tcmInput = document.querySelector('input[name="<?php echo $key; ?>"]');
+                                                if (tcmInput) {
+                                                    tcmInput.value = '<?php echo $value; ?>';
+                                                    convertirAPorcentaje(tcmInput);
+                                                }
+                                            <?php endif; ?>
+                                        <?php endforeach; ?>
+                                        
+                                        // Cargar datos de demanda global
+                                        let demandaInput;
+                                        <?php foreach ($matriz_bcg_previa as $key => $value): ?>
+                                            <?php if (strpos($key, 'demanda_') === 0): ?>
+                                                demandaInput = document.querySelector('input[name="<?php echo $key; ?>"]');
+                                                if (demandaInput) {
+                                                    demandaInput.value = '<?php echo $value; ?>';
+                                                    convertirAPorcentajeDemanda(demandaInput);
+                                                }
+                                            <?php endif; ?>
+                                        <?php endforeach; ?>
+                                        
+                                        console.log('Datos TCM y Demanda Global cargados');
+                                        
+                                        // Cargar datos de competidores
+                                        <?php if (!empty($competidores_encontrados)): ?>
+                                            <?php $num_competidores = max($competidores_encontrados); ?>
+                                            document.getElementById('numCompetidores').value = '<?php echo $num_competidores; ?>';
+                                            
+                                            setTimeout(() => {
+                                                console.log('Generando tabla de competidores...');
+                                                generarTablaCompetidores();
+                                                  // Cargar datos de competidores después de generar la tabla
+                                                setTimeout(() => {
+                                                    console.log('Cargando datos de competidores...');
+                                                    let compInput;
+                                                    <?php foreach ($matriz_bcg_previa as $key => $value): ?>
+                                                        <?php if (strpos($key, 'competidor_') === 0): ?>
+                                                            compInput = document.querySelector('input[name="<?php echo $key; ?>"]');
+                                                            if (compInput) {
+                                                                compInput.value = '<?php echo $value; ?>';
+                                                                // Extraer índice de producto para recalcular el mayor
+                                                                const parts = '<?php echo $key; ?>'.split('_');
+                                                                if (parts.length >= 3) {
+                                                                    const productoIndex = parseInt(parts[2]);
+                                                                    calcularMayor(productoIndex);
+                                                                }
+                                                            }
+                                                        <?php endif; ?>
+                                                    <?php endforeach; ?>
+                                                    
+                                                    console.log('Datos de competidores cargados exitosamente');
+                                                }, 500);
+                                            }, 500);
+                                        <?php endif; ?>
+                                        
+                                    }, 800);
+                                }, 700);
+                            <?php endif; ?>
+                              console.log('Datos previos cargados exitosamente');
+                            
                         }, 500);
                     }
-                <?php endif; ?>
-                
-                <?php if (isset($datos_bcg['anioInicio'])): ?>
-                    document.getElementById('anioInicio').value = '<?php echo $datos_bcg['anioInicio']; ?>';
-                <?php endif; ?>
-                
-                <?php if (isset($datos_bcg['anioFin'])): ?>
-                    document.getElementById('anioFin').value = '<?php echo $datos_bcg['anioFin']; ?>';
-                <?php endif; ?>
-                
-                <?php if (isset($datos_bcg['numCompetidores'])): ?>
-                    document.getElementById('numCompetidores').value = '<?php echo $datos_bcg['numCompetidores']; ?>';
-                <?php endif; ?>
+                <?php endif; ?>            <?php else: ?>
+                console.log('No hay datos previos de Matriz BCG para cargar');
             <?php endif; ?>
         });
     </script>

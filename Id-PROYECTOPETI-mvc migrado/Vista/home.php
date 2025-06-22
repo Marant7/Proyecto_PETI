@@ -5,382 +5,282 @@ if (!isset($_SESSION['user'])) {
     exit();
 }
 $user = $_SESSION['user'];
-
-// Cargar planes del usuario
-require_once '../Controllers/PlanEstrategicoController.php';
-$controller = new PlanEstrategicoController();
-
-// Obtener ID de usuario de manera más robusta
-$user_id = $user['id_usuario'] ?? $user['id'] ?? null;
-if (!$user_id) {
-    error_log("Error: No se pudo obtener el ID del usuario de la sesión");
-    $planes = [];
-} else {
-    $planes = $controller->obtenerPlanesUsuario($user_id);
-}
+$usuario_id = $user['id_usuario'] ?? $user['id'] ?? null;
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Planes Estratégicos</title>
+    <title>Empresas</title>
     <link rel="stylesheet" href="../public/css/main.css">
     <link rel="stylesheet" href="../public/css/material-design-iconic-font.min.css">
     <style>
-        .dashboard-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
+        body {
+            background: linear-gradient(135deg, #f4f6fb, #e8ebf2);
             font-family: 'Roboto', Arial, sans-serif;
+            color: #333;
         }
-        
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            border-radius: 10px;
-            margin-bottom: 30px;
+        .centered-container {
+            max-width: 800px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            padding: 40px;
             text-align: center;
         }
-        
-        .header h1 {
-            margin: 0;
-            font-size: 2.5em;
-            font-weight: 300;
-        }
-        
-        .user-info {
-            margin-top: 10px;
-            opacity: 0.9;
-        }
-        
-        .actions-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            padding: 20px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .btn {
-            padding: 12px 24px;
+        .btn-main {
+            padding: 14px 28px;
             border: none;
-            border-radius: 6px;
-            text-decoration: none;
+            border-radius: 8px;
+            background: #007bff;
+            color: #fff;
+            font-size: 1.1em;
             font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
             cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+            margin-top: 20px;
         }
-        
-        .btn-primary {
-            background-color: #007bff;
-            color: white;
+        .btn-main:hover {
+            background: #0056b3;
+            transform: scale(1.05);
         }
-        
-        .btn-primary:hover {
-            background-color: #0056b3;
-            transform: translateY(-2px);
+        .empresas-list {
+            margin: 30px 0;
+            text-align: left;
         }
-        
-        .btn-danger {
-            background-color: #dc3545;
-            color: white;
-        }
-        
-        .btn-danger:hover {
-            background-color: #c82333;
-            transform: translateY(-2px);
-        }
-        
-        .btn-info {
-            background-color: #17a2b8;
-            color: white;
-        }
-        
-        .btn-info:hover {
-            background-color: #138496;
-        }
-        
-        .btn-success {
-            background-color: #28a745;
-            color: white;
-        }
-        
-        .btn-success:hover {
-            background-color: #218838;
-        }
-        
-        .planes-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .plan-card {
-            background: white;
+        .empresa-card {
+            background: #f9f9fb;
             border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .plan-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        }
-        
-        .plan-header {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
         }
-        
-        .plan-title {
+        .empresa-nombre {
             font-size: 1.4em;
             font-weight: 600;
-            margin: 0 0 5px 0;
+            color: #333;
+            margin-bottom: 6px;
         }
-        
-        .plan-empresa {
-            opacity: 0.9;
-            font-size: 1.1em;
+        .empresa-desc {
+            color: #555;
+            margin-bottom: 8px;
         }
-        
-        .plan-body {
-            padding: 20px;
-        }
-        
-        .plan-meta {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-        
-        .meta-item {
-            text-align: center;
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 6px;
-        }
-        
-        .meta-value {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #007bff;
-        }
-        
-        .meta-label {
-            font-size: 0.8em;
-            color: #666;
-            margin-top: 5px;
-        }
-        
-        .plan-description {
-            color: #666;
-            margin-bottom: 15px;
-            line-height: 1.5;
-        }
-        
-        .plan-stats {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 6px;
-        }
-        
-        .stat-item {
-            text-align: center;
-        }
-        
-        .stat-number {
-            font-size: 1.2em;
-            font-weight: bold;
-            color: #28a745;
-        }
-        
-        .stat-label {
-            font-size: 0.8em;
-            color: #666;
-        }
-        
-        .plan-actions {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .btn-sm {
-            padding: 8px 16px;
+        .empresa-fecha {
             font-size: 0.9em;
-            flex: 1;
-            text-align: center;
+            color: #888;
         }
-        
-        .empty-state {
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            background: #28a745;
+            color: #fff;
+            font-size: 1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+        }
+        .btn:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+        .btn-cancel {
+            background: #dc3545;
+            margin-top: 10px;
+        }
+        .btn-cancel:hover {
+            background: #b52a37;
+        }
+        .msg {
             text-align: center;
-            padding: 60px 20px;
-            background: white;
+            margin-top: 18px;
+            font-size: 1em;
+        }
+        #modalEmpresa {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+        #modalEmpresa .modal-content {
+            background: #fff;
+            padding: 40px;
             border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            position: relative;
         }
-        
-        .empty-icon {
-            font-size: 4em;
-            color: #ccc;
+        #modalEmpresa h2 {
+            margin-top: 0;
+            font-size: 1.5em;
+            color: #333;
+        }
+        .form-group {
             margin-bottom: 20px;
+            text-align: left;
         }
-        
-        .estado-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8em;
-            font-weight: 600;
-            text-transform: uppercase;
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
         }
-        
-        .estado-completado {
-            background-color: #d4edda;
-            color: #155724;
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 1em;
         }
-        
-        .estado-borrador {
-            background-color: #fff3cd;
-            color: #856404;
-        }
-        
-        .fecha-texto {
-            font-size: 0.9em;
-            color: #666;
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            color: #888;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
-    <div class="dashboard-container">
-        <!-- Header -->
-        <div class="header">
-            <h1><i class="zmdi zmdi-assignment"></i> Dashboard de Planes Estratégicos</h1>
-            <div class="user-info">
-                <p>Bienvenido, <strong><?php echo htmlspecialchars($user['nombre'] . ' ' . $user['apellido']); ?></strong></p>
-                <p>Usuario: <?php echo htmlspecialchars($user['usuario']); ?></p>
-            </div>
-        </div>
-
-        <!-- Barra de acciones -->
-        <div class="actions-bar">
-            <div>
-                <h2 style="margin: 0; color: #333;">Mis Planes Estratégicos</h2>
-                <p style="margin: 5px 0 0 0; color: #666;">Total: <?php echo count($planes); ?> planes</p>
-            </div>
-            <div>
-                <a href="nuevo_plan.php" class="btn btn-primary">
-                    <i class="zmdi zmdi-plus"></i> Nuevo Plan
-                </a>
-                <a href="logout.php" class="btn btn-danger">
-                    <i class="zmdi zmdi-power"></i> Cerrar Sesión
-                </a>
-            </div>
-        </div>
-
-        <!-- Grid de planes -->
-        <?php if (empty($planes)): ?>
-        <div class="empty-state">
-            <div class="empty-icon">
-                <i class="zmdi zmdi-assignment"></i>
-            </div>
-            <h3>No tienes planes estratégicos aún</h3>
-            <p>Crea tu primer plan estratégico para comenzar</p>
-            <a href="nuevo_plan.php" class="btn btn-primary">
-                <i class="zmdi zmdi-plus"></i> Crear Primer Plan
-            </a>
-        </div>
-        <?php else: ?>
-        <div class="planes-grid">
-            <?php foreach ($planes as $plan): ?>
-            <div class="plan-card">
-                <div class="plan-header">
-                    <h3 class="plan-title"><?php echo htmlspecialchars($plan['nombre_plan']); ?></h3>
-                    <p class="plan-empresa"><?php echo htmlspecialchars($plan['empresa']); ?></p>
-                </div>
-                
-                <div class="plan-body">
-                    <div class="plan-meta">
-                        <div class="meta-item">
-                            <div class="meta-value"><?php echo date('d/m/Y', strtotime($plan['fecha_creacion'])); ?></div>
-                            <div class="meta-label">Fecha de Creación</div>
-                        </div>
-                        <div class="meta-item">
-                            <span class="estado-badge estado-<?php echo $plan['estado']; ?>">
-                                <?php echo ucfirst($plan['estado']); ?>
-                            </span>
-                        </div>
-                    </div>
-
-                    <?php if (!empty($plan['descripcion'])): ?>
-                    <div class="plan-description">
-                        <?php echo htmlspecialchars(substr($plan['descripcion'], 0, 120)); ?>
-                        <?php if (strlen($plan['descripcion']) > 120): ?>...<?php endif; ?>
-                    </div>
-                    <?php endif; ?>
-
-                    <div class="plan-stats">
-                        <div class="stat-item">
-                            <div class="stat-number"><?php echo $plan['total_valores']; ?></div>
-                            <div class="stat-label">Valores</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-number"><?php echo $plan['total_fortalezas']; ?></div>
-                            <div class="stat-label">Fortalezas</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-number"><?php echo $plan['total_oportunidades']; ?></div>
-                            <div class="stat-label">Oportunidades</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-number"><?php echo $plan['total_amenazas']; ?></div>
-                            <div class="stat-label">Amenazas</div>
-                        </div>
-                    </div>
-
-                    <div class="plan-actions">
-                        <a href="ver_plan.php?id=<?php echo $plan['id_plan']; ?>" class="btn btn-info btn-sm">
-                            <i class="zmdi zmdi-eye"></i> Ver Plan
-                        </a>
-                        <a href="resumen_plan.php?id=<?php echo $plan['id_plan']; ?>" class="btn btn-success btn-sm">
-                            <i class="zmdi zmdi-file-text"></i> Resumen
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <?php endforeach; ?>
-        </div>
-        <?php endif; ?>
+    <div class="centered-container">
+        <h2>Empresas</h2>
+        <p style="color:#555; margin-bottom:18px;">Bienvenido, <strong><?php echo htmlspecialchars($user['nombre'] . ' ' . $user['apellido']); ?></strong></p>
+        <button class="btn-main" onclick="mostrarModalEmpresa()">
+            <i class="zmdi zmdi-city"></i> Crear Empresa
+        </button>
+        <div class="msg" id="msg"></div>
+        <div class="empresas-list" id="empresasList"></div>
     </div>
-
+    <!-- Modal para crear empresa -->
+    <div id="modalEmpresa">
+        <div class="modal-content">
+            <button class="close-modal" onclick="cerrarModalEmpresa()">&times;</button>
+            <h2>Crear Empresa</h2>
+            <form id="formEmpresa">
+                <div class="form-group">
+                    <label>Nombre de la empresa</label>
+                    <input type="text" name="nombre_empresa" required>
+                </div>
+                <div class="form-group">
+                    <label>Descripción</label>
+                    <textarea name="descripcion_empresa" required></textarea>
+                </div>
+                <button type="submit" class="btn">Guardar Empresa</button>
+                <button type="button" class="btn btn-cancel" onclick="cerrarModalEmpresa()">Cancelar</button>
+            </form>
+        </div>
+    </div>
     <script>
-        // Animación suave al cargar las cards
-        document.addEventListener('DOMContentLoaded', function() {
-            const cards = document.querySelectorAll('.plan-card');
-            cards.forEach((card, index) => {
-                card.style.opacity = '0';
-                card.style.transform = 'translateY(20px)';
-                setTimeout(() => {
-                    card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-                    card.style.opacity = '1';
-                    card.style.transform = 'translateY(0)';
-                }, index * 100);
-            });
+    function mostrarModalEmpresa() {
+        document.getElementById('modalEmpresa').style.display = 'flex';
+    }
+    function cerrarModalEmpresa() {
+        document.getElementById('modalEmpresa').style.display = 'none';
+    }
+    function cargarEmpresas() {
+        fetch('../Controllers/EmpresaController.php?action=listar')
+        .then(res => res.json())
+        .then(empresas => {
+            const cont = document.getElementById('empresasList');
+            if (!empresas.length) {
+                cont.innerHTML = '<p style="color:#888; text-align:center;">No tienes empresas registradas.</p>';
+                return;
+            }
+            cont.innerHTML = empresas.map(e => {
+                let planesHtml = '';
+                if (e.planes && e.planes.length) {                    planesHtml = `<div style='margin-top:10px;'>Planes:<ul style='margin:8px 0 0 18px; padding:0;'>` +
+                        e.planes.map(p =>                            `<li style='margin-bottom:4px;'>
+                                <span style='color:#007bff;'>Plan del ${p.fecha_creacion ? p.fecha_creacion.substring(0,10) : 'Sin fecha'}</span>
+                                <a href="../Controllers/PlanController.php?action=editarVisionMision&id_plan=${p.id}" class="btn btn-warning btn-sm" style="margin-left:10px; padding:4px 12px; font-size:0.95em;">
+                                    <i class="zmdi zmdi-edit"></i> Editar
+                                </a>
+                                <a href="../Controllers/PlanController.php?action=verResumenEjecutivo&id_plan=${p.id}" class="btn btn-info btn-sm" style="margin-left:5px; padding:4px 12px; font-size:0.95em;">
+                                    <i class="zmdi zmdi-assignment"></i> Ver Resumen
+                                </a>
+                            </li>`
+                        ).join('') + '</ul></div>';
+                }
+                return `
+                <div class="empresa-card" style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
+                    <div style="flex:1;">
+                        <div class="empresa-nombre">${e.nombre}</div>
+                        <div class="empresa-desc">${e.descripcion}</div>
+                        <div class="empresa-fecha">Creada: ${e.fecha_creacion ? e.fecha_creacion.substring(0,10) : ''}</div>
+                        ${planesHtml}
+                    </div>
+                    <button class="btn btn-info" style="min-width:150px; margin-left:10px; height:40px; align-self:center;" onclick="crearPlan(${e.id})">
+                        <i class='zmdi zmdi-assignment'></i> Crear nuevo plan
+                    </button>
+                </div>
+                `;
+            }).join('');
         });
+    }
+    document.getElementById('formEmpresa').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const form = e.target;
+        const formData = new FormData(form);
+        fetch('../Controllers/EmpresaController.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then (data => {
+            const msg = document.getElementById('msg');
+            if (data.success) {
+                msg.textContent = '¡Empresa creada exitosamente!';
+                msg.style.color = 'green';
+                form.reset();
+                cerrarModalEmpresa();
+                cargarEmpresas();
+            } else {
+                msg.textContent = data.message || 'Error al crear la empresa';
+                msg.style.color = 'red';
+            }
+        })
+        .catch(() => {
+            const msg = document.getElementById('msg');
+            msg.textContent = 'Error de conexión';
+            msg.style.color = 'red';
+        });
+    });
+    document.addEventListener('DOMContentLoaded', cargarEmpresas);
+
+    function crearPlan(empresa_id) {
+        if (!confirm('¿Crear un nuevo plan para esta empresa?')) return;
+        fetch('../Controllers/PlanController.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'empresa_id=' + encodeURIComponent(empresa_id)
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                // Redirigir a vision_mision.php con el id del plan
+                window.location.href = 'vision_mision.php?id_plan=' + data.plan_id;
+            } else {
+                alert(data.message || 'Error al crear el plan');
+            }
+        })
+        .catch(() => {
+            alert('Error de conexión');
+        });
+    }
     </script>
 </body>
 </html>

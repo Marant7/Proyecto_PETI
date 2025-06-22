@@ -1,10 +1,9 @@
 <?php
-session_start();
-if (!isset($_SESSION['user'])) {
-    header('Location: login.php');
-    exit();
-}
-$user = $_SESSION['user'];
+// Obtener datos del usuario desde la sesión
+$user = isset($_SESSION['user']) ? $_SESSION['user'] : null;
+// Inicializar variables para evitar warnings
+if (!isset($cadena_valor_previa)) $cadena_valor_previa = [];
+if (!isset($plan_id)) $plan_id = $_GET['id_plan'] ?? '';
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -15,167 +14,133 @@ $user = $_SESSION['user'];
   <link rel="stylesheet" href="../public/css/main.css">
   <link rel="stylesheet" href="../public/css/plan-estrategico.css">  <style>
     body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #f8f9fa;
+        background: linear-gradient(135deg, #f4f6fb, #e8ebf2);
+        font-family: 'Roboto', Arial, sans-serif;
+        color: #333;
     }
     .container {
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 20px;
-      background-color: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        max-width: 900px;
+        margin: 40px auto;
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        padding: 40px;
     }
     .header {
-      text-align: center;
-      padding: 20px;
-      background-color: #4CAF50;
-      color: white;
-      border-radius: 8px;
-      margin-bottom: 30px;
+        text-align: center;
+        padding: 20px;
+        background: #007bff;
+        color: white;
+        border-radius: 12px;
+        margin-bottom: 30px;
     }
-    .fortalezas-debilidades {
-      margin-top: 40px;
-      padding: 20px;
-      background-color: #f8f9fa;
-      border-radius: 8px;
-      box-shadow: 0 1px 5px rgba(0,0,0,0.1);
-    }
-    .foda-section {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      margin-top: 20px;
-    }
-    .fortalezas, .debilidades {
-      flex: 1;
-      min-width: 300px;
-    }
-    .fortalezas {
-      background-color: #d4edda;
-      padding: 15px;
-      border-radius: 5px;
-      border-left: 5px solid #28a745;
-    }
-    .debilidades {
-      background-color: #f8d7da;
-      padding: 15px;
-      border-radius: 5px;
-      border-left: 5px solid #dc3545;
-    }
-    .item-input {
-      display: flex;
-      margin-bottom: 10px;
-      align-items: center;
-    }
-    .item-input input {
-      flex: 1;
-      padding: 8px;
-      margin-right: 10px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-    }
-    .btn-remove {
-      background-color: #dc3545;
-      color: white;
-      border: none;
-      padding: 5px 10px;
-      border-radius: 3px;
-      cursor: pointer;
-    }
-    .btn-add {
-      background-color: #007bff;
-      color: white;
-      border: none;
-      padding: 8px 15px;
-      border-radius: 4px;
-      margin-top: 10px;
-      cursor: pointer;
-    }
-    .navigation-buttons {
-      margin-top: 30px;
-      text-align: center;
-    }
-    .navigation-buttons a, .navigation-buttons button {
-      padding: 12px 25px;
-      margin: 0 10px;
-      text-decoration: none;
-      border: none;
-      border-radius: 5px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    .btn-primary { background-color: #28a745; color: white; }
-    .btn-secondary { background-color: #6c757d; color: white; }
-    .btn-danger { background-color: #dc3545; color: white; }
-    
-    /* Mejoras para la tabla */
     .table-container {
-      overflow-x: auto;
-      width: 100%;
-      margin-bottom: 20px;
+        overflow-x: auto;
+        margin-bottom: 20px;
     }
     table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 20px;
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
     }
     th, td {
-      border: 1px solid #ddd;
-      padding: 10px 8px;
-      text-align: center;
-      font-size: 14px;
+        border: 1px solid #ddd;
+        padding: 12px;
+        text-align: center;
+        font-size: 14px;
     }
     th {
-      background-color: #f2f2f2;
-      font-weight: bold;
+        background-color: #f2f2f2;
+        font-weight: bold;
     }
     .statement {
-      text-align: left;
-      padding-left: 10px;
+        text-align: left;
+        padding-left: 10px;
     }
     .header-row th {
-      background-color: #4CAF50;
-      color: white;
-      padding: 12px 8px;
+        background-color: #007bff;
+        color: white;
     }
     input[type="radio"] {
-      margin: 0 auto;
-      display: block;
-      transform: scale(1.2);
+        margin: 0 auto;
+        display: block;
+        transform: scale(1.2);
     }
-    
-    /* Mejoras responsivas */
-    @media (max-width: 768px) {
-      .foda-section {
-        flex-direction: column;
-      }
-      .statement {
-        font-size: 13px;
-      }
-      th, td {
-        padding: 6px 4px;
-        font-size: 12px;
-      }
+    .reflection-section textarea {
+        width: 100%;
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 1em;
+    }
+    .buttons {
+        text-align: center;
+        margin-top: 20px;
+    }
+    .btn-primary {
+        background-color: #28a745;
+        color: white;
+        padding: 12px 25px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1em;
+        cursor: pointer;
+        transition: background 0.3s, transform 0.2s;
+    }
+    .btn-primary:hover {
+        background-color: #218838;
+        transform: scale(1.05);
+    }
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+        padding: 12px 25px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1em;
+        cursor: pointer;
+        transition: background 0.3s, transform 0.2s;
+    }
+    .btn-secondary:hover {
+        background-color: #5a6268;
+        transform: scale(1.05);
+    }
+    .btn-danger {
+        background-color: #dc3545;
+        color: white;
+        padding: 12px 25px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1em;
+        cursor: pointer;
+        transition: background 0.3s, transform 0.2s;
+    }
+    .btn-danger:hover {
+        background-color: #b52a37;
+        transform: scale(1.05);
+    }    .content {
+        margin-left: 270px;
     }
   </style>
 </head>
-<body>    <div class="header">
-        <h1>Paso 5: Cadena de Valor</h1>
-        <p>Usuario: <?php echo htmlspecialchars($user['nombre'] . ' ' . $user['apellido']); ?></p>
+<body>
+    <div style="display:flex; min-height:100vh;">
+        <!-- Barra lateral -->
+        <?php include 'sidebar.php'; ?>
+
+        <div class="content">    <div class="header">
+        <h1>Paso 4: Cadena de Valor</h1>
+        <p>Usuario: <?php echo $user ? htmlspecialchars($user['nombre'] . ' ' . $user['apellido']) : 'Invitado'; ?></p>
     </div>
 
-    <div class="container">
+    <div class="container content">
         <h2 style="text-align: center; margin-bottom: 20px;">Cadena de Valor</h2>
         <p style="text-align: center; margin-bottom: 25px;">A continuación marque con una X para valorar su empresa en función de cada una de las afirmaciones, 
           de tal forma que 0= En total en desacuerdo; 1= No está de acuerdo; 2=Está de acuerdo; 3= Está bastante de acuerdo; 
           4=En total acuerdo.</p>
 
-        <form id="evaluationForm" action="../index.php?controller=PlanEstrategico&action=guardarPaso" method="POST">
-            <input type="hidden" name="paso" value="5">
-            <input type="hidden" name="nombre_paso" value="cadena_valor">
+        <form id="evaluationForm" action="../Controllers/PlanController.php?action=guardarCadenaValor" method="POST">
+            <input type="hidden" name="id_plan" value="<?php echo htmlspecialchars($plan_id); ?>">
             
             <div class="table-container">
                 <table>
@@ -446,19 +411,80 @@ $user = $_SESSION['user'];
                     </div>
                 </div>                <!-- Campos ocultos para el porcentaje -->
                 <input type="hidden" name="porcentaje" id="porcentaje-hidden">
-            </form>
-
-            <!-- Botones de navegación -->
-            <div class="navigation-buttons">
-                <button type="submit" form="evaluationForm" class="btn-primary">Siguiente</button>
-                <a href="objetivos_estrategicos.php" class="btn-secondary">Anterior</a>
-                <a href="home.php" class="btn-danger">Cancelar</a>
+            </form>            <!-- Botón de navegación -->
+            <div class="navigation-buttons" style="text-align: center; margin-top: 30px;">
+                <button type="submit" form="evaluationForm" class="btn-primary">Guardar y Continuar</button>
             </div>
         </div>
     </div>
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
+    // Cargar datos previos si existen
+    <?php if (!empty($cadena_valor_previa)): ?>
+    const datosPrevios = <?php echo json_encode($cadena_valor_previa); ?>;
+    
+    // Cargar respuestas del cuestionario
+    if (datosPrevios.respuestas) {
+        Object.keys(datosPrevios.respuestas).forEach(pregunta => {
+            const valor = datosPrevios.respuestas[pregunta];
+            const radio = document.querySelector(`input[name="${pregunta}"][value="${valor}"]`);
+            if (radio) {
+                radio.checked = true;
+            }
+        });
+    }
+    
+    // Cargar resultado/reflexión
+    if (datosPrevios.resultado) {
+        const textareaResultado = document.querySelector('textarea[name="resultado"]');
+        if (textareaResultado) {
+            textareaResultado.value = datosPrevios.resultado;
+        }
+    }
+    
+    // Cargar porcentaje
+    if (datosPrevios.porcentaje) {
+        document.getElementById("porcentaje-hidden").value = datosPrevios.porcentaje;
+        const tablePercentageCell = document.querySelector(".result-row #result-percentage");
+        if (tablePercentageCell) {
+            tablePercentageCell.textContent = `${datosPrevios.porcentaje}%`;
+        }
+    }
+    
+    // Cargar fortalezas
+    if (datosPrevios.fortalezas && datosPrevios.fortalezas.length > 0) {
+        const fortalezasContainer = document.getElementById('fortalezasContainer');
+        fortalezasContainer.innerHTML = ''; // Limpiar
+        
+        datosPrevios.fortalezas.forEach(fortaleza => {
+            const newDiv = document.createElement('div');
+            newDiv.className = 'item-input';
+            newDiv.innerHTML = `
+                <input type="text" name="fortalezas[]" value="${fortaleza.replace(/"/g, '&quot;')}" placeholder="Describa una fortaleza de su empresa...">
+                <button type="button" class="btn-remove" onclick="removeItem(this)">×</button>
+            `;
+            fortalezasContainer.appendChild(newDiv);
+        });
+    }
+    
+    // Cargar debilidades
+    if (datosPrevios.debilidades && datosPrevios.debilidades.length > 0) {
+        const debilidadesContainer = document.getElementById('debilidadesContainer');
+        debilidadesContainer.innerHTML = ''; // Limpiar
+        
+        datosPrevios.debilidades.forEach(debilidad => {
+            const newDiv = document.createElement('div');
+            newDiv.className = 'item-input';
+            newDiv.innerHTML = `
+                <input type="text" name="debilidades[]" value="${debilidad.replace(/"/g, '&quot;')}" placeholder="Describa una debilidad de su empresa...">
+                <button type="button" class="btn-remove" onclick="removeItem(this)">×</button>
+            `;
+            debilidadesContainer.appendChild(newDiv);
+        });
+    }
+    <?php endif; ?>
+    
     // Función para calcular el porcentaje basado en las respuestas seleccionadas
     function calcularPorcentaje() {
         const inputs = document.querySelectorAll('input[type="radio"]:checked');
@@ -495,8 +521,7 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         });
     }
-    
-    // Manejar envío del formulario
+      // Manejar envío del formulario
     document.getElementById("evaluationForm").addEventListener("submit", function(e) {
         e.preventDefault();
         
@@ -547,26 +572,63 @@ document.addEventListener("DOMContentLoaded", function() {
         
         const porcentaje = calcularPorcentaje();
         if (porcentaje === null) return;
-          document.getElementById("porcentaje-hidden").value = porcentaje;
+        document.getElementById("porcentaje-hidden").value = porcentaje;
+        
+        // Mostrar indicador de carga
+        const submitBtn = document.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = 'Guardando...';
+        submitBtn.disabled = true;
         
         // Enviar formulario con AJAX
         const formData = new FormData(this);
         
-        fetch('../index.php?controller=PlanEstrategico&action=guardarPaso', {
+        fetch('../Controllers/PlanController.php?action=guardarCadenaValor', {
             method: 'POST',
             body: formData
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                window.location.href = 'matriz_bcg.php';
-            } else {
-                alert('Error: ' + data.message);
+        .then(response => {
+            console.log('Response status:', response.status);
+            return response.text();
+        })
+        .then(text => {
+            console.log('Response text:', text);
+            
+            // Restaurar botón
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+            
+            try {
+                const data = JSON.parse(text);
+                if (data.success) {
+                    // Mostrar mensaje de éxito
+                    alert('¡✅ Cadena de valor guardada correctamente!');
+                    
+                    // Cambiar el color del botón temporalmente
+                    submitBtn.style.backgroundColor = '#28a745';
+                    submitBtn.textContent = '✅ Guardado exitoso';
+                    
+                    // Redirigir al siguiente paso después de 2 segundos
+                    setTimeout(() => {
+                        window.location.href = '../Controllers/PlanController.php?action=editarMatrizBCG&id_plan=' + document.querySelector('input[name="id_plan"]').value;
+                    }, 2000);
+                } else {
+                    alert('❌ Error: ' + data.message);
+                }
+            } catch (e) {
+                console.error('Error parsing JSON:', e);
+                alert('❌ Error en la respuesta del servidor. Revise la consola para más detalles.');
+                console.error('Respuesta completa:', text);
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Error al guardar los datos');
+            
+            // Restaurar botón
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+            
+            alert('❌ Error al guardar los datos: ' + error.message);
         });
     });
 });

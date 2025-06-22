@@ -1,8 +1,30 @@
 <?php
-session_start();
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 if (!isset($_SESSION['user']) && !isset($_SESSION['user_id'])) {
     echo "No hay usuario en sesión";
     exit();
+}
+
+// Obtener plan_id de la URL o crear uno nuevo
+$plan_id = $_GET['id_plan'] ?? null;
+if (!$plan_id) {
+    echo "Error: Plan ID no especificado";
+    exit();
+}
+
+// Obtener datos previos si existen
+$datos_previos = [];
+try {
+    require_once __DIR__ . '/../config/clsconexion.php';
+    require_once __DIR__ . '/../Models/PlanModel.php';
+    
+    $db = (new clsConexion())->getConexion();
+    $model = new PlanModel($db);
+    $datos_previos = $model->obtenerFuerzasPorter($plan_id);
+} catch (Exception $e) {
+    error_log("Error obteniendo datos previos de Fuerzas Porter: " . $e->getMessage());
 }
 
 $perfil_competitivo_data = [
@@ -54,108 +76,390 @@ $perfil_competitivo_data = [
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fuerzas Porter</title>
-    <link rel="stylesheet" href="/public/css/main.css">
-    <link rel="stylesheet" href="/public/css/plan-estrategico.css">
+    <title>Fuerzas Porter - Plan Estratégico</title>
+    <link rel="stylesheet" href="../public/css/main.css">
+    <link rel="stylesheet" href="../public/css/plan-estrategico.css">
+    <link rel="stylesheet" href="../public/css/fuerzas_porter.css">
     <style>
-        body { font-family: Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 0; }
-        .container { max-width: 100%; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); padding: 30px; }
-        h2 { color: #1976d2; text-align: center; margin-bottom: 25px; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-        th { background: #f0f0f0; font-weight: bold; }
-        .section-header { background: #e8f5e9; color: #388e3c; font-weight: bold; text-align: left; }
-        .factor-cell { text-align: left; background: #fafafa; }
-        .hostil { color: #d32f2f; font-weight: bold; }
-        .favorable { color: #1976d2; font-weight: bold; }
-        input[type="radio"] { width: 16px; height: 16px; }        .conclusion { background: #f5f5f5; padding: 15px; margin: 20px 0; border-left: 5px solid #1976d2; }
-        button { background: #2196F3; color: white; padding: 12px 30px; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; display: block; margin: 0 auto; }
-        button:hover { background: #1976d2; }
-        button:active { transform: translateY(1px); }
-        .btn-primary { background: #4CAF50 !important; }
-        
-        form {
-            max-width: 900px;
-            margin: 0 auto;
+        .main-content {
+            margin-left: 300px;
+            padding: 30px;
+            min-height: 100vh;
+            background: #f8f9fa;
         }
-        .btn-primary:hover { background: #45a049 !important; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-        .oportunidades-amenazas { margin-top: 40px; }
-        .oportunidades-amenazas h3 { color: #1976d2; margin-bottom: 15px; }
-        .oportunidades-amenazas label { font-weight: bold; margin-bottom: 5px; display: block; }
-        .oportunidades-amenazas textarea { width: 100%; min-height: 80px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; margin-bottom: 15px; }
-        .btn-siguiente { background: #4CAF50; color: white; padding: 12px 30px; border: none; border-radius: 4px; font-size: 16px; text-decoration: none; display: inline-block; margin: 20px 0; text-align: center; }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 40px;
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #e3f2fd;
+        }
+        
+        .page-header h1 {
+            color: #1976d2;
+            font-size: 2.2em;
+            margin: 0;
+            font-weight: 300;
+        }
+        
+        .page-header p {
+            color: #666;
+            margin: 10px 0 0 0;
+            font-size: 1.1em;
+        }
+        
+        .datos-previos-info {
+            background: #e8f5e9;
+            border: 1px solid #c8e6c9;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .datos-previos-info i {
+            color: #4caf50;
+            font-size: 20px;
+        }
+        
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-bottom: 30px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        th, td { 
+            border: 1px solid #e0e0e0; 
+            padding: 12px; 
+            text-align: center; 
+        }
+        
+        th { 
+            background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+            color: white;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+        
+        .section-header { 
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            color: #2e7d32;
+            font-weight: bold; 
+            text-align: left;
+            font-size: 1.1em;
+        }
+        
+        .factor-cell { 
+            text-align: left; 
+            background: #fafafa;
+            padding: 15px;
+        }
+        
+        .factor-cell small {
+            display: block;
+            margin-top: 8px;
+            font-size: 0.85em;
+        }
+        
+        .hostil { 
+            color: #d32f2f; 
+            font-weight: bold; 
+        }
+        
+        .favorable { 
+            color: #1976d2; 
+            font-weight: bold; 
+        }
+        
+        input[type="radio"] { 
+            width: 18px; 
+            height: 18px;
+            cursor: pointer;
+            transform: scale(1.2);
+        }
+        
+        .conclusion { 
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+            padding: 25px; 
+            margin: 30px 0; 
+            border-left: 5px solid #9c27b0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .conclusion strong {
+            color: #7b1fa2;
+            font-size: 1.1em;
+        }
+        
+        .oportunidades-amenazas { 
+            margin-top: 40px; 
+        }
+        
+        .oportunidades-amenazas h3 { 
+            color: #1976d2; 
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            font-weight: 500;
+        }
+        
+        .oportunidades-amenazas label { 
+            font-weight: 600; 
+            margin-bottom: 8px; 
+            display: block;
+            color: #424242;
+        }
+          .oportunidades-amenazas textarea { 
+            width: 100%; 
+            min-height: 100px; 
+            padding: 15px; 
+            border: 2px solid #e0e0e0; 
+            border-radius: 8px; 
+            margin-bottom: 15px;
+            font-family: inherit;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+            resize: vertical;
+        }
+        
+        .textarea-container {
+            position: relative;
+            margin-bottom: 15px;
+        }
+        
+        .textarea-container textarea {
+            width: calc(100% - 50px);
+            margin-bottom: 0;
+        }
+        
+        .btn-remove {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(244, 67, 54, 0.3);
+        }
+        
+        .btn-remove:hover {
+            background: #d32f2f;
+            transform: scale(1.1);
+            box-shadow: 0 4px 8px rgba(244, 67, 54, 0.4);
+        }
+        
+        .oportunidades-amenazas textarea:focus {
+            outline: none;
+            border-color: #1976d2;
+            box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+        }
+        
+        .btn-add {
+            background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .btn-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
+        }
+        
+        .btn-save {
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+        
+        .btn-save:active {
+            transform: translateY(0);
+        }
+        
+        .save-container {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #e0e0e0;
+        }
+        
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        
+        .success {
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%) !important;
+        }
+        
+        .estado-completado {
+            color: #4caf50 !important;
+            font-weight: bold;
+            font-size: 18px;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Análisis de Fuerzas Porter</h2>        <form method="POST" action="../index.php?controller=PlanEstrategico&action=guardarPaso" id="formFuerzasPorter">
-            <input type="hidden" name="paso" value="7">
-            <input type="hidden" name="nombre_paso" value="fuerzas_porter">
-            <table>
-                <thead>
-                    <tr>
-                        <th>PERFIL COMPETITIVO</th>
-                        <th>Nada</th>
-                        <th>Poco</th>
-                        <th>Medio</th>
-                        <th>Alto</th>
-                        <th>Muy Alto</th>
-                        <th>Estado</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    $factor_index = 0;
-                    foreach ($perfil_competitivo_data['secciones'] as $seccion):
-                    ?>
-                        <tr>
-                            <td colspan="7" class="section-header"><?php echo $seccion['titulo_seccion']; ?></td>
-                        </tr>
-                        <?php foreach ($seccion['factores'] as $factor): ?>
-                            <tr>
-                                <td class="factor-cell">
-                                    <?php echo $factor['nombre']; ?><br>
-                                    <small>(<span class="hostil">Hostil: <?php echo $factor['hostil']; ?></span> / <span class="favorable">Favorable: <?php echo $factor['favorable']; ?></span>)</small>
-                                </td>
-                                <td><input type="radio" name="factor_<?php echo $factor_index; ?>" value="1" class="radio-factor"></td>
-                                <td><input type="radio" name="factor_<?php echo $factor_index; ?>" value="2" class="radio-factor"></td>
-                                <td><input type="radio" name="factor_<?php echo $factor_index; ?>" value="3" class="radio-factor"></td>
-                                <td><input type="radio" name="factor_<?php echo $factor_index; ?>" value="4" class="radio-factor"></td>
-                                <td><input type="radio" name="factor_<?php echo $factor_index; ?>" value="5" class="radio-factor"></td>
-                                <td id="estado_<?php echo $factor_index; ?>">-</td>
-                            </tr>
-                        <?php $factor_index++; endforeach; ?>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+    <?php include 'sidebar.php'; ?>
+    
+    <div class="main-content">
+        <div class="container">
+            <div class="page-header">
+                <h1>📊 Análisis de Fuerzas Porter</h1>
+                <p>Evalúa el entorno competitivo de tu empresa</p>
+            </div>
             
-            <div class="conclusion">
-                <strong>CONCLUSIÓN:</strong> <span id="conclusion-text">Seleccione todas las opciones para ver la conclusión.</span><br>
-                <strong>Total:</strong> <span id="total-score">0</span>
-            </div>
+            <?php if (!empty($datos_previos)): ?>
+                <div class="datos-previos-info">
+                    <i>ℹ️</i>
+                    <div>
+                        <strong>Datos Previos Encontrados:</strong> Se han cargado los datos guardados anteriormente. 
+                        Puedes modificarlos y guardar los cambios.
+                        <br><small><strong>Última actualización:</strong> <?php echo $datos_previos['fecha_guardado'] ?? 'No disponible'; ?></small>
+                    </div>
+                </div>
+            <?php endif; ?>
+            
+            <form id="formFuerzasPorter">
+                <input type="hidden" name="id_plan" value="<?php echo htmlspecialchars($plan_id); ?>">
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 40%;">PERFIL COMPETITIVO</th>
+                            <th style="width: 10%;">Nada</th>
+                            <th style="width: 10%;">Poco</th>
+                            <th style="width: 10%;">Medio</th>
+                            <th style="width: 10%;">Alto</th>
+                            <th style="width: 10%;">Muy Alto</th>
+                            <th style="width: 10%;">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        $factor_index = 0;
+                        foreach ($perfil_competitivo_data['secciones'] as $seccion):
+                        ?>
+                            <tr>
+                                <td colspan="7" class="section-header"><?php echo $seccion['titulo_seccion']; ?></td>
+                            </tr>
+                            <?php foreach ($seccion['factores'] as $factor): ?>
+                                <tr>
+                                    <td class="factor-cell">
+                                        <?php echo $factor['nombre']; ?>
+                                        <small>
+                                            (<span class="hostil">Hostil: <?php echo $factor['hostil']; ?></span> / 
+                                            <span class="favorable">Favorable: <?php echo $factor['favorable']; ?></span>)
+                                        </small>
+                                    </td>
+                                    <?php 
+                                    $valor_previo = isset($datos_previos['factores'][$factor_index]) ? $datos_previos['factores'][$factor_index] : null;
+                                    ?>
+                                    <td><input type="radio" name="factor_<?php echo $factor_index; ?>" value="1" class="radio-factor" <?php echo ($valor_previo == 1) ? 'checked' : ''; ?>></td>
+                                    <td><input type="radio" name="factor_<?php echo $factor_index; ?>" value="2" class="radio-factor" <?php echo ($valor_previo == 2) ? 'checked' : ''; ?>></td>
+                                    <td><input type="radio" name="factor_<?php echo $factor_index; ?>" value="3" class="radio-factor" <?php echo ($valor_previo == 3) ? 'checked' : ''; ?>></td>
+                                    <td><input type="radio" name="factor_<?php echo $factor_index; ?>" value="4" class="radio-factor" <?php echo ($valor_previo == 4) ? 'checked' : ''; ?>></td>
+                                    <td><input type="radio" name="factor_<?php echo $factor_index; ?>" value="5" class="radio-factor" <?php echo ($valor_previo == 5) ? 'checked' : ''; ?>></td>
+                                    <td id="estado_<?php echo $factor_index; ?>">-</td>
+                                </tr>
+                            <?php $factor_index++; endforeach; ?>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+                
+                <div class="conclusion">
+                    <strong>CONCLUSIÓN:</strong> <span id="conclusion-text">Seleccione todas las opciones para ver la conclusión.</span><br><br>
+                    <strong>Puntuación Total:</strong> <span id="total-score">0</span> puntos
+                </div>
 
-            <div class="oportunidades-amenazas">
-                <h3>Oportunidades y Amenazas</h3>
-                <div id="oportunidades-container">
-                    <label for="oportunidades">Oportunidades:</label>
-                    <textarea name="oportunidades[]" placeholder="Ingrese las oportunidades identificadas..." style="width: 100%; min-height: 80px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; margin-bottom: 15px;"></textarea>
+                <div class="oportunidades-amenazas">
+                    <h3>📈 Oportunidades y Amenazas</h3>
+                      <div id="oportunidades-container">
+                        <label for="oportunidades">Oportunidades:</label>
+                        <?php 
+                        $oportunidades_previas = $datos_previos['oportunidades'] ?? [''];
+                        foreach ($oportunidades_previas as $index => $oportunidad):
+                        ?>
+                            <div class="textarea-container">
+                                <textarea name="oportunidades[]" placeholder="Ingrese las oportunidades identificadas..."><?php echo htmlspecialchars($oportunidad); ?></textarea>
+                                <?php if ($index > 0 || count($oportunidades_previas) > 1): ?>
+                                    <button type="button" onclick="eliminarElemento(this)" class="btn-remove">✕</button>
+                                <?php endif; ?>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                    <button type="button" onclick="agregarOportunidad()" class="btn-add">+ Agregar Oportunidad</button>
+                      <div id="amenazas-container">
+                        <label for="amenazas">Amenazas:</label>
+                        <?php 
+                        $amenazas_previas = $datos_previos['amenazas'] ?? [''];
+                        foreach ($amenazas_previas as $index => $amenaza):
+                        ?>
+                            <div class="textarea-container">
+                                <textarea name="amenazas[]" placeholder="Ingrese las amenazas identificadas..."><?php echo htmlspecialchars($amenaza); ?></textarea>
+                                <?php if ($index > 0 || count($amenazas_previas) > 1): ?>
+                                    <button type="button" onclick="eliminarElemento(this)" class="btn-remove">✕</button>
+                                <?php endif; ?>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                    <button type="button" onclick="agregarAmenaza()" class="btn-add">+ Agregar Amenaza</button>
+                    
+                    <div class="save-container">
+                        <button type="submit" class="btn-save" id="btnGuardar">
+                            💾 GUARDAR Y CONTINUAR
+                        </button>
+                    </div>
                 </div>
-                <button type="button" onclick="agregarOportunidad()" style="background: #1976d2; color: white; padding: 8px 20px; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; margin-bottom: 15px;">Agregar Oportunidad</button>
-                
-                <div id="amenazas-container">
-                    <label for="amenazas">Amenazas:</label>
-                    <textarea name="amenazas[]" placeholder="Ingrese las amenazas identificadas..." style="width: 100%; min-height: 80px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; margin-bottom: 15px;"></textarea>
-                </div>
-                <button type="button" onclick="agregarAmenaza()" style="background: #1976d2; color: white; padding: 8px 20px; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; margin-bottom: 15px;">Agregar Amenaza</button>
-                
-                <div style="text-align: center; margin-top: 30px;">
-                    <button type="submit" style="background: #4CAF50; color: white; padding: 15px 30px; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; font-weight: bold; box-shadow: 0 2px 8px rgba(0,0,0,0.15); transition: all 0.3s ease;">
-                        � GUARDAR Y CONTINUAR AL SIGUIENTE PASO
-                    </button>
-                </div>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const radios = document.querySelectorAll('.radio-factor');
@@ -172,7 +476,7 @@ $perfil_competitivo_data = [
                         const value = parseInt(selectedRadio.value);
                         total += value;
                         completed++;
-                        estadoCell.innerHTML = '<span style="color: #43a047; font-weight: bold;">✓</span>';
+                        estadoCell.innerHTML = '<span class="estado-completado">✓</span>';
                     } else {
                         estadoCell.innerHTML = '-';
                     }
@@ -194,47 +498,129 @@ $perfil_competitivo_data = [
                 document.getElementById('conclusion-text').textContent = conclusion;
             }
             
+            // Actualizar puntuación al cargar y cuando cambien los valores
+            updateScore();
             radios.forEach(radio => {
                 radio.addEventListener('change', updateScore);
             });
-        });
-
-        function agregarOportunidad() {
+        });        function agregarOportunidad() {
             const container = document.getElementById('oportunidades-container');
+            const div = document.createElement('div');
+            div.className = 'textarea-container';
+            
             const textarea = document.createElement('textarea');
             textarea.name = 'oportunidades[]';
             textarea.placeholder = 'Ingrese otra oportunidad...';
-            textarea.style = 'width: 100%; min-height: 80px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; margin-bottom: 15px;';
-            container.appendChild(textarea);
+            
+            const btnRemove = document.createElement('button');
+            btnRemove.type = 'button';
+            btnRemove.className = 'btn-remove';
+            btnRemove.innerHTML = '✕';
+            btnRemove.onclick = function() { eliminarElemento(this); };
+            
+            div.appendChild(textarea);
+            div.appendChild(btnRemove);
+            container.appendChild(div);
         }
 
         function agregarAmenaza() {
             const container = document.getElementById('amenazas-container');
+            const div = document.createElement('div');
+            div.className = 'textarea-container';
+            
             const textarea = document.createElement('textarea');
             textarea.name = 'amenazas[]';
             textarea.placeholder = 'Ingrese otra amenaza...';
-            textarea.style = 'width: 100%; min-height: 80px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; margin-bottom: 15px;';            container.appendChild(textarea);
-        }        // Manejar envío del formulario con AJAX
+            
+            const btnRemove = document.createElement('button');
+            btnRemove.type = 'button';
+            btnRemove.className = 'btn-remove';
+            btnRemove.innerHTML = '✕';
+            btnRemove.onclick = function() { eliminarElemento(this); };
+            
+            div.appendChild(textarea);
+            div.appendChild(btnRemove);
+            container.appendChild(div);
+        }
+
+        function eliminarElemento(button) {
+            const container = button.parentElement;
+            const parent = container.parentElement;
+            
+            // Solo eliminar si no es el último elemento
+            const textareas = parent.querySelectorAll('.textarea-container');
+            if (textareas.length > 1) {
+                container.remove();
+            } else {
+                // Si es el último elemento, solo limpiar el contenido
+                const textarea = container.querySelector('textarea');
+                textarea.value = '';
+            }
+        }
+
+        // Manejar envío del formulario con AJAX
         document.getElementById('formFuerzasPorter').addEventListener('submit', function(e) {
             e.preventDefault();
             
+            const btnGuardar = document.getElementById('btnGuardar');
             const formData = new FormData(this);
             
-            fetch('../index.php?controller=PlanEstrategico&action=guardarPaso', {
+            // Mostrar estado de carga
+            btnGuardar.classList.add('loading');
+            btnGuardar.textContent = '⏳ Guardando...';
+            btnGuardar.disabled = true;
+            
+            fetch('../Controllers/PlanController.php?action=guardarFuerzasPorter', {
                 method: 'POST',
                 body: formData
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    window.location.href = 'pest_nuevo.php';
+                    // Mostrar éxito
+                    btnGuardar.classList.add('success');
+                    btnGuardar.textContent = '✅ Guardado Exitoso';
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Excelente!',
+                        text: 'El análisis de Fuerzas Porter se ha guardado correctamente',
+                        confirmButtonText: 'Continuar',
+                        confirmButtonColor: '#4CAF50'
+                    }).then((result) => {                        if (result.isConfirmed) {
+                            // Redirigir al siguiente paso
+                            window.location.href = '../Controllers/PlanController.php?action=editarPEST&id_plan=<?php echo $plan_id; ?>';
+                        }
+                    });
+                    
                 } else {
-                    alert('Error: ' + data.message);
+                    // Mostrar error
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message || 'Error al guardar los datos',
+                        confirmButtonColor: '#f44336'
+                    });
+                    
+                    // Restaurar botón
+                    btnGuardar.classList.remove('loading');
+                    btnGuardar.textContent = '💾 GUARDAR Y CONTINUAR';
+                    btnGuardar.disabled = false;
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Error al guardar los datos');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error de Conexión',
+                    text: 'Error al comunicarse con el servidor',
+                    confirmButtonColor: '#f44336'
+                });
+                
+                // Restaurar botón
+                btnGuardar.classList.remove('loading');
+                btnGuardar.textContent = '💾 GUARDAR Y CONTINUAR';
+                btnGuardar.disabled = false;
             });
         });
     </script>

@@ -1,15 +1,10 @@
 <?php
-    session_start();
-    if (!isset($_SESSION['user'])) {
-        header('Location: login.php');
-        exit();
-    }
-    $user = $_SESSION['user'];
-    
-    // Obtener datos previos si existen
-    $datos_previos = $_SESSION['plan_temporal']['valores'] ?? null;
-    $valores_previos = $datos_previos ?? [];
-    ?>
+// Obtener datos del usuario desde la sesión
+$user = isset($_SESSION['user']) ? $_SESSION['user'] : null;
+// Inicializar variables para evitar warnings
+if (!isset($valores_previos)) $valores_previos = [];
+if (!isset($plan_id)) $plan_id = $_GET['id_plan'] ?? '';
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -20,56 +15,52 @@
   <link rel="stylesheet" href="/public/css/plan-estrategico.css">
 </head>
 <body>
-    <div class="header">
-        <h1>Definir Valores Empresariales</h1>
-        <p>Usuario: <?php echo htmlspecialchars($user['nombre'] . ' ' . $user['apellido']); ?></p>
-    </div>
+    <div style="display:flex; min-height:100vh;">
+        <!-- Barra lateral -->
+        <?php include 'sidebar.php'; ?>
 
-    <div class="container">
-        <h2>Paso 3: Valores de la Empresa</h2>
+        <div class="content">
+            <div class="header">
+                <h1>Definir Valores Empresariales</h1>
+                <p>Usuario: <?php echo $user ? htmlspecialchars($user['nombre'] . ' ' . $user['apellido']) : 'Invitado'; ?></p>
+            </div>
 
-        <!-- Mostrar mensaje si viene en GET -->
-        <?php if (isset($_GET['msg'])): ?>
-            <p style="color: green;"><?= htmlspecialchars($_GET['msg']) ?></p>
-        <?php endif; ?>
-        <?php if (isset($_GET['error'])): ?>
-            <p style="color: red;"><?= htmlspecialchars($_GET['error']) ?></p>
-        <?php endif; ?>
+            <div class="container">
+                <h2>Paso 3: Valores de la Empresa</h2>
 
-        <form action="../index.php?controller=PlanEstrategico&action=guardarPaso" method="POST" id="formValores">
-            <input type="hidden" name="paso" value="3">
-            <input type="hidden" name="nombre_paso" value="valores">            <div id="valoresFields">
-                <?php if (!empty($valores_previos)): ?>
-                    <?php foreach ($valores_previos as $index => $valor): ?>
-                        <div class="form-group">
-                            <label for="valor<?= $index + 1 ?>">Valor <?= $index + 1 ?>:</label>
-                            <input type="text" name="valores[]" value="<?= htmlspecialchars($valor) ?>" required placeholder="Ingrese un valor empresarial...">
-                            <?php if ($index > 0): ?>
-                                <button type="button" onclick="this.parentElement.remove()" style="background-color: #dc3545; color: white; padding: 5px 10px; border: none; border-radius: 3px; margin-left: 10px;">Eliminar</button>
-                            <?php endif; ?>
-                        </div>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <div class="form-group">
-                        <label for="valor1">Valor 1:</label>
-                        <input type="text" name="valores[]" required placeholder="Ingrese un valor empresarial...">
+                <form id="formValores">
+                    <input type="hidden" name="id_plan" value="<?php echo htmlspecialchars($plan_id); ?>">
+                    <div id="valoresFields">
+                        <?php if (!empty($valores_previos)): ?>
+                            <?php foreach ($valores_previos as $index => $valor): ?>
+                                <div class="form-group">
+                                    <label for="valor<?= $index + 1 ?>">Valor <?= $index + 1 ?>:</label>
+                                    <input type="text" name="valores[]" value="<?= htmlspecialchars($valor) ?>" required placeholder="Ingrese un valor empresarial...">
+                                    <?php if ($index > 0): ?>
+                                        <button type="button" onclick="this.parentElement.remove()" style="background-color: #dc3545; color: white; padding: 5px 10px; border: none; border-radius: 3px; margin-left: 10px;">Eliminar</button>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <div class="form-group">
+                                <label for="valor1">Valor 1:</label>
+                                <input type="text" name="valores[]" required placeholder="Ingrese un valor empresarial...">
+                            </div>
+                        <?php endif; ?>
                     </div>
-                <?php endif; ?>
+                    
+                    <div style="margin: 15px 0;">
+                        <button type="button" id="addValor" style="background-color: #007bff; color: white; padding: 8px 15px; border: none; border-radius: 4px;">Agregar otro valor</button>
+                    </div>
+                      <div class="buttons">
+                        <button type="submit" style="background-color: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 5px; margin-right: 10px;">Guardar</button>
+                        <a href="../Controllers/PlanController.php?action=editarVisionMision&id_plan=<?php echo htmlspecialchars($plan_id); ?>" style="background-color: #6c757d; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-right: 10px;">Anterior</a>
+                        <a href="home.php" style="background-color: #dc3545; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Cancelar</a>
+                    </div>
+                </form>
             </div>
-            
-            <div style="margin: 15px 0;">
-                <button type="button" id="addValor" style="background-color: #007bff; color: white; padding: 8px 15px; border: none; border-radius: 4px;">Agregar otro valor</button>
-            </div>
-            
-            <div class="buttons">
-                <button type="submit" style="background-color: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 5px; margin-right: 10px;">Siguiente</button>
-                <a href="vision_mision.php" style="background-color: #6c757d; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-right: 10px;">Anterior</a>
-                <a href="home.php" style="background-color: #dc3545; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Cancelar</a>
-            </div>
-        </form>
-    </div>
-
-    <style>
+        </div>
+    </div>    <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -91,6 +82,11 @@
             background-color: #fff;
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .content {
+            margin-left: 240px;
+            padding: 20px;
         }
 
         h2 {
@@ -154,7 +150,9 @@
         #addValor:hover {
             background-color: #218838;
         }
-    </style>    <script>
+    </style>
+
+    <script>
         document.getElementById('addValor').addEventListener('click', function() {
             const valoresFields = document.getElementById('valoresFields');
             const valorCount = valoresFields.children.length + 1;
@@ -176,21 +174,37 @@
             
             const formData = new FormData(this);
             
-            fetch('../index.php?controller=PlanEstrategico&action=guardarPaso', {
+            // Debug: verificar datos
+            console.log('Plan ID:', formData.get('id_plan'));
+            console.log('Valores:', formData.getAll('valores[]'));
+            
+            fetch('../Controllers/PlanController.php?action=guardarValores', {
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    window.location.href = 'objetivos_estrategicos.php';
-                } else {
-                    alert('Error: ' + data.message);
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.text();
+            })
+            .then(text => {
+                console.log('Response text:', text);
+                try {
+                    const data = JSON.parse(text);
+                    if (data.success) {
+                        alert('¡Valores guardados correctamente!');
+                        // Redirigir al siguiente paso
+                        window.location.href = 'cadena_valor.php?id_plan=' + document.querySelector('input[name="id_plan"]').value;
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                } catch (e) {
+                    console.error('Error parsing JSON:', e);
+                    alert('Error en la respuesta del servidor: ' + text);
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Error al guardar los datos');
+                alert('Error al guardar los datos: ' + error.message);
             });
         });
     </script>

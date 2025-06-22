@@ -7,30 +7,59 @@ if (!isset($_SESSION['user']) && !isset($_SESSION['user_id'])) {
     exit();
 }
 
-// Obtener datos del plan temporal
-$plan_temporal = $_SESSION['plan_temporal'] ?? [];
+// Obtener el plan_id de la URL
+$plan_id = $_GET['id_plan'] ?? null;
 
-// Datos automáticos (cargados desde la sesión)
-$nombre_empresa = $plan_temporal['nuevo_plan']['empresa'] ?? 'No especificado';
-$fecha_elaboracion = date('d/m/Y');
-$mision = $plan_temporal['vision_mision']['mision'] ?? 'No definida';
-$vision = $plan_temporal['vision_mision']['vision'] ?? 'No definida';
-$valores = $plan_temporal['valores'] ?? [];
-$uen_descripcion = $plan_temporal['objetivos']['uen_descripcion'] ?? 'No especificada';
+if (!$plan_id) {
+    echo "<script>alert('No se encontró un plan activo.'); window.location.href = '../Vista/home.php';</script>";
+    exit();
+}
+
+// Configurar conexión y modelo
+require_once __DIR__ . '/../config/clsconexion.php';
+require_once __DIR__ . '/../Models/PlanModel.php';
+
+$db = (new clsConexion())->getConexion();
+$model = new PlanModel($db);
+
+// Obtener todos los datos del plan desde la base de datos
+$datos_vision_mision = $model->obtenerVisionMision($plan_id);
+$datos_valores = $model->obtenerValores($plan_id);
+$datos_objetivos = $model->obtenerObjetivos($plan_id);
+$datos_cadena_valor = $model->obtenerCadenaValor($plan_id);
+$datos_bcg = $model->obtenerMatrizBCG($plan_id);
+$datos_fuerzas_porter = $model->obtenerFuerzasPorter($plan_id);
+$datos_pest = $model->obtenerPEST($plan_id);
+$datos_estrategias = $model->obtenerEstrategias($plan_id);
+$datos_matriz_came = $model->obtenerMatrizCame($plan_id);
+$datos_resumen_ejecutivo = $model->obtenerResumenEjecutivo($plan_id);
+
+// Manejar datos BCG (puede venir como JSON string)
+$datos_bcg = $datos_bcg ? json_decode($datos_bcg, true) : [];
+
+// Datos automáticos - usar datos del controlador si están disponibles
+$nombre_empresa = $nombre_empresa ?? 'Mi Empresa'; // Viene del controlador
+$fecha_elaboracion = $fecha_elaboracion ?? date('d/m/Y'); // Viene del controlador
+$mision = $datos_vision_mision['mision'] ?? 'No definida';
+$vision = $datos_vision_mision['vision'] ?? 'No definida';
+$valores = $datos_valores ?? [];
+$uen_descripcion = $datos_objetivos['uen_descripcion'] ?? 'No especificada';
 
 // Procesar objetivos correctamente
 $objetivos_generales = [];
 $objetivos_especificos = [];
 
-if (isset($plan_temporal['objetivos']['objetivos_generales'])) {
-    $obj_gen = $plan_temporal['objetivos']['objetivos_generales'];
+if (isset($datos_objetivos['objetivos_generales'])) {
+    $obj_gen = $datos_objetivos['objetivos_generales'];
     if (is_array($obj_gen)) {
         $objetivos_generales = array_filter($obj_gen);
+    } elseif (is_string($obj_gen) && !empty(trim($obj_gen))) {
+        $objetivos_generales = [trim($obj_gen)];
     }
 }
 
-if (isset($plan_temporal['objetivos']['objetivos_especificos'])) {
-    $obj_esp = $plan_temporal['objetivos']['objetivos_especificos'];
+if (isset($datos_objetivos['objetivos_especificos'])) {
+    $obj_esp = $datos_objetivos['objetivos_especificos'];
     if (is_array($obj_esp)) {
         // Los objetivos específicos pueden estar agrupados por objetivo general
         foreach ($obj_esp as $grupo) {
@@ -40,51 +69,76 @@ if (isset($plan_temporal['objetivos']['objetivos_especificos'])) {
                 $objetivos_especificos[] = trim($grupo);
             }
         }
+    } elseif (is_string($obj_esp) && !empty(trim($obj_esp))) {
+        $objetivos_especificos = [trim($obj_esp)];
     }
 }
 
-// Consolidar datos FODA
+// Consolidar datos FODA desde la base de datos
 $fortalezas = [];
 $debilidades = [];
 $oportunidades = [];
 $amenazas = [];
 
-// Cargar FODA desde todas las fuentes
-if (!empty($plan_temporal['cadena_valor']['fortalezas'])) {
-    $fortalezas = array_merge($fortalezas, $plan_temporal['cadena_valor']['fortalezas']);
+// 1. Datos FODA de estrategias (si existen)
+if ($datos_estrategias && isset($datos_estrategias['foda'])) {
+    $foda_data = $datos_estrategias['foda'];
+    $fortalezas = array_merge($fortalezas, $foda_data['fortalezas'] ?? []);
+    $debilidades = array_merge($debilidades, $foda_data['debilidades'] ?? []);
+    $oportunidades = array_merge($oportunidades, $foda_data['oportunidades'] ?? []);
+    $amenazas = array_merge($amenazas, $foda_data['amenazas'] ?? []);
 }
-if (!empty($plan_temporal['cadena_valor']['debilidades'])) {
-    $debilidades = array_merge($debilidades, $plan_temporal['cadena_valor']['debilidades']);
+
+// 2. Cargar FODA desde Cadena de Valor
+if ($datos_cadena_valor) {
+    if (!empty($datos_cadena_valor['fortalezas'])) {
+        $fortalezas = array_merge($fortalezas, $datos_cadena_valor['fortalezas']);
+    }
+    if (!empty($datos_cadena_valor['debilidades'])) {
+        $debilidades = array_merge($debilidades, $datos_cadena_valor['debilidades']);
+    }
 }
-if (!empty($plan_temporal['matriz_bcg']['fortalezas'])) {
-    $bcg_fortalezas = is_array($plan_temporal['matriz_bcg']['fortalezas']) 
-        ? $plan_temporal['matriz_bcg']['fortalezas'] 
-        : array_filter(explode("\n", $plan_temporal['matriz_bcg']['fortalezas']));
-    $fortalezas = array_merge($fortalezas, $bcg_fortalezas);
+
+// 3. Cargar FODA desde Matriz BCG
+if ($datos_bcg) {
+    if (!empty($datos_bcg['fortalezas'])) {
+        $bcg_fortalezas = is_array($datos_bcg['fortalezas']) 
+            ? $datos_bcg['fortalezas'] 
+            : array_filter(explode("\n", $datos_bcg['fortalezas']));
+        $fortalezas = array_merge($fortalezas, $bcg_fortalezas);
+    }
+    if (!empty($datos_bcg['debilidades'])) {
+        $bcg_debilidades = is_array($datos_bcg['debilidades']) 
+            ? $datos_bcg['debilidades'] 
+            : array_filter(explode("\n", $datos_bcg['debilidades']));
+        $debilidades = array_merge($debilidades, $bcg_debilidades);
+    }
 }
-if (!empty($plan_temporal['matriz_bcg']['debilidades'])) {
-    $bcg_debilidades = is_array($plan_temporal['matriz_bcg']['debilidades']) 
-        ? $plan_temporal['matriz_bcg']['debilidades'] 
-        : array_filter(explode("\n", $plan_temporal['matriz_bcg']['debilidades']));
-    $debilidades = array_merge($debilidades, $bcg_debilidades);
+
+// 4. Cargar FODA desde PEST
+if ($datos_pest) {
+    if (!empty($datos_pest['oportunidades'])) {
+        $oportunidades = array_merge($oportunidades, $datos_pest['oportunidades']);
+    }
+    if (!empty($datos_pest['amenazas'])) {
+        $amenazas = array_merge($amenazas, $datos_pest['amenazas']);
+    }
 }
-if (!empty($plan_temporal['pest']['oportunidades'])) {
-    $oportunidades = array_merge($oportunidades, $plan_temporal['pest']['oportunidades']);
-}
-if (!empty($plan_temporal['pest']['amenazas'])) {
-    $amenazas = array_merge($amenazas, $plan_temporal['pest']['amenazas']);
-}
-if (!empty($plan_temporal['fuerzas_porter']['oportunidades'])) {
-    $porter_oportunidades = is_array($plan_temporal['fuerzas_porter']['oportunidades']) 
-        ? $plan_temporal['fuerzas_porter']['oportunidades'] 
-        : array_filter(explode("\n", $plan_temporal['fuerzas_porter']['oportunidades']));
-    $oportunidades = array_merge($oportunidades, $porter_oportunidades);
-}
-if (!empty($plan_temporal['fuerzas_porter']['amenazas'])) {
-    $porter_amenazas = is_array($plan_temporal['fuerzas_porter']['amenazas']) 
-        ? $plan_temporal['fuerzas_porter']['amenazas'] 
-        : array_filter(explode("\n", $plan_temporal['fuerzas_porter']['amenazas']));
-    $amenazas = array_merge($amenazas, $porter_amenazas);
+
+// 5. Cargar FODA desde Fuerzas Porter
+if ($datos_fuerzas_porter) {
+    if (!empty($datos_fuerzas_porter['oportunidades'])) {
+        $porter_oportunidades = is_array($datos_fuerzas_porter['oportunidades']) 
+            ? $datos_fuerzas_porter['oportunidades'] 
+            : array_filter(explode("\n", $datos_fuerzas_porter['oportunidades']));
+        $oportunidades = array_merge($oportunidades, $porter_oportunidades);
+    }
+    if (!empty($datos_fuerzas_porter['amenazas'])) {
+        $porter_amenazas = is_array($datos_fuerzas_porter['amenazas']) 
+            ? $datos_fuerzas_porter['amenazas'] 
+            : array_filter(explode("\n", $datos_fuerzas_porter['amenazas']));
+        $amenazas = array_merge($amenazas, $porter_amenazas);
+    }
 }
 
 // Eliminar duplicados
@@ -95,45 +149,36 @@ $amenazas = array_values(array_filter(array_unique($amenazas)));
 
 // Acciones competitivas (estrategias de CAME)
 $acciones_competitivas = [];
-if (!empty($plan_temporal['matriz_came'])) {
-    $came_data = $plan_temporal['matriz_came'];
-    
-    // Buscar estrategias individuales
-    if (!empty($came_data['estrategias_individuales'])) {
-        foreach ($came_data['estrategias_individuales'] as $estrategia) {
-            if (is_string($estrategia) && !empty(trim($estrategia))) {
-                $acciones_competitivas[] = trim($estrategia);
-            }
-        }
-    }
-    
-    // También buscar en las categorías CAME tradicionales
-    $categorias_came = ['corregir', 'afrontar', 'mantener', 'explotar'];
-    foreach ($categorias_came as $categoria) {
-        if (!empty($came_data[$categoria])) {
-            if (is_array($came_data[$categoria])) {
-                foreach ($came_data[$categoria] as $estrategia) {
-                    if (is_string($estrategia) && !empty(trim($estrategia))) {
-                        $acciones_competitivas[] = trim($estrategia);
-                    }
-                }
-            } elseif (is_string($came_data[$categoria]) && !empty(trim($came_data[$categoria]))) {
-                $acciones_competitivas[] = trim($came_data[$categoria]);
-            }
-        }
-    }
-    
-    // Buscar estrategias con patron de nombre específico (corregir_1, afrontar_2, etc.)
-    foreach ($came_data as $key => $value) {
+if (!empty($datos_matriz_came)) {
+    // Buscar estrategias con patron de nombre específico (corregir_0, afrontar_1, etc.)
+    foreach ($datos_matriz_came as $key => $value) {
         if (preg_match('/^(corregir|afrontar|mantener|explotar)_\d+$/', $key) && 
             is_string($value) && !empty(trim($value))) {
             $acciones_competitivas[] = trim($value);
         }
     }
+    
+    // También buscar en las categorías CAME tradicionales si no hay con el patrón anterior
+    if (empty($acciones_competitivas)) {
+        $categorias_came = ['corregir', 'afrontar', 'mantener', 'explotar'];
+        foreach ($categorias_came as $categoria) {
+            if (!empty($datos_matriz_came[$categoria])) {
+                if (is_array($datos_matriz_came[$categoria])) {
+                    foreach ($datos_matriz_came[$categoria] as $estrategia) {
+                        if (is_string($estrategia) && !empty(trim($estrategia))) {
+                            $acciones_competitivas[] = trim($estrategia);
+                        }
+                    }
+                } elseif (is_string($datos_matriz_came[$categoria]) && !empty(trim($datos_matriz_came[$categoria]))) {
+                    $acciones_competitivas[] = trim($datos_matriz_came[$categoria]);
+                }
+            }
+        }
+    }
 }
 
 // Cargar datos previos del resumen ejecutivo si existen
-$resumen_previo = $plan_temporal['resumen_ejecutivo'] ?? [];
+$resumen_previo = $datos_resumen_ejecutivo;
 $emprendedores_promotores = $resumen_previo['emprendedores_promotores'] ?? '';
 $identificacion_estrategica = $resumen_previo['identificacion_estrategica'] ?? '';
 $conclusiones = $resumen_previo['conclusiones'] ?? '';
@@ -247,7 +292,9 @@ $conclusiones = $resumen_previo['conclusiones'] ?? '';
     </style>
 </head>
 <body>
-    <section class="full-width pageContent">
+    <?php include 'sidebar.php'; ?>
+    
+    <section class="full-width pageContent" style="margin-left: 240px;">
         <div class="full-width divider-menu-h"></div>
         
         <div class="mdl-grid">
@@ -259,10 +306,8 @@ $conclusiones = $resumen_previo['conclusiones'] ?? '';
                         <h1><i class="zmdi zmdi-assignment"></i> Resumen Ejecutivo</h1>
                         <p>Consolidación final del Plan Estratégico de Tecnologías de Información</p>
                     </div>
-                      <div class="full-width panel-content">
-                        <form id="resumenForm" method="post">
-                            <input type="hidden" name="paso" value="11">
-                            <input type="hidden" name="nombre_paso" value="resumen_ejecutivo">
+                      <div class="full-width panel-content">                        <form id="resumenForm" method="post">
+                            <input type="hidden" name="id_plan" value="<?php echo htmlspecialchars($plan_id); ?>">
                             
                             <!-- Información General (Automática) -->
                             <div class="resumen-section automatico">
@@ -471,9 +516,7 @@ $conclusiones = $resumen_previo['conclusiones'] ?? '';
                                           rows="6" 
                                           style="width: 100%; padding: 10px; border: 2px solid #FF9800; border-radius: 5px;"
                                           placeholder="Escriba las conclusiones principales del Plan Estratégico de TI, recomendaciones y próximos pasos..."><?php echo htmlspecialchars($conclusiones); ?></textarea>
-                            </div>
-                            
-                            <!-- Botón de Guardar -->
+                            </div>                            <!-- Botón de Guardar -->
                             <div class="text-center" style="margin: 40px 0;">
                                 <button type="button" onclick="guardarResumen()" class="btn-guardar">
                                     <i class="zmdi zmdi-save"></i> Guardar Resumen y Finalizar Plan Estratégico
@@ -507,13 +550,10 @@ $conclusiones = $resumen_previo['conclusiones'] ?? '';
             <h4>Acciones Competitivas Procesadas:</h4>
             <pre><?php print_r($acciones_competitivas); ?></pre>
         </div>
-    <?php endif; ?>    <script>        function guardarResumen() {
+    <?php endif; ?>    <script>
+        function guardarResumen() {
             const form = document.getElementById('resumenForm');
             const formData = new FormData(form);
-            
-            // Asegurar que los campos ocultos estén presentes
-            formData.set('paso', '11');
-            formData.set('nombre_paso', 'resumen_ejecutivo');
             
             // Validar campos obligatorios
             const emprendedores = formData.get('emprendedores_promotores').trim();
@@ -534,44 +574,36 @@ $conclusiones = $resumen_previo['conclusiones'] ?? '';
                 alert('Por favor, complete el campo "Conclusiones"');
                 return;
             }
-            
-            // Mostrar mensaje de carga
+              // Mostrar mensaje de carga
             const button = event.target;
             const originalHTML = button.innerHTML;
             button.innerHTML = '<i class="zmdi zmdi-refresh zmdi-hc-spin"></i> Guardando...';
             button.disabled = true;
-              // Enviar datos
-            fetch('../index.php?controller=PlanEstrategico&action=guardarPaso', {
+            
+            // Agregar el ID del plan al FormData
+            formData.append('id_plan', '<?php echo $plan_id; ?>');              // Enviar datos al servidor
+            fetch('../Controllers/PlanController.php?action=guardarResumenEjecutivo', {
                 method: 'POST',
                 body: formData
             })
             .then(response => response.json())
             .then(data => {
+                button.innerHTML = originalHTML;
+                button.disabled = false;
+                
                 if (data.success) {
-                    // Ahora finalizar el plan completo
-                    return fetch('../index.php?controller=PlanEstrategico&action=finalizarPlan', {
-                        method: 'POST'
-                    });
+                    alert('✅ ¡Resumen ejecutivo guardado exitosamente!');
+                    // Opcional: redirigir a home
+                    // window.location.href = 'home.php';
                 } else {
-                    throw new Error('Error al guardar resumen: ' + data.message);
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('✅ ¡Resumen ejecutivo guardado y plan estratégico finalizado exitosamente!');
-                    window.location.href = 'home.php';
-                } else {
-                    alert('Error al finalizar el plan: ' + data.message);
-                    button.innerHTML = originalHTML;
-                    button.disabled = false;
+                    alert('❌ Error al guardar: ' + (data.message || 'Error desconocido'));
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Error al guardar el resumen ejecutivo.');
                 button.innerHTML = originalHTML;
                 button.disabled = false;
+                alert('❌ Error de conexión al guardar el resumen ejecutivo');
             });
         }
     </script>

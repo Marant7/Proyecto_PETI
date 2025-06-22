@@ -1,27 +1,43 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 if (!isset($_SESSION['user'])) {
     header('Location: login.php');
     exit();
 }
 
-// Verificar que hay un plan temporal activo
-if (!isset($_SESSION['plan_temporal'])) {
-    header('Location: nuevo_plan.php');
+// Obtener el plan_id de la URL
+$plan_id = $_GET['id_plan'] ?? null;
+
+if (!$plan_id) {
+    header('Location: home.php');
     exit();
 }
 
 // ===============================================
 // CONSOLIDAR DATOS FODA DE TODAS LAS FUENTES
 // ===============================================
-$plan_temporal = $_SESSION['plan_temporal'] ?? [];
+
+// Obtener datos de la base de datos
+$db = (new clsConexion())->getConexion();
+$model = new PlanModel($db);
 
 // Obtener datos de cada módulo
-$bcg_data = $plan_temporal['matriz_bcg'] ?? null;
-$fuerzas_porter_data = $plan_temporal['fuerzas_porter'] ?? null;
-$pest_data = $plan_temporal['pest'] ?? null;
-$cadena_valor_data = $plan_temporal['cadena_valor'] ?? null;
-$foda_data = $_SESSION['foda_data'] ?? null;
+$bcg_data = $model->obtenerMatrizBCG($plan_id);
+$fuerzas_porter_data = $model->obtenerFuerzasPorter($plan_id);
+$pest_data = $model->obtenerPEST($plan_id);
+$cadena_valor_data = $model->obtenerCadenaValor($plan_id);
+$estrategias_data = $model->obtenerEstrategias($plan_id);
+
+// Decodificar JSON solo para BCG (que devuelve string JSON), los demás ya son arrays
+$bcg_data = $bcg_data ? json_decode($bcg_data, true) : [];
+// Los demás métodos ya devuelven arrays decodificados
+$fuerzas_porter_data = $fuerzas_porter_data ?: [];
+$pest_data = $pest_data ?: [];
+$cadena_valor_data = $cadena_valor_data ?: [];
+$estrategias_data = $estrategias_data ?: [];
 
 // Consolidar TODAS las fortalezas, debilidades, oportunidades y amenazas
 $fortalezas_consolidadas = [];
@@ -29,8 +45,9 @@ $debilidades_consolidadas = [];
 $oportunidades_consolidadas = [];
 $amenazas_consolidadas = [];
 
-// Si ya existen datos FODA directos, mantenerlos como base
-if ($foda_data) {
+// Agregar datos FODA de estrategias si existen
+if ($estrategias_data && isset($estrategias_data['foda'])) {
+    $foda_data = $estrategias_data['foda'];
     $fortalezas_consolidadas = $foda_data['fortalezas'] ?? [];
     $debilidades_consolidadas = $foda_data['debilidades'] ?? [];
     $oportunidades_consolidadas = $foda_data['oportunidades'] ?? [];
@@ -96,7 +113,7 @@ $oportunidades_consolidadas = array_values(array_filter(array_unique($oportunida
 $amenazas_consolidadas = array_values(array_filter(array_unique($amenazas_consolidadas)));
 
 // Cargar datos previos de CAME si existen
-$came_data = $plan_temporal['matriz_came'] ?? [];
+$came_data = $datos_previos ?? [];
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -104,7 +121,7 @@ $came_data = $plan_temporal['matriz_came'] ?? [];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Matriz CAME - Plan Estratégico</title>
-    <link rel="stylesheet" href="/public/css/main.css">
+    <link rel="stylesheet" href="../public/css/main.css">
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; background-color: #f8f9fa; }
         .container { max-width: 1200px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
@@ -207,7 +224,9 @@ $came_data = $plan_temporal['matriz_came'] ?? [];
     </style>
 </head>
 <body>
-    <div class="container">        <h2>Matriz CAME - Paso Final</h2>
+    <?php include 'sidebar.php'; ?>
+    
+    <div class="container" style="margin-left: 240px;">        <h2>Matriz CAME - Paso Final</h2>
         
         <!-- Barra de progreso -->
         <div class="progress-bar">
@@ -227,10 +246,8 @@ $came_data = $plan_temporal['matriz_came'] ?? [];
                 Una vez finalizado, podrá ver, imprimir y compartir su plan completo.
             </p>
         </div>
-        
-        <form action="../index.php?controller=PlanEstrategico&action=guardarPaso" method="POST" id="formMatrizCame">
-            <input type="hidden" name="paso" value="11">
-            <input type="hidden" name="nombre_paso" value="matriz_came">
+          <form action="../Controllers/PlanController.php?action=guardarMatrizCame" method="POST" id="formMatrizCame">
+            <input type="hidden" name="id_plan" value="<?php echo htmlspecialchars($plan_id); ?>">
           <div class="section-title">Matriz CAME</div>
         <p style="text-align: center; margin-bottom: 30px; color: #666;">
             Desarrolle estrategias específicas para cada elemento FODA identificado en los pasos anteriores.
@@ -341,12 +358,11 @@ $came_data = $plan_temporal['matriz_came'] ?? [];
             </div>
             <?php endforeach; ?>
         </div>
-        <?php endif; ?>
-              <div class="navigation">
-                <a href="identificacion_de_estrategias.php" class="btn-primary">← Anterior</a>
+        <?php endif; ?>              <div class="navigation">
+                <a href="../Controllers/PlanController.php?action=editarEstrategias&id_plan=<?php echo htmlspecialchars($plan_id); ?>" class="btn-primary">← Anterior</a>
                 
                 <div style="display: flex; flex-direction: column; align-items: flex-end;">
-                    <div style="margin-bottom: 10px;">                        <button type="submit" class="btn-primary">💾 Guardar en Sesión</button>
+                    <div style="margin-bottom: 10px;">                        <button type="submit" class="btn-primary">💾 Guardar Matriz CAME</button>
                         <button type="button" class="btn-finalizar" onclick="irAResumenEjecutivo()">
                             📋 CONTINUAR AL RESUMEN EJECUTIVO
                         </button>
@@ -357,23 +373,21 @@ $came_data = $plan_temporal['matriz_came'] ?? [];
                 </div>
             </div>
         </form>
-    </div>
-
-    <script>
+    </div>    <script>
         // Función para guardar paso actual
         document.getElementById('formMatrizCame').addEventListener('submit', function(e) {
             e.preventDefault();
             
             const formData = new FormData(this);
             
-            fetch('../index.php?controller=PlanEstrategico&action=guardarPaso', {
+            fetch('../Controllers/PlanController.php?action=guardarMatrizCame', {
                 method: 'POST',
                 body: formData
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('Datos de Matriz CAME guardados en sesión');
+                    alert('Matriz CAME guardada correctamente');
                 } else {
                     alert('Error al guardar: ' + data.message);
                 }
@@ -382,13 +396,12 @@ $came_data = $plan_temporal['matriz_came'] ?? [];
                 console.error('Error:', error);
                 alert('Error de conexión');
             });
-        });
-          // Función para ir al resumen ejecutivo
+        });        // Función para ir al resumen ejecutivo
         function irAResumenEjecutivo() {
-            // Primero guardar CAME en sesión
+            // Primero guardar CAME
             const formData = new FormData(document.getElementById('formMatrizCame'));
             
-            fetch('../index.php?controller=PlanEstrategico&action=guardarPaso', {
+            fetch('../Controllers/PlanController.php?action=guardarMatrizCame', {
                 method: 'POST',
                 body: formData
             })
@@ -396,7 +409,7 @@ $came_data = $plan_temporal['matriz_came'] ?? [];
             .then(data => {
                 if (data.success) {
                     // Redirigir al resumen ejecutivo
-                    window.location.href = 'resumen_ejecutivo.php';
+                    window.location.href = '../Controllers/PlanController.php?action=editarResumenEjecutivo&id_plan=<?php echo htmlspecialchars($plan_id); ?>';
                 } else {
                     alert('Error al guardar CAME: ' + data.message);
                 }
@@ -409,8 +422,7 @@ $came_data = $plan_temporal['matriz_came'] ?? [];
         
         // Mostrar datos previos si existen
         window.addEventListener('load', function() {
-            // Aquí puedes cargar datos previos de la sesión si es necesario
-            console.log('Matriz CAME cargada - Paso final del plan estratégico');
+            console.log('Matriz CAME cargada - Integrada en el sistema');
         });
     </script>
 </body>

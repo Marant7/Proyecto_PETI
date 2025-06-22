@@ -30,6 +30,11 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
+        .content {
+            margin-left: 240px;
+            padding: 20px;
+        }
+
         h2 {
             text-align: center;
             color: #333;
@@ -143,46 +148,42 @@
 </head>
 <body>
     <?php
-    session_start();
-    if (!isset($_SESSION['user'])) {
-        header('Location: login.php');
-        exit();
-    }    $user = $_SESSION['user'];
+    // Obtener datos del usuario desde la sesión
+    $user = isset($_SESSION['user']) ? $_SESSION['user'] : null;
+    // Inicializar variables para evitar warnings
+    if (!isset($uen_previa)) $uen_previa = '';
+    if (!isset($objetivos_generales_previos)) $objetivos_generales_previos = [];
+    if (!isset($objetivos_especificos_previos)) $objetivos_especificos_previos = [];
+    if (!isset($plan_id)) $plan_id = $_GET['id_plan'] ?? '';
+    if (!isset($mision)) $mision = 'No se ha definido misión';
     
-    // Obtener datos desde el nuevo sistema de sesión temporal
-    $datos_empresa = $_SESSION['plan_temporal']['nuevo_plan'] ?? null;
-    $datos_vision_mision = $_SESSION['plan_temporal']['vision_mision'] ?? null;
-    $datos_objetivos_previos = $_SESSION['plan_temporal']['objetivos'] ?? null;
-    
-    $empresa = $datos_empresa['empresa'] ?? 'Empresa sin nombre';
-    $mision = $datos_vision_mision['mision'] ?? 'No se ha definido misión';
-    
-    // Obtener datos previos de UEN y objetivos si existen
-    $uen_previa = $datos_objetivos_previos['uen_descripcion'] ?? '';
-    $objetivos_generales_previos = $datos_objetivos_previos['objetivos_generales'] ?? [];
-    $objetivos_especificos_previos = $datos_objetivos_previos['objetivos_especificos'] ?? [];
+    $empresa = 'Empresa sin nombre'; // Esto se puede obtener de la BD si es necesario
     ?>
     
-    <div class="header">
-        <h1>Objetivos Estratégicos</h1>
-        <p>Usuario: <?php echo htmlspecialchars($user['nombre'] . ' ' . $user['apellido']); ?></p>
-        <p>Empresa: <?php echo htmlspecialchars($empresa); ?></p>
-    </div>
+    <div style="display:flex; min-height:100vh;">
+        <!-- Barra lateral -->
+        <?php include 'sidebar.php'; ?>
 
-    <div class="container" style="max-width: 1200px;">
-        <h2>Paso 4: Definir Objetivos Estratégicos</h2>
-        
-        <form action="../index.php?controller=PlanEstrategico&action=guardarPaso" method="POST" id="formObjetivos">
-            <input type="hidden" name="paso" value="4">
-            <input type="hidden" name="nombre_paso" value="objetivos">
-            <!-- Sección UEN -->
-            <div class="uen-section">
-                <h3>UEN (Unidades Estratégicas de Negocio)</h3>
-                <p style="font-style: italic; color: #666;">En su caso, comente en este apartado las distintas UEN que tiene su empresa</p>                <div class="form-group">
-                    <label for="uen_descripcion">Descripción de UEN:</label>
-                    <textarea id="uen_descripcion" name="uen_descripcion" rows="4" required placeholder="Describa las unidades estratégicas de negocio de su empresa..."><?php echo htmlspecialchars($uen_previa); ?></textarea>
-                </div>
+        <div class="content">
+            <div class="header">
+                <h1>Objetivos Estratégicos</h1>
+                <p>Usuario: <?php echo $user ? htmlspecialchars($user['nombre'] . ' ' . $user['apellido']) : 'Invitado'; ?></p>
+                <p>Empresa: <?php echo htmlspecialchars($empresa); ?></p>
             </div>
+
+            <div class="container" style="max-width: 1200px;">
+                <h2>Paso 4: Definir Objetivos Estratégicos</h2>
+                
+                <form id="formObjetivos">
+                    <input type="hidden" name="id_plan" value="<?php echo htmlspecialchars($plan_id); ?>">
+                    <!-- Sección UEN -->
+                    <div class="uen-section">
+                        <h3>UEN (Unidades Estratégicas de Negocio)</h3>
+                        <p style="font-style: italic; color: #666;">En su caso, comente en este apartado las distintas UEN que tiene su empresa</p>                        <div class="form-group">
+                            <label for="uen_descripcion">Descripción de UEN:</label>
+                            <textarea id="uen_descripcion" name="uen_descripcion" rows="4" required placeholder="Describa las unidades estratégicas de negocio de su empresa..."><?php echo htmlspecialchars($uen_previa); ?></textarea>
+                        </div>
+                    </div>
 
             <!-- Contenedor de objetivos -->
             <div class="objetivos-container">
@@ -247,11 +248,13 @@
                 </div>
             </div>            <div class="buttons" style="margin-top: 30px; text-align: center;">
                 <button type="submit" style="background-color: #28a745; color: white; padding: 12px 25px; border: none; border-radius: 5px; margin-right: 10px; font-size: 16px; font-weight: bold;">💾 GUARDAR Y CONTINUAR</button>
-                <a href="valores.php" style="background-color: #6c757d; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; margin-right: 10px; font-size: 16px;">Anterior</a>
+                <a href="../Controllers/PlanController.php?action=editarValores&id_plan=<?php echo htmlspecialchars($plan_id); ?>" style="background-color: #6c757d; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; margin-right: 10px; font-size: 16px;">Anterior</a>
                 <a href="home.php" style="background-color: #dc3545; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-size: 16px;">Cancelar</a>
             </div>
         </form>
-    </div>    <script>
+    </div>
+        </div>
+    </div><script>
         let objetivoGeneralCount = 1;
 
         document.getElementById('addObjetivoGeneral').addEventListener('click', function() {
@@ -338,29 +341,45 @@
                 textareas[1].placeholder = `Segundo objetivo específico para el objetivo general ${numero}...`;
             });
               objetivoGeneralCount = objetivosGenerales.length;
-        }
-
-        // Manejar envío del formulario
+        }        // Manejar envío del formulario
         document.getElementById('formObjetivos').addEventListener('submit', function(e) {
             e.preventDefault();
             
             const formData = new FormData(this);
             
-            fetch('../index.php?controller=PlanEstrategico&action=guardarPaso', {
+            // Debug: verificar datos
+            console.log('Plan ID:', formData.get('id_plan'));
+            console.log('UEN:', formData.get('uen_descripcion'));
+            console.log('Objetivos Generales:', formData.getAll('objetivos_generales[]'));
+            console.log('Objetivos Específicos:', formData.getAll('objetivos_especificos[1][]'));
+            
+            fetch('../Controllers/PlanController.php?action=guardarObjetivos', {
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    window.location.href = 'cadena_valor.php';
-                } else {
-                    alert('Error: ' + data.message);
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.text();
+            })
+            .then(text => {
+                console.log('Response text:', text);
+                try {
+                    const data = JSON.parse(text);
+                    if (data.success) {
+                        alert('¡Objetivos guardados correctamente!');
+                        // Redirigir al siguiente paso
+                        window.location.href = 'cadena_valor.php?id_plan=' + document.querySelector('input[name="id_plan"]').value;
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                } catch (e) {
+                    console.error('Error parsing JSON:', e);
+                    alert('Error en la respuesta del servidor: ' + text);
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Error al guardar los datos');
+                alert('Error al guardar los datos: ' + error.message);
             });
         });
     </script>

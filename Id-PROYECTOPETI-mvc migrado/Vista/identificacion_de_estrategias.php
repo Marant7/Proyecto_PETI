@@ -2,234 +2,118 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+
 if (!isset($_SESSION['user']) && !isset($_SESSION['user_id'])) {
     header("Location: ../Vista/index.php");
     exit();
 }
 
-// Procesar datos del formulario
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['save_foda'])) {
-        // Recopilar datos del FODA
-        $fortalezas = [];
-        $debilidades = [];
-        $oportunidades = [];
-        $amenazas = [];
-        
-        // Extraer fortalezas
-        foreach ($_POST as $key => $value) {
-            if (strpos($key, 'fortaleza_') === 0 && !empty($value)) {
-                $fortalezas[] = $value;
-            }
-            if (strpos($key, 'debilidad_') === 0 && !empty($value)) {
-                $debilidades[] = $value;
-            }
-            if (strpos($key, 'oportunidad_') === 0 && !empty($value)) {
-                $oportunidades[] = $value;
-            }
-            if (strpos($key, 'amenaza_') === 0 && !empty($value)) {
-                $amenazas[] = $value;
-            }
-        }
-        
-        // Guardar en sesión
-        $_SESSION['foda_data'] = [
-            'fortalezas' => $fortalezas,
-            'debilidades' => $debilidades,
-            'oportunidades' => $oportunidades,
-            'amenazas' => $amenazas
-        ];
-    }
-      if (isset($_POST['save_evaluacion'])) {
-        // Obtener la consolidación de datos FODA más actual
-        $current_foda = $_SESSION['foda_data'] ?? null;
-        if (!$current_foda) {
-            // Si no hay datos FODA, redirigir para completar primero
-            header("Location: " . $_SERVER['PHP_SELF']);
-            exit();
-        }
-        
-        // Procesar evaluación de estrategias con cantidades dinámicas
-        $evaluacion = [];
-        
-        // Fortalezas vs Oportunidades (FO)
-        $fo_total = 0;
-        $num_fortalezas = count($current_foda['fortalezas']);
-        $num_oportunidades = count($current_foda['oportunidades']);
-        
-        for ($f = 1; $f <= $num_fortalezas; $f++) {
-            for ($o = 1; $o <= $num_oportunidades; $o++) {
-                $value = intval($_POST["fo_f{$f}_o{$o}"] ?? 0);
-                $evaluacion["fo_f{$f}_o{$o}"] = $value;
-                $fo_total += $value;
-            }
-        }
-        
-        // Fortalezas vs Amenazas (FA)
-        $fa_total = 0;
-        $num_amenazas = count($current_foda['amenazas']);
-        
-        for ($f = 1; $f <= $num_fortalezas; $f++) {
-            for ($a = 1; $a <= $num_amenazas; $a++) {
-                $value = intval($_POST["fa_f{$f}_a{$a}"] ?? 0);
-                $evaluacion["fa_f{$f}_a{$a}"] = $value;
-                $fa_total += $value;
-            }
-        }
-        
-        // Debilidades vs Oportunidades (DO)
-        $do_total = 0;
-        $num_debilidades = count($current_foda['debilidades']);
-        
-        for ($d = 1; $d <= $num_debilidades; $d++) {
-            for ($o = 1; $o <= $num_oportunidades; $o++) {
-                $value = intval($_POST["do_d{$d}_o{$o}"] ?? 0);
-                $evaluacion["do_d{$d}_o{$o}"] = $value;
-                $do_total += $value;
-            }
-        }
-        
-        // Debilidades vs Amenazas (DA)
-        $da_total = 0;
-        
-        for ($d = 1; $d <= $num_debilidades; $d++) {
-            for ($a = 1; $a <= $num_amenazas; $a++) {
-                $value = intval($_POST["da_d{$d}_a{$a}"] ?? 0);
-                $evaluacion["da_d{$d}_a{$a}"] = $value;
-                $da_total += $value;
-            }
-        }
-        
-        // Guardar evaluación en sesión
-        $_SESSION['estrategias_evaluacion'] = [
-            'evaluacion' => $evaluacion,
-            'totales' => [
-                'fo' => $fo_total,
-                'fa' => $fa_total,
-                'do' => $do_total,
-                'da' => $da_total
-            ],
-            'cantidades' => [
-                'fortalezas' => $num_fortalezas,
-                'debilidades' => $num_debilidades,
-                'oportunidades' => $num_oportunidades,
-                'amenazas' => $num_amenazas
-            ]
-        ];
-    }
+// Obtener el plan_id de la sesión o URL
+$plan_id = $_SESSION['plan_id'] ?? $_GET['id_plan'] ?? null;
+
+if (!$plan_id) {
+    echo "<script>alert('No se encontró un plan activo.'); window.location.href = '../Vista/home.php';</script>";
+    exit();
 }
 
-// Obtener datos guardados
-$foda_data = $_SESSION['foda_data'] ?? null;
-$evaluacion_data = $_SESSION['estrategias_evaluacion'] ?? null;
+// Configurar conexión y modelo
+require_once __DIR__ . '/../config/clsconexion.php';
+require_once __DIR__ . '/../Models/PlanModel.php';
 
-// Consolidar datos de todas las fuentes disponibles
-$pest_data = $_SESSION['pest_resultados'] ?? null;
-$cadena_valor_data = $_SESSION['plan_temporal']['cadena_valor'] ?? null;
-$fuerzas_porter_data = $_SESSION['fuerzas_porter'] ?? null;
+$db = (new clsConexion())->getConexion();
+$model = new PlanModel($db);
 
-// ===============================================
-// NUEVA ESTRUCTURA: Obtener datos del plan temporal
-// ===============================================
-$plan_temporal = $_SESSION['plan_temporal'] ?? [];
+// Obtener datos previos del plan
+$datos_previos = $model->obtenerEstrategias($plan_id);
+$cadena_valor_data = $model->obtenerCadenaValor($plan_id);
+$bcg_data = $model->obtenerMatrizBCG($plan_id);
+$fuerzas_porter_data = $model->obtenerFuerzasPorter($plan_id);
+$pest_data = $model->obtenerPEST($plan_id);
 
-// Obtener datos de cada módulo desde el plan temporal
-$bcg_data = $plan_temporal['matriz_bcg'] ?? null;
-$cadena_valor_data = $plan_temporal['cadena_valor'] ?? null;
-$fuerzas_porter_data = $plan_temporal['fuerzas_porter'] ?? $_SESSION['fuerzas_porter'] ?? null;
-$pest_data = $plan_temporal['pest'] ?? $_SESSION['pest_resultados'] ?? null;
-$estrategias_data = $plan_temporal['estrategias'] ?? null;
+// Manejar correctamente los datos BCG (pueden venir como JSON string)
+$bcg_data = $bcg_data ? json_decode($bcg_data, true) : [];
+// Los demás métodos ya devuelven arrays decodificados
+$fuerzas_porter_data = $fuerzas_porter_data ?: [];
+$pest_data = $pest_data ?: [];
+$cadena_valor_data = $cadena_valor_data ?: [];
 
-// Consolidación automática de datos FODA desde todas las fuentes
-// Priorizar datos ya guardados en estrategias, luego consolidar desde otras fuentes
+// Debug temporal - verificar datos de fuentes
+error_log("=== DEBUG FUENTES DE DATOS ===");
+error_log("BCG data: " . print_r($bcg_data, true));
+error_log("Porter data: " . print_r($fuerzas_porter_data, true));
+error_log("PEST data: " . print_r($pest_data, true));
+error_log("Cadena Valor data: " . print_r($cadena_valor_data, true));
+error_log("==========================");
 
+// Consolidar datos FODA desde todas las fuentes
 $fortalezas_consolidadas = [];
 $debilidades_consolidadas = [];
 $oportunidades_consolidadas = [];
 $amenazas_consolidadas = [];
 
-// 1. Si ya existen datos de estrategias previas, usarlos como base
-if ($estrategias_data) {
-    $fortalezas_consolidadas = $estrategias_data['fortalezas'] ?? [];
-    $debilidades_consolidadas = $estrategias_data['debilidades'] ?? [];
-    $oportunidades_consolidadas = $estrategias_data['oportunidades'] ?? [];
-    $amenazas_consolidadas = $estrategias_data['amenazas'] ?? [];
+// 1. Agregar datos FODA de estrategias si existen
+if ($datos_previos && isset($datos_previos['foda'])) {
+    $foda_data = $datos_previos['foda'];
+    $fortalezas_consolidadas = array_merge($fortalezas_consolidadas, $foda_data['fortalezas'] ?? []);
+    $debilidades_consolidadas = array_merge($debilidades_consolidadas, $foda_data['debilidades'] ?? []);
+    $oportunidades_consolidadas = array_merge($oportunidades_consolidadas, $foda_data['oportunidades'] ?? []);
+    $amenazas_consolidadas = array_merge($amenazas_consolidadas, $foda_data['amenazas'] ?? []);
 }
 
-// 2. Si no hay datos previos de estrategias, consolidar desde todas las fuentes
-if (empty($fortalezas_consolidadas) && empty($debilidades_consolidadas) && 
-    empty($oportunidades_consolidadas) && empty($amenazas_consolidadas)) {
-    
-    // Si existen datos FODA de sesión antigua, mantenerlos como base
-    if ($foda_data) {
-        $fortalezas_consolidadas = $foda_data['fortalezas'] ?? [];
-        $debilidades_consolidadas = $foda_data['debilidades'] ?? [];
-        $oportunidades_consolidadas = $foda_data['oportunidades'] ?? [];
-        $amenazas_consolidadas = $foda_data['amenazas'] ?? [];
+// 2. Obtener fortalezas y debilidades de la Cadena de Valor
+if ($cadena_valor_data) {
+    if (!empty($cadena_valor_data['fortalezas'])) {
+        $fortalezas_consolidadas = array_merge($fortalezas_consolidadas, $cadena_valor_data['fortalezas']);
+    }
+    if (!empty($cadena_valor_data['debilidades'])) {
+        $debilidades_consolidadas = array_merge($debilidades_consolidadas, $cadena_valor_data['debilidades']);
+    }
+}
+
+// 3. Obtener fortalezas y debilidades de Matriz BCG
+if ($bcg_data) {
+    if (!empty($bcg_data['fortalezas'])) {
+        $bcg_fortalezas = is_array($bcg_data['fortalezas']) 
+            ? $bcg_data['fortalezas'] 
+            : array_filter(explode("\n", $bcg_data['fortalezas']));
+        $fortalezas_consolidadas = array_merge($fortalezas_consolidadas, $bcg_fortalezas);
     }
     
-    // Obtener fortalezas y debilidades de la Cadena de Valor
-    if ($cadena_valor_data) {
-        if (!empty($cadena_valor_data['fortalezas'])) {
-            $fortalezas_consolidadas = array_merge($fortalezas_consolidadas, $cadena_valor_data['fortalezas']);
-        }
-        if (!empty($cadena_valor_data['debilidades'])) {
-            $debilidades_consolidadas = array_merge($debilidades_consolidadas, $cadena_valor_data['debilidades']);
-        }
+    if (!empty($bcg_data['debilidades'])) {
+        $bcg_debilidades = is_array($bcg_data['debilidades']) 
+            ? $bcg_data['debilidades'] 
+            : array_filter(explode("\n", $bcg_data['debilidades']));
+        $debilidades_consolidadas = array_merge($debilidades_consolidadas, $bcg_debilidades);
     }
-    
-    // ===============================================
-    // OBTENER FORTALEZAS Y DEBILIDADES DE MATRIZ BCG
-    // ===============================================
-    if ($bcg_data) {
-        // Fortalezas de BCG
-        if (!empty($bcg_data['fortalezas'])) {
-            $bcg_fortalezas = is_array($bcg_data['fortalezas']) 
-                ? $bcg_data['fortalezas'] 
-                : array_filter(explode("\n", $bcg_data['fortalezas']));
-            $fortalezas_consolidadas = array_merge($fortalezas_consolidadas, $bcg_fortalezas);
-        }
-        
-        // Debilidades de BCG
-        if (!empty($bcg_data['debilidades'])) {
-            $bcg_debilidades = is_array($bcg_data['debilidades']) 
-                ? $bcg_data['debilidades'] 
-                : array_filter(explode("\n", $bcg_data['debilidades']));
-            $debilidades_consolidadas = array_merge($debilidades_consolidadas, $bcg_debilidades);
-        }
-    }
-      // Obtener oportunidades del PEST
-    if ($pest_data && !empty($pest_data['oportunidades'])) {
-        error_log("FODA: Consolidando oportunidades de PEST: " . json_encode($pest_data['oportunidades']));
+}
+
+// 4. Obtener oportunidades y amenazas del PEST
+if ($pest_data) {
+    if (!empty($pest_data['oportunidades'])) {
         $oportunidades_consolidadas = array_merge($oportunidades_consolidadas, $pest_data['oportunidades']);
     }
-    
-    // Obtener amenazas del PEST
-    if ($pest_data && !empty($pest_data['amenazas'])) {
-        error_log("FODA: Consolidando amenazas de PEST: " . json_encode($pest_data['amenazas']));
+    if (!empty($pest_data['amenazas'])) {
         $amenazas_consolidadas = array_merge($amenazas_consolidadas, $pest_data['amenazas']);
     }
-    
-    // Obtener oportunidades de Fuerzas Porter
-    if ($fuerzas_porter_data && !empty($fuerzas_porter_data['oportunidades'])) {
-        // Convertir a array si es string
+}
+
+// 5. Obtener oportunidades y amenazas de Fuerzas Porter
+if ($fuerzas_porter_data) {
+    if (!empty($fuerzas_porter_data['oportunidades'])) {
         $porter_oportunidades = is_array($fuerzas_porter_data['oportunidades']) 
             ? $fuerzas_porter_data['oportunidades'] 
             : array_filter(explode("\n", $fuerzas_porter_data['oportunidades']));
         $oportunidades_consolidadas = array_merge($oportunidades_consolidadas, $porter_oportunidades);
     }
     
-    // Obtener amenazas de Fuerzas Porter
-    if ($fuerzas_porter_data && !empty($fuerzas_porter_data['amenazas'])) {
-        // Convertir a array si es string
+    if (!empty($fuerzas_porter_data['amenazas'])) {
         $porter_amenazas = is_array($fuerzas_porter_data['amenazas']) 
             ? $fuerzas_porter_data['amenazas'] 
-            : array_filter(explode("\n", $fuerzas_porter_data['amenazas']));
-        $amenazas_consolidadas = array_merge($amenazas_consolidadas, $porter_amenazas);
+            : array_filter(explode("\n", $fuerzas_porter_data['amenazas']));        $amenazas_consolidadas = array_merge($amenazas_consolidadas, $porter_amenazas);
     }
 }
 
-// Crear estructura FODA consolidada (siempre actualizar)
+// Limpiar duplicados y vacíos, y crear estructura FODA consolidada final
 $foda_data = [
     'fortalezas' => array_values(array_filter(array_unique($fortalezas_consolidadas))),
     'debilidades' => array_values(array_filter(array_unique($debilidades_consolidadas))),
@@ -237,55 +121,134 @@ $foda_data = [
     'amenazas' => array_values(array_filter(array_unique($amenazas_consolidadas)))
 ];
 
-// ===============================================
-// DEBUG: Mostrar qué datos se están consolidando
-// ===============================================
-if (isset($_GET['debug']) && $_GET['debug'] == '1') {
-    echo "<pre>";
-    echo "=== DEBUG: CONSOLIDACIÓN DE DATOS FODA ===\n\n";
-    echo "Plan temporal completo:\n";
-    print_r($plan_temporal);
-    echo "\n\nDatos Cadena de Valor:\n";
-    print_r($cadena_valor_data);
-    echo "\n\nDatos BCG:\n";
-    print_r($bcg_data);    echo "\n\nDatos Porter:\n";
-    print_r($fuerzas_porter_data);
-    echo "\n\nDatos PEST:\n";
-    print_r($pest_data);
-    echo "\n\nDatos Estrategias Previas:\n";
-    print_r($estrategias_data);
-    echo "\n\n=== CONSOLIDACIÓN EN PROGRESO ===\n";
-    echo "Oportunidades consolidadas hasta ahora:\n";
-    print_r($oportunidades_consolidadas);
-    echo "\nAmenazas consolidadas hasta ahora:\n";
-    print_r($amenazas_consolidadas);
-    echo "\n\nFODA Consolidado Final:\n";
-    print_r($foda_data);
-    echo "</pre>";
-    exit();
-}
+// Debug temporal - eliminar después
+error_log("=== DEBUG FODA CONSOLIDACIÓN ===");
+error_log("Fortalezas: " . count($foda_data['fortalezas']) . " elementos");
+error_log("Debilidades: " . count($foda_data['debilidades']) . " elementos");
+error_log("Oportunidades: " . count($foda_data['oportunidades']) . " elementos");
+error_log("Amenazas: " . count($foda_data['amenazas']) . " elementos");
+error_log("Fortalezas data: " . print_r($foda_data['fortalezas'], true));
+error_log("===========================");
 
+// Obtener datos de evaluación previa si existen
+$evaluacion_data = $datos_previos['evaluacion'] ?? null;
+
+// Debug temporal - eliminar después de confirmar que funciona
+error_log("Datos previos completos: " . print_r($datos_previos, true));
+if ($evaluacion_data) {
+    error_log("Datos de evaluación: " . print_r($evaluacion_data, true));
+}
 
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PETI - Identificación de Estrategias</title>
     
     <!-- Material Design CSS -->
     <link rel="stylesheet" href="../public/css/material.min.css">
-    <link rel="stylesheet" href="../public/css/material-design-iconic-font.min.css">    <link rel="stylesheet" href="../public/css/normalize.css">
+    <link rel="stylesheet" href="../public/css/material-design-iconic-font.min.css">
+    <link rel="stylesheet" href="../public/css/normalize.css">
     <link rel="stylesheet" href="../public/css/main.css">
     <link rel="stylesheet" href="../public/css/plan-estrategico.css">
+    <link rel="stylesheet" href="../public/css/sweetalert2.css">
+    
+    <style>
+        .evaluation-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        
+        .evaluation-table th, .evaluation-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        
+        .evaluation-table th {
+            background-color: #f4f4f4;
+            font-weight: bold;
+        }
+        
+        .evaluation-select {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        
+        .foda-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .foda-item-readonly {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .foda-item-readonly:hover {
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .strategy-recommendation {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #F5F5F5;
+        }
+        
+        .synthesis-summary {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #E8F5E8 0%, #F1F8E9 100%);
+            border-radius: 15px;
+            border-left: 6px solid #4CAF50;
+            animation: fadeInUp 0.5s ease;
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .sidebar-nav a.active {
+            background-color: #4CAF50 !important;
+            color: white !important;
+        }
+        
+        .page-content {
+            margin-left: 280px;
+            padding: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .page-content {
+                margin-left: 0;
+                padding: 10px;
+            }
+            .synthesis-summary .row {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 <body>
-    <!-- pageContent -->
-    <section class="full-width pageContent">
+    <!-- Sidebar -->
+    <?php include 'sidebar.php'; ?>
+    
+    <!-- Main Content -->
+    <div class="page-content">
         <section class="full-width header-well">
             <div class="full-width header-well-icon">
-                <i class="zmdi zmdi-chart"></i>
+                <i class="zmdi zmdi-assignment-check"></i>
             </div>
             <div class="full-width header-well-text">
                 <p class="text-condensedLight">
@@ -311,13 +274,18 @@ if (isset($_GET['debug']) && $_GET['debug'] == '1') {
             <div class="mdl-tabs__panel is-active" id="foda-tab">
                 <div class="mdl-grid">
                     <div class="mdl-cell mdl-cell--12-col">
-                        <div class="full-width panel mdl-shadow--2dp">                            <div class="full-width panel-tittle bg-primary text-center tittles">
-                                ANÁLISIS FODA
-                            </div>                            <div class="full-width panel-content">
+                        <div class="full-width panel mdl-shadow--2dp">
+                            <div class="full-width panel-tittle bg-primary text-center tittles">
+                                ANÁLISIS FODA CONSOLIDADO
+                            </div>
+                            <div class="full-width panel-content">
                                 <?php 
                                 $fuentes_data = [];
                                 if ($cadena_valor_data && (!empty($cadena_valor_data['fortalezas']) || !empty($cadena_valor_data['debilidades']))) {
                                     $fuentes_data[] = "Cadena de Valor";
+                                }
+                                if ($bcg_data && (!empty($bcg_data['fortalezas']) || !empty($bcg_data['debilidades']))) {
+                                    $fuentes_data[] = "Matriz BCG";
                                 }
                                 if ($pest_data && (!empty($pest_data['oportunidades']) || !empty($pest_data['amenazas']))) {
                                     $fuentes_data[] = "Análisis PEST";
@@ -326,146 +294,158 @@ if (isset($_GET['debug']) && $_GET['debug'] == '1') {
                                     $fuentes_data[] = "Fuerzas de Porter";
                                 }
                                 
-                                if (!empty($fuentes_data)): ?>                                <div class="alert alert-info" style="margin-bottom: 20px; padding: 15px; background-color: #d9edf7; border: 1px solid #bce8f1; border-radius: 4px; color: #31708f;">
+                                if (!empty($fuentes_data)): ?>
+                                <div class="alert alert-info" style="margin-bottom: 20px; padding: 15px; background-color: #d9edf7; border: 1px solid #bce8f1; border-radius: 4px; color: #31708f;">
                                     <strong><i class="zmdi zmdi-info"></i> Datos Consolidados:</strong> 
                                     Los datos FODA han sido consolidados automáticamente desde: <strong><?= implode(', ', $fuentes_data) ?></strong>. 
-                                    Esta es la síntesis final de su análisis estratégico para proceder con la evaluación.
+                                    Esta es la síntesis final de su análisis estratégico.
                                 </div>
-                                <?php endif; ?>                                <form id="fodaForm" method="POST" action="../index.php?controller=PlanEstrategico&action=guardarPaso">
-                                    <input type="hidden" name="paso" value="9">
-                                    <input type="hidden" name="nombre_paso" value="estrategias">
-                                    <div class="mdl-grid">
-                                        <!-- Fortalezas -->
-                                        <div class="mdl-cell mdl-cell--6-col">
-                                            <div class="foda-section" style="background-color: #E8F5E8; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
-                                                <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 15px;">
-                                                    <h4 style="color: #2E7D32; margin: 0;">
-                                                        <i class="zmdi zmdi-thumb-up"></i> FORTALEZAS
-                                                    </h4>
-                                                </div>                                                <div id="fortalezas-container">
-                                                    <?php if ($foda_data && !empty($foda_data['fortalezas'])): ?>
-                                                        <?php foreach ($foda_data['fortalezas'] as $index => $fortaleza): ?>
-                                                            <div class="foda-item-readonly" style="margin-bottom: 10px; padding: 10px; background-color: #F1F8E9; border-left: 4px solid #4CAF50; border-radius: 5px;">
-                                                                <span style="color: #2E7D32; font-weight: 500;">F<?= $index + 1 ?>:</span>
-                                                                <span style="color: #333; margin-left: 8px;"><?= htmlspecialchars($fortaleza) ?></span>
-                                                            </div>
-                                                        <?php endforeach; ?>
-                                                    <?php else: ?>
-                                                        <div class="alert alert-info" style="text-align: center; padding: 15px; margin: 10px 0;">
-                                                            <em>No hay fortalezas definidas</em>
+                                <?php endif; ?>
+
+                                <div class="mdl-grid">
+                                    <!-- Fortalezas -->
+                                    <div class="mdl-cell mdl-cell--6-col">
+                                        <div class="foda-section" style="background-color: #E8F5E8; padding: 20px; border-radius: 10px;">
+                                            <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 15px;">
+                                                <h4 style="color: #2E7D32; margin: 0;">
+                                                    <i class="zmdi zmdi-thumb-up"></i> FORTALEZAS
+                                                </h4>
+                                            </div>
+                                            <div id="fortalezas-container">
+                                                <?php if (!empty($foda_data['fortalezas'])): ?>
+                                                    <?php foreach ($foda_data['fortalezas'] as $index => $fortaleza): ?>
+                                                        <div class="foda-item-readonly" style="margin-bottom: 10px; padding: 10px; background-color: #F1F8E9; border-left: 4px solid #4CAF50; border-radius: 5px;">
+                                                            <span style="color: #2E7D32; font-weight: 500;">F<?= $index + 1 ?>:</span>
+                                                            <span style="color: #333; margin-left: 8px;"><?= htmlspecialchars($fortaleza) ?></span>
                                                         </div>
-                                                    <?php endif; ?>
-                                                </div>
+                                                    <?php endforeach; ?>
+                                                <?php else: ?>
+                                                    <div class="alert alert-info" style="text-align: center; padding: 15px; margin: 10px 0;">
+                                                        <em>No hay fortalezas definidas</em>
+                                                    </div>
+                                                <?php endif; ?>
                                             </div>
                                         </div>
-
-                                        <!-- Debilidades -->
-                                        <div class="mdl-cell mdl-cell--6-col">                                            <div class="foda-section" style="background-color: #FFF3E0; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
-                                                <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 15px;">
-                                                    <h4 style="color: #F57C00; margin: 0;">
-                                                        <i class="zmdi zmdi-thumb-down"></i> DEBILIDADES
-                                                    </h4>
-                                                </div>                                                <div id="debilidades-container">
-                                                    <?php if ($foda_data && !empty($foda_data['debilidades'])): ?>
-                                                        <?php foreach ($foda_data['debilidades'] as $index => $debilidad): ?>
-                                                            <div class="foda-item-readonly" style="margin-bottom: 10px; padding: 10px; background-color: #FFF8E1; border-left: 4px solid #FF9800; border-radius: 5px;">
-                                                                <span style="color: #F57C00; font-weight: 500;">D<?= $index + 1 ?>:</span>
-                                                                <span style="color: #333; margin-left: 8px;"><?= htmlspecialchars($debilidad) ?></span>
-                                                            </div>
-                                                        <?php endforeach; ?>
-                                                    <?php else: ?>
-                                                        <div class="alert alert-info" style="text-align: center; padding: 15px; margin: 10px 0;">
-                                                            <em>No hay debilidades definidas</em>
-                                                        </div>
-                                                    <?php endif; ?>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Oportunidades -->
-                                        <div class="mdl-cell mdl-cell--6-col">                                            <div class="foda-section" style="background-color: #E3F2FD; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
-                                                <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 15px;">
-                                                    <h4 style="color: #1976D2; margin: 0;">
-                                                        <i class="zmdi zmdi-trending-up"></i> OPORTUNIDADES
-                                                    </h4>
-                                                </div>                                                <div id="oportunidades-container">
-                                                    <?php if ($foda_data && !empty($foda_data['oportunidades'])): ?>
-                                                        <?php foreach ($foda_data['oportunidades'] as $index => $oportunidad): ?>
-                                                            <div class="foda-item-readonly" style="margin-bottom: 10px; padding: 10px; background-color: #E3F2FD; border-left: 4px solid #2196F3; border-radius: 5px;">
-                                                                <span style="color: #1976D2; font-weight: 500;">O<?= $index + 1 ?>:</span>
-                                                                <span style="color: #333; margin-left: 8px;"><?= htmlspecialchars($oportunidad) ?></span>
-                                                            </div>
-                                                        <?php endforeach; ?>
-                                                    <?php else: ?>
-                                                        <div class="alert alert-info" style="text-align: center; padding: 15px; margin: 10px 0;">
-                                                            <em>No hay oportunidades definidas</em>
-                                                        </div>
-                                                    <?php endif; ?>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Amenazas -->
-                                        <div class="mdl-cell mdl-cell--6-col">                                            <div class="foda-section" style="background-color: #FFEBEE; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
-                                                <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 15px;">
-                                                    <h4 style="color: #D32F2F; margin: 0;">
-                                                        <i class="zmdi zmdi-trending-down"></i> AMENAZAS
-                                                    </h4>
-                                                </div>                                                <div id="amenazas-container">
-                                                    <?php if ($foda_data && !empty($foda_data['amenazas'])): ?>
-                                                        <?php foreach ($foda_data['amenazas'] as $index => $amenaza): ?>
-                                                            <div class="foda-item-readonly" style="margin-bottom: 10px; padding: 10px; background-color: #FFEBEE; border-left: 4px solid #F44336; border-radius: 5px;">
-                                                                <span style="color: #D32F2F; font-weight: 500;">A<?= $index + 1 ?>:</span>
-                                                                <span style="color: #333; margin-left: 8px;"><?= htmlspecialchars($amenaza) ?></span>
-                                                            </div>
-                                                        <?php endforeach; ?>
-                                                    <?php else: ?>
-                                                        <div class="alert alert-info" style="text-align: center; padding: 15px; margin: 10px 0;">
-                                                            <em>No hay amenazas definidas</em>
-                                                        </div>
-                                                    <?php endif; ?>
-                                                </div>
-                                            </div>
-                                        </div>                                    </div>
-
-                                    <!-- Mensaje de solo lectura -->
-                                    <div class="text-center" style="margin-top: 20px; padding: 15px; background-color: #E8F5E8; border-radius: 10px;">
-                                        <i class="zmdi zmdi-check-circle" style="color: #4CAF50; font-size: 24px; margin-right: 10px;"></i>
-                                        <strong style="color: #2E7D32;">Análisis FODA Consolidado</strong>
-                                        <p style="margin: 10px 0 0 0; color: #555;">
-                                            Los datos han sido consolidados desde todos los módulos anteriores. 
-                                            Proceda a la evaluación estratégica para completar el análisis.
-                                        </p>
                                     </div>
-                                </form>
+
+                                    <!-- Debilidades -->
+                                    <div class="mdl-cell mdl-cell--6-col">
+                                        <div class="foda-section" style="background-color: #FFF3E0; padding: 20px; border-radius: 10px;">
+                                            <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 15px;">
+                                                <h4 style="color: #F57C00; margin: 0;">
+                                                    <i class="zmdi zmdi-thumb-down"></i> DEBILIDADES
+                                                </h4>
+                                            </div>
+                                            <div id="debilidades-container">
+                                                <?php if (!empty($foda_data['debilidades'])): ?>
+                                                    <?php foreach ($foda_data['debilidades'] as $index => $debilidad): ?>
+                                                        <div class="foda-item-readonly" style="margin-bottom: 10px; padding: 10px; background-color: #FFF8E1; border-left: 4px solid #FF9800; border-radius: 5px;">
+                                                            <span style="color: #F57C00; font-weight: 500;">D<?= $index + 1 ?>:</span>
+                                                            <span style="color: #333; margin-left: 8px;"><?= htmlspecialchars($debilidad) ?></span>
+                                                        </div>
+                                                    <?php endforeach; ?>
+                                                <?php else: ?>
+                                                    <div class="alert alert-info" style="text-align: center; padding: 15px; margin: 10px 0;">
+                                                        <em>No hay debilidades definidas</em>
+                                                    </div>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Oportunidades -->
+                                    <div class="mdl-cell mdl-cell--6-col">
+                                        <div class="foda-section" style="background-color: #E3F2FD; padding: 20px; border-radius: 10px;">
+                                            <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 15px;">
+                                                <h4 style="color: #1976D2; margin: 0;">
+                                                    <i class="zmdi zmdi-trending-up"></i> OPORTUNIDADES
+                                                </h4>
+                                            </div>
+                                            <div id="oportunidades-container">
+                                                <?php if (!empty($foda_data['oportunidades'])): ?>
+                                                    <?php foreach ($foda_data['oportunidades'] as $index => $oportunidad): ?>
+                                                        <div class="foda-item-readonly" style="margin-bottom: 10px; padding: 10px; background-color: #E3F2FD; border-left: 4px solid #2196F3; border-radius: 5px;">
+                                                            <span style="color: #1976D2; font-weight: 500;">O<?= $index + 1 ?>:</span>
+                                                            <span style="color: #333; margin-left: 8px;"><?= htmlspecialchars($oportunidad) ?></span>
+                                                        </div>
+                                                    <?php endforeach; ?>
+                                                <?php else: ?>
+                                                    <div class="alert alert-info" style="text-align: center; padding: 15px; margin: 10px 0;">
+                                                        <em>No hay oportunidades definidas</em>
+                                                    </div>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Amenazas -->
+                                    <div class="mdl-cell mdl-cell--6-col">
+                                        <div class="foda-section" style="background-color: #FFEBEE; padding: 20px; border-radius: 10px;">
+                                            <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 15px;">
+                                                <h4 style="color: #D32F2F; margin: 0;">
+                                                    <i class="zmdi zmdi-trending-down"></i> AMENAZAS
+                                                </h4>
+                                            </div>
+                                            <div id="amenazas-container">
+                                                <?php if (!empty($foda_data['amenazas'])): ?>
+                                                    <?php foreach ($foda_data['amenazas'] as $index => $amenaza): ?>
+                                                        <div class="foda-item-readonly" style="margin-bottom: 10px; padding: 10px; background-color: #FFEBEE; border-left: 4px solid #F44336; border-radius: 5px;">
+                                                            <span style="color: #D32F2F; font-weight: 500;">A<?= $index + 1 ?>:</span>
+                                                            <span style="color: #333; margin-left: 8px;"><?= htmlspecialchars($amenaza) ?></span>
+                                                        </div>
+                                                    <?php endforeach; ?>
+                                                <?php else: ?>
+                                                    <div class="alert alert-info" style="text-align: center; padding: 15px; margin: 10px 0;">
+                                                        <em>No hay amenazas definidas</em>
+                                                    </div>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Mensaje de consolidación -->
+                                <div class="text-center" style="margin-top: 20px; padding: 15px; background-color: #E8F5E8; border-radius: 10px;">
+                                    <i class="zmdi zmdi-check-circle" style="color: #4CAF50; font-size: 24px; margin-right: 10px;"></i>
+                                    <strong style="color: #2E7D32;">Análisis FODA Consolidado</strong>
+                                    <p style="margin: 10px 0 0 0; color: #555;">
+                                        Los datos han sido consolidados desde todos los módulos anteriores. 
+                                        Proceda a la evaluación estratégica para completar el análisis.
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Tab 2: Evaluación Estratégica -->
+            </div>            <!-- Tab 2: Evaluación Estratégica -->
             <div class="mdl-tabs__panel" id="evaluacion-tab">
                 <div class="mdl-grid">
                     <div class="mdl-cell mdl-cell--12-col">
-                        <?php if ($foda_data): ?>
-                        <form method="POST" action="../index.php?controller=PlanEstrategico&action=guardarPaso" id="evaluacionForm">
-                            <input type="hidden" name="paso" value="9">
-                            <input type="hidden" name="nombre_paso" value="estrategias">
+                        <form id="evaluacionForm">
+                            <input type="hidden" id="id_plan" value="<?= $plan_id ?>">
+                            
+                            <!-- Mensaje informativo -->
+                            <div class="alert alert-info" style="margin-bottom: 20px; padding: 15px; background-color: #d9edf7; border: 1px solid #bce8f1; border-radius: 4px; color: #31708f;">
+                                <strong><i class="zmdi zmdi-info"></i> Evaluación Estratégica:</strong> 
+                                Complete las matrices de evaluación según sus criterios estratégicos. Puede guardar parcialmente y continuar después.
+                            </div>
+                            
                             <!-- Fortalezas vs Oportunidades -->
+                            <?php if (!empty($foda_data['fortalezas']) && !empty($foda_data['oportunidades'])): ?>
                             <div class="full-width panel mdl-shadow--2dp" style="margin-bottom: 30px;">
                                 <div class="full-width panel-tittle bg-success text-center tittles">
                                     FORTALEZAS vs OPORTUNIDADES (Estrategia Ofensiva)
                                 </div>
                                 <div class="full-width panel-content">
-                                    <p><em>Las fortalezas evaden el efecto negativo de las amenazas.</em></p>
-                                    <p><strong>Escala:</strong> 0=En total desacuerdo, 1= No está de acuerdo, 2= Está de acuerdo, 3= Bastante de acuerdo y 4=En total acuerdo</p>
+                                    <p><em>Las fortalezas aprovechan las oportunidades del entorno.</em></p>
+                                    <p><strong>Escala:</strong> 0=En total desacuerdo, 1=No está de acuerdo, 2=Está de acuerdo, 3=Bastante de acuerdo, 4=En total acuerdo</p>
                                     
                                     <div class="table-responsive">
                                         <table class="table table-bordered evaluation-table">
                                             <thead>
                                                 <tr style="background-color: #FFE0B2;">
-                                                    <th rowspan="2" style="background-color: #A5D6A7;">FORTALEZAS</th>                                                    <th colspan="<?= count($foda_data['oportunidades']) ?>" style="text-align: center;">OPORTUNIDADES</th>
+                                                    <th rowspan="2" style="background-color: #A5D6A7;">FORTALEZAS</th>
+                                                    <th colspan="<?= count($foda_data['oportunidades']) ?>" style="text-align: center;">OPORTUNIDADES</th>
                                                 </tr>
                                                 <tr style="background-color: #FFE0B2;">
                                                     <?php for ($i = 0; $i < count($foda_data['oportunidades']); $i++): ?>
@@ -479,7 +459,7 @@ if (isset($_GET['debug']) && $_GET['debug'] == '1') {
                                                     <td style="background-color: #C8E6C9;">F<?= $f + 1 ?></td>
                                                     <?php for ($o = 0; $o < count($foda_data['oportunidades']); $o++): ?>
                                                         <td>
-                                                            <select name="fo_f<?= $f + 1 ?>_o<?= $o + 1 ?>" class="form-control evaluation-select" style="width: 100%; padding: 5px;">
+                                                            <select name="fo_f<?= $f + 1 ?>_o<?= $o + 1 ?>" class="form-control evaluation-select fo-select" style="width: 100%; padding: 5px;">
                                                                 <option value="0">0</option>
                                                                 <option value="1">1</option>
                                                                 <option value="2">2</option>
@@ -501,23 +481,36 @@ if (isset($_GET['debug']) && $_GET['debug'] == '1') {
                                     </div>
                                 </div>
                             </div>
+                            <?php else: ?>
+                            <div class="full-width panel mdl-shadow--2dp" style="margin-bottom: 30px;">
+                                <div class="full-width panel-tittle bg-secondary text-center tittles">
+                                    FORTALEZAS vs OPORTUNIDADES (Estrategia Ofensiva)
+                                </div>
+                                <div class="full-width panel-content">
+                                    <div class="alert alert-warning">
+                                        <strong>Sin datos:</strong> Complete primero los análisis de Fortalezas y Oportunidades en los módulos anteriores.
+                                    </div>
+                                </div>
+                            </div>
+                            <?php endif; ?>
 
                             <!-- Fortalezas vs Amenazas -->
+                            <?php if (!empty($foda_data['fortalezas']) && !empty($foda_data['amenazas'])): ?>
                             <div class="full-width panel mdl-shadow--2dp" style="margin-bottom: 30px;">
                                 <div class="full-width panel-tittle bg-info text-center tittles">
                                     FORTALEZAS vs AMENAZAS (Estrategia Defensiva)
                                 </div>
                                 <div class="full-width panel-content">
                                     <p><em>Las fortalezas evaden el efecto negativo de las amenazas.</em></p>
-                                    <p><strong>Escala:</strong> 0=En total desacuerdo, 1= No está de acuerdo, 2= Está de acuerdo, 3= Bastante de acuerdo y 4=En total acuerdo</p>
                                     
                                     <div class="table-responsive">
                                         <table class="table table-bordered evaluation-table">
                                             <thead>
-                                                <tr style="background-color: #FFCDD2;">
-                                                    <th rowspan="2" style="background-color: #A5D6A7;">FORTALEZAS</th>                                                    <th colspan="<?= count($foda_data['amenazas']) ?>" style="text-align: center;">AMENAZAS</th>
+                                                <tr style="background-color: #FFE0B2;">
+                                                    <th rowspan="2" style="background-color: #A5D6A7;">FORTALEZAS</th>
+                                                    <th colspan="<?= count($foda_data['amenazas']) ?>" style="text-align: center;">AMENAZAS</th>
                                                 </tr>
-                                                <tr style="background-color: #FFCDD2;">
+                                                <tr style="background-color: #FFE0B2;">
                                                     <?php for ($i = 0; $i < count($foda_data['amenazas']); $i++): ?>
                                                         <th>A<?= $i + 1 ?></th>
                                                     <?php endfor; ?>
@@ -529,7 +522,7 @@ if (isset($_GET['debug']) && $_GET['debug'] == '1') {
                                                     <td style="background-color: #C8E6C9;">F<?= $f + 1 ?></td>
                                                     <?php for ($a = 0; $a < count($foda_data['amenazas']); $a++): ?>
                                                         <td>
-                                                            <select name="fa_f<?= $f + 1 ?>_a<?= $a + 1 ?>" class="form-control evaluation-select" style="width: 100%; padding: 5px;">
+                                                            <select name="fa_f<?= $f + 1 ?>_a<?= $a + 1 ?>" class="form-control evaluation-select fa-select" style="width: 100%; padding: 5px;">
                                                                 <option value="0">0</option>
                                                                 <option value="1">1</option>
                                                                 <option value="2">2</option>
@@ -551,21 +544,34 @@ if (isset($_GET['debug']) && $_GET['debug'] == '1') {
                                     </div>
                                 </div>
                             </div>
+                            <?php else: ?>
+                            <div class="full-width panel mdl-shadow--2dp" style="margin-bottom: 30px;">
+                                <div class="full-width panel-tittle bg-secondary text-center tittles">
+                                    FORTALEZAS vs AMENAZAS (Estrategia Defensiva)
+                                </div>
+                                <div class="full-width panel-content">
+                                    <div class="alert alert-warning">
+                                        <strong>Sin datos:</strong> Complete primero los análisis de Fortalezas y Amenazas en los módulos anteriores.
+                                    </div>
+                                </div>
+                            </div>
+                            <?php endif; ?>
 
                             <!-- Debilidades vs Oportunidades -->
+                            <?php if (!empty($foda_data['debilidades']) && !empty($foda_data['oportunidades'])): ?>
                             <div class="full-width panel mdl-shadow--2dp" style="margin-bottom: 30px;">
                                 <div class="full-width panel-tittle bg-warning text-center tittles">
                                     DEBILIDADES vs OPORTUNIDADES (Estrategia de Supervivencia)
                                 </div>
                                 <div class="full-width panel-content">
-                                    <p><em>Superamos las debilidades tomando ventaja de las oportunidades</em></p>
-                                    <p><strong>Escala:</strong> 0=En total desacuerdo, 1= No está de acuerdo, 2= Está de acuerdo, 3= Bastante de acuerdo y 4=En total acuerdo</p>
+                                    <p><em>Las oportunidades ayudan a superar las debilidades.</em></p>
                                     
                                     <div class="table-responsive">
                                         <table class="table table-bordered evaluation-table">
                                             <thead>
                                                 <tr style="background-color: #FFE0B2;">
-                                                    <th rowspan="2" style="background-color: #FFE0B2;">DEBILIDADES</th>                                                    <th colspan="<?= count($foda_data['oportunidades']) ?>" style="text-align: center;">OPORTUNIDADES</th>
+                                                    <th rowspan="2" style="background-color: #FFCC80;">DEBILIDADES</th>
+                                                    <th colspan="<?= count($foda_data['oportunidades']) ?>" style="text-align: center;">OPORTUNIDADES</th>
                                                 </tr>
                                                 <tr style="background-color: #FFE0B2;">
                                                     <?php for ($i = 0; $i < count($foda_data['oportunidades']); $i++): ?>
@@ -579,7 +585,7 @@ if (isset($_GET['debug']) && $_GET['debug'] == '1') {
                                                     <td style="background-color: #FFE0B2;">D<?= $d + 1 ?></td>
                                                     <?php for ($o = 0; $o < count($foda_data['oportunidades']); $o++): ?>
                                                         <td>
-                                                            <select name="do_d<?= $d + 1 ?>_o<?= $o + 1 ?>" class="form-control evaluation-select" style="width: 100%; padding: 5px;">
+                                                            <select name="do_d<?= $d + 1 ?>_o<?= $o + 1 ?>" class="form-control evaluation-select do-select" style="width: 100%; padding: 5px;">
                                                                 <option value="0">0</option>
                                                                 <option value="1">1</option>
                                                                 <option value="2">2</option>
@@ -601,23 +607,36 @@ if (isset($_GET['debug']) && $_GET['debug'] == '1') {
                                     </div>
                                 </div>
                             </div>
+                            <?php else: ?>
+                            <div class="full-width panel mdl-shadow--2dp" style="margin-bottom: 30px;">
+                                <div class="full-width panel-tittle bg-secondary text-center tittles">
+                                    DEBILIDADES vs OPORTUNIDADES (Estrategia de Supervivencia)
+                                </div>
+                                <div class="full-width panel-content">
+                                    <div class="alert alert-warning">
+                                        <strong>Sin datos:</strong> Complete primero los análisis de Debilidades y Oportunidades en los módulos anteriores.
+                                    </div>
+                                </div>
+                            </div>
+                            <?php endif; ?>
 
                             <!-- Debilidades vs Amenazas -->
+                            <?php if (!empty($foda_data['debilidades']) && !empty($foda_data['amenazas'])): ?>
                             <div class="full-width panel mdl-shadow--2dp" style="margin-bottom: 30px;">
                                 <div class="full-width panel-tittle bg-danger text-center tittles">
                                     DEBILIDADES vs AMENAZAS (Estrategia de Reorientación)
                                 </div>
                                 <div class="full-width panel-content">
-                                    <p><em>Las debilidades intensifican notablemente el efecto negativo de las amenazas</em></p>
-                                    <p><strong>Escala:</strong> 0=En total desacuerdo, 1= No está de acuerdo, 2= Está de acuerdo, 3= Bastante de acuerdo y 4=En total acuerdo</p>
+                                    <p><em>Las debilidades exponen vulnerabilidades ante las amenazas.</em></p>
                                     
                                     <div class="table-responsive">
                                         <table class="table table-bordered evaluation-table">
                                             <thead>
-                                                <tr style="background-color: #FFCDD2;">
-                                                    <th rowspan="2" style="background-color: #FFE0B2;">DEBILIDADES</th>                                                    <th colspan="<?= count($foda_data['amenazas']) ?>" style="text-align: center;">AMENAZAS</th>
+                                                <tr style="background-color: #FFE0B2;">
+                                                    <th rowspan="2" style="background-color: #FFCC80;">DEBILIDADES</th>
+                                                    <th colspan="<?= count($foda_data['amenazas']) ?>" style="text-align: center;">AMENAZAS</th>
                                                 </tr>
-                                                <tr style="background-color: #FFCDD2;">
+                                                <tr style="background-color: #FFE0B2;">
                                                     <?php for ($i = 0; $i < count($foda_data['amenazas']); $i++): ?>
                                                         <th>A<?= $i + 1 ?></th>
                                                     <?php endfor; ?>
@@ -629,7 +648,7 @@ if (isset($_GET['debug']) && $_GET['debug'] == '1') {
                                                     <td style="background-color: #FFE0B2;">D<?= $d + 1 ?></td>
                                                     <?php for ($a = 0; $a < count($foda_data['amenazas']); $a++): ?>
                                                         <td>
-                                                            <select name="da_d<?= $d + 1 ?>_a<?= $a + 1 ?>" class="form-control evaluation-select" style="width: 100%; padding: 5px;">
+                                                            <select name="da_d<?= $d + 1 ?>_a<?= $a + 1 ?>" class="form-control evaluation-select da-select" style="width: 100%; padding: 5px;">
                                                                 <option value="0">0</option>
                                                                 <option value="1">1</option>
                                                                 <option value="2">2</option>
@@ -651,15 +670,24 @@ if (isset($_GET['debug']) && $_GET['debug'] == '1') {
                                     </div>
                                 </div>
                             </div>
+                            <?php else: ?>
+                            <div class="full-width panel mdl-shadow--2dp" style="margin-bottom: 30px;">
+                                <div class="full-width panel-tittle bg-secondary text-center tittles">
+                                    DEBILIDADES vs AMENAZAS (Estrategia de Reorientación)
+                                </div>
+                                <div class="full-width panel-content">
+                                    <div class="alert alert-warning">
+                                        <strong>Sin datos:</strong> Complete primero los análisis de Debilidades y Amenazas en los módulos anteriores.
+                                    </div>
+                                </div>
+                            </div>
+                            <?php endif; ?>
                         </form>
-                        <?php else: ?>
-                        <div class="alert alert-warning">
-                            <strong>¡Atención!</strong> Primero debe completar el Análisis FODA en la pestaña anterior.
-                        </div>
-                        <?php endif; ?>
                     </div>
                 </div>
-            </div>            <!-- Tab 3: Síntesis de Resultados -->
+            </div>
+
+            <!-- Tab 3: Síntesis de Resultados -->
             <div class="mdl-tabs__panel" id="resultados-tab">
                 <div class="mdl-grid">
                     <div class="mdl-cell mdl-cell--12-col">
@@ -799,22 +827,22 @@ if (isset($_GET['debug']) && $_GET['debug'] == '1') {
                                             Complete la evaluación estratégica para ver la conclusión del análisis.
                                         </p>
                                     </div>
-                                </div>                                <!-- Botón para continuar a CAME -->
+                                </div>                                <!-- Botón para guardar -->
                                 <div class="text-center" style="margin-top: 30px;">
                                     <div style="background: linear-gradient(135deg, #E8F5E8 0%, #F1F8E9 100%); border: 2px solid #4CAF50; padding: 25px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(76, 175, 80, 0.15);">
                                         <h4 style="color: #2E7D32; margin: 0 0 10px 0; font-size: 20px;">
                                             ✅ ¡Análisis Estratégico Completado!
                                         </h4>
                                         <p style="margin: 0; color: #1B5E20; font-size: 16px; line-height: 1.5;">
-                                            Ahora puede continuar a la <strong>Matriz CAME</strong> para definir las acciones estratégicas finales.
+                                            Complete la evaluación estratégica y guarde los resultados.
                                         </p>
                                     </div>
-                                    <button onclick="guardarEvaluacionYContinuar()" 
-                                            id="continuar-came-btn"
+                                    <button onclick="guardarEvaluacion()" 
+                                            id="guardar-estrategias-btn"
                                             class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" 
                                             style="background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%); 
                                                    color: white; 
-                                                   padding: 3px 45px; 
+                                                   padding: 15px 45px; 
                                                    font-size: 18px; 
                                                    font-weight: bold; 
                                                    text-transform: uppercase; 
@@ -824,10 +852,10 @@ if (isset($_GET['debug']) && $_GET['debug'] == '1') {
                                                    transition: all 0.3s ease; 
                                                    position: relative; 
                                                    overflow: hidden;
-                                                   min-width: 280px;
+                                                   min-width: 200px;
                                                    letter-spacing: 1px;">
-                                        <i class="zmdi zmdi-arrow-right" style="margin-right: 15px; font-size: 25px;"></i> 
-                                        CONTINUAR A MATRIZ CAME
+                                        <i class="zmdi zmdi-floppy" style="margin-right: 15px; font-size: 20px;"></i> 
+                                        GUARDAR
                                     </button>
                                 </div>
                             </div>
@@ -839,7 +867,90 @@ if (isset($_GET['debug']) && $_GET['debug'] == '1') {
     </section>
 
     <!-- JavaScript -->
-    <script src="../public/js/material.min.js"></script>    <script>
+    <script src="../public/js/material.min.js"></script>    <script>        // Función para cargar datos previos si existen
+        function cargarDatosPrevios() {
+            <?php if ($datos_previos && isset($datos_previos['evaluacion'])): ?>            try {                const datosPreviosRaw = <?= json_encode($datos_previos['evaluacion']) ?>;
+                console.log('Datos previos raw:', datosPreviosRaw);
+                console.log('Tipo de datosPreviosRaw:', typeof datosPreviosRaw);
+                
+                // Si los datos son string, parsearlos como JSON
+                let datosPrevios;
+                if (typeof datosPreviosRaw === 'string') {
+                    datosPrevios = JSON.parse(datosPreviosRaw);
+                } else {
+                    datosPrevios = datosPreviosRaw;
+                }
+                
+                console.log('Datos previos parseados:', datosPrevios);
+                console.log('Tipo después del parse:', typeof datosPrevios);
+                console.log('¿Tiene evaluaciones?:', datosPrevios && datosPrevios.evaluaciones);
+                console.log('Keys de datosPrevios:', datosPrevios ? Object.keys(datosPrevios) : 'null');
+                
+                // Verificar si los datos tienen evaluaciones
+                if (datosPrevios && datosPrevios.evaluaciones) {
+                    // Cargar valores en los selects de evaluación
+                    Object.keys(datosPrevios.evaluaciones).forEach(nombre => {
+                        const selectElement = document.querySelector(`select[name="${nombre}"]`);
+                        if (selectElement) {
+                            selectElement.value = datosPrevios.evaluaciones[nombre];
+                            console.log(`Cargado ${nombre}: ${datosPrevios.evaluaciones[nombre]}`);
+                        }
+                    });
+                      // Cargar totales si existen
+                    if (datosPrevios.totales) {
+                        const totalFo = document.getElementById('total_fo');
+                        const totalFa = document.getElementById('total_fa');
+                        const totalDo = document.getElementById('total_do');
+                        const totalDa = document.getElementById('total_da');
+                        
+                        if (totalFo) totalFo.textContent = datosPrevios.totales.fo || '0';
+                        if (totalFa) totalFa.textContent = datosPrevios.totales.fa || '0';
+                        if (totalDo) totalDo.textContent = datosPrevios.totales.do || '0';
+                        if (totalDa) totalDa.textContent = datosPrevios.totales.da || '0';
+                        
+                        // También actualizar la síntesis ejecutiva
+                        const synthesisFo = document.getElementById('synthesis_fo');
+                        const synthesisFa = document.getElementById('synthesis_fa');
+                        const synthesisDo = document.getElementById('synthesis_do');
+                        const synthesisDa = document.getElementById('synthesis_da');
+                        
+                        if (synthesisFo) synthesisFo.textContent = (datosPrevios.totales.fo || '0') + ' pts';
+                        if (synthesisFa) synthesisFa.textContent = (datosPrevios.totales.fa || '0') + ' pts';
+                        if (synthesisDo) synthesisDo.textContent = (datosPrevios.totales.do || '0') + ' pts';
+                        if (synthesisDa) synthesisDa.textContent = (datosPrevios.totales.da || '0') + ' pts';
+                    }
+                    
+                    // Cargar síntesis si existe
+                    if (datosPrevios.sintesis) {
+                        const synthesisElement = document.getElementById('synthesis_conclusion');
+                        if (synthesisElement) {
+                            synthesisElement.innerHTML = datosPrevios.sintesis;
+                        }
+                    }
+                    
+                    // Cargar recomendación si existe
+                    if (datosPrevios.recomendacion) {
+                        const recomendacionElement = document.getElementById('estrategia-recomendada');
+                        if (recomendacionElement) {
+                            recomendacionElement.innerHTML = datosPrevios.recomendacion;
+                        }
+                    }
+                    
+                    // Marcar que los datos fueron cargados para evitar recálculo automático
+                    window.datosPreCarados = true;
+                    
+                    // No recalcular automáticamente, mantener los datos guardados
+                    console.log('Datos previos cargados sin recálculo automático');                    
+                    console.log('Datos previos cargados correctamente');
+                } else {
+                    console.log('No hay datos de evaluación previos para cargar');
+                }
+            } catch (error) {
+                console.error('Error al cargar datos previos:', error);
+            }
+            <?php endif; ?>
+        }
+        
         // Cálculo automático de totales en las tablas de evaluación
         document.addEventListener('DOMContentLoaded', function() {
             const evaluationSelects = document.querySelectorAll('.evaluation-select');
@@ -849,15 +960,26 @@ if (isset($_GET['debug']) && $_GET['debug'] == '1') {
             const numDebilidades = <?= count($foda_data['debilidades']) ?>;
             const numOportunidades = <?= count($foda_data['oportunidades']) ?>;
             const numAmenazas = <?= count($foda_data['amenazas']) ?>;
-            
-            evaluationSelects.forEach(select => {
-                select.addEventListener('change', calculateTotals);
+              evaluationSelects.forEach(select => {
+                select.addEventListener('change', function() {
+                    // Reactivar cálculo automático cuando el usuario cambie valores
+                    window.datosPreCarados = false;
+                    calculateTotals();
+                });
             });
             
-            // Calcular al cargar la página
+            // Cargar datos previos si existen
+            cargarDatosPrevios();
+              // Calcular al cargar la página
             calculateTotals();
-            
-            function calculateTotals() {
+              function calculateTotals() {
+                // Si ya se cargaron datos previos, no recalcular automáticamente
+                if (window.datosPreCarados) {
+                    console.log('Saltando recálculo automático - datos previos ya cargados');
+                    return;
+                }
+                
+                console.log('Calculando totales...');
                 // Calcular totales por columna (FO)
                 for (let o = 1; o <= numOportunidades; o++) {
                     let total = 0;
@@ -891,8 +1013,7 @@ if (isset($_GET['debug']) && $_GET['debug'] == '1') {
                 // Calcular totales por columna (DO)
                 for (let o = 1; o <= numOportunidades; o++) {
                     let total = 0;
-                    for (let d = 1; d <= numDebilidades; d++) {
-                        const select = document.querySelector(`select[name="do_d${d}_o${o}"]`);
+                    for (let d = 1; d <= numDebilidades; d++) {                        const select = document.querySelector(`select[name="do_d${d}_o${o}"]`);
                         if (select) {
                             total += parseInt(select.value) || 0;
                         }
@@ -963,9 +1084,14 @@ if (isset($_GET['debug']) && $_GET['debug'] == '1') {
                         }
                     }
                 }
-                
-                // Actualizar tabla de síntesis
+                  // Actualizar tabla de síntesis
                 updateSynthesisTable(totalFO, totalFA, totalDO, totalDA);
+            }
+            
+            // Función para forzar recálculo (útil cuando el usuario cambia valores)
+            function forceCalculateTotals() {
+                window.datosPreCarados = false;
+                calculateTotals();
             }
               function updateSynthesisTable(fo, fa, do_, da) {
                 // Actualizar valores en tabla de síntesis
@@ -1084,57 +1210,137 @@ if (isset($_GET['debug']) && $_GET['debug'] == '1') {
                 
                 conclusionElement.innerHTML = conclusion;
             }
-        });        // Función para guardar evaluación y continuar
-        function guardarEvaluacionYContinuar() {
-            // Primero guardar la evaluación actual
-            const formData = new FormData();
-            formData.append('paso', 'estrategias');
-            formData.append('nombre_paso', 'Identificación de Estrategias');
-            formData.append('save_evaluacion', '1');
+        });        // Función para guardar evaluación
+        function guardarEvaluacion() {
+            const btnGuardar = document.getElementById('guardar-estrategias-btn');
+            const originalText = btnGuardar.innerHTML;
+            btnGuardar.innerHTML = '<i class="zmdi zmdi-spinner zmdi-hc-spin"></i> Guardando...';
+            btnGuardar.disabled = true;
             
-            // Obtener todos los valores de evaluación de las matrices
-            const evaluacionInputs = document.querySelectorAll('#evaluacionForm select, #evaluacionForm input[type="number"]');
-            evaluacionInputs.forEach(input => {
-                if (input.value && input.value !== '0') {
-                    formData.append(input.name, input.value);
+            // Preparar datos para enviar
+            const formData = new FormData();
+            formData.append('id_plan', <?php echo $plan_id; ?>);
+            
+            // Recopilar todas las evaluaciones de matrices
+            const evaluaciones = {};
+            
+            // Recopilar FO
+            document.querySelectorAll('select[name^="fo_"]').forEach(select => {
+                if (select.value && select.value !== '0') {
+                    evaluaciones[select.name] = select.value;
                 }
             });
             
-            // También capturar datos FODA consolidados si existen
-            <?php if ($foda_data): ?>
-            <?php foreach ($foda_data['fortalezas'] as $index => $fortaleza): ?>
-            formData.append('fortaleza_<?= $index + 1 ?>', '<?= addslashes($fortaleza) ?>');
-            <?php endforeach; ?>
-            <?php foreach ($foda_data['debilidades'] as $index => $debilidad): ?>
-            formData.append('debilidad_<?= $index + 1 ?>', '<?= addslashes($debilidad) ?>');
-            <?php endforeach; ?>
-            <?php foreach ($foda_data['oportunidades'] as $index => $oportunidad): ?>
-            formData.append('oportunidad_<?= $index + 1 ?>', '<?= addslashes($oportunidad) ?>');
-            <?php endforeach; ?>
-            <?php foreach ($foda_data['amenazas'] as $index => $amenaza): ?>
-            formData.append('amenaza_<?= $index + 1 ?>', '<?= addslashes($amenaza) ?>');
-            <?php endforeach; ?>
-            <?php endif; ?>
+            // Recopilar FA
+            document.querySelectorAll('select[name^="fa_"]').forEach(select => {
+                if (select.value && select.value !== '0') {
+                    evaluaciones[select.name] = select.value;
+                }
+            });
             
-            fetch('../index.php?controller=PlanEstrategico&action=guardarPaso', {
+            // Recopilar DO
+            document.querySelectorAll('select[name^="do_"]').forEach(select => {
+                if (select.value && select.value !== '0') {
+                    evaluaciones[select.name] = select.value;
+                }
+            });
+            
+            // Recopilar DA
+            document.querySelectorAll('select[name^="da_"]').forEach(select => {
+                if (select.value && select.value !== '0') {
+                    evaluaciones[select.name] = select.value;
+                }
+            });
+            
+            // Recopilar totales
+            const totales = {
+                fo: document.getElementById('total_fo')?.textContent || '0',
+                fa: document.getElementById('total_fa')?.textContent || '0',
+                do: document.getElementById('total_do')?.textContent || '0',
+                da: document.getElementById('total_da')?.textContent || '0'
+            };
+            
+            // Recopilar síntesis y recomendación
+            const sintesis = document.getElementById('synthesis_conclusion')?.innerHTML || '';
+            const recomendacion = document.getElementById('estrategia-recomendada')?.innerHTML || '';
+              // Preparar el objeto final
+            const estrategiasData = {
+                evaluaciones: evaluaciones,
+                totales: totales,
+                sintesis: sintesis,
+                recomendacion: recomendacion
+            };
+            
+            // Enviar como evaluacion_data (formato que espera el backend)
+            formData.append('evaluacion_data', JSON.stringify(estrategiasData));
+            // Enviar foda_data vacío para cumplir con la validación del backend
+            formData.append('foda_data', JSON.stringify({}));
+              // Realizar la petición AJAX
+            fetch('../index.php?controller=plan&action=guardarEstrategias', {
                 method: 'POST',
                 body: formData
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    window.location.href = 'matriz_came_ejemplo.php';
+                    btnGuardar.innerHTML = '<i class="zmdi zmdi-check"></i> ¡Guardado!';
+                    btnGuardar.style.background = 'linear-gradient(135deg, #4CAF50 0%, #45a049 100%)';
+                    
+                    // Mostrar notificación de éxito
+                    const alertHtml = `
+                        <div class="alert alert-success" style="margin-bottom: 20px; animation: fadeInUp 0.5s ease;">
+                            <strong>¡Éxito!</strong> La evaluación estratégica ha sido guardada correctamente.
+                        </div>
+                    `;
+                    
+                    btnGuardar.insertAdjacentHTML('beforebegin', alertHtml);
+                    
+                    setTimeout(() => {
+                        btnGuardar.innerHTML = originalText;
+                        btnGuardar.disabled = false;
+                        btnGuardar.style.background = '';
+                        
+                        const alert = document.querySelector('.alert-success');
+                        if (alert) alert.remove();
+                    }, 3000);
                 } else {
-                    alert('Error al guardar la evaluación: ' + (data.message || 'Error desconocido'));
+                    btnGuardar.innerHTML = originalText;
+                    btnGuardar.disabled = false;
+                    btnGuardar.style.background = '';
+                    
+                    const alertHtml = `
+                        <div class="alert alert-danger" style="margin-bottom: 20px; animation: fadeInUp 0.5s ease;">
+                            <strong>Error:</strong> ${data.message || 'No se pudo guardar la evaluación'}
+                        </div>
+                    `;
+                    
+                    btnGuardar.insertAdjacentHTML('beforebegin', alertHtml);
+                    
+                    setTimeout(() => {
+                        const alert = document.querySelector('.alert-danger');
+                        if (alert) alert.remove();
+                    }, 5000);
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Error al guardar la evaluación. Redirigiendo de todas formas...');
-                // Redirigir de todas formas para no bloquear al usuario
+                
+                btnGuardar.innerHTML = originalText;
+                btnGuardar.disabled = false;
+                btnGuardar.style.background = '';
+                
+                const alertHtml = `
+                    <div class="alert alert-warning" style="margin-bottom: 20px; animation: fadeInUp 0.5s ease;">
+                        <strong>Advertencia:</strong> Hubo un problema al guardar. Intente nuevamente.
+                    </div>
+                `;
+                
+                btnGuardar.insertAdjacentHTML('beforebegin', alertHtml);
+                
                 setTimeout(() => {
-                    window.location.href = 'matriz_came_ejemplo.php';
-                }, 1000);
+                    const alert = document.querySelector('.alert-warning');
+                    if (alert) alert.remove();
+                }, 5000);
             });
         }
     </script>
