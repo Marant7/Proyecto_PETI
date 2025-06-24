@@ -1,0 +1,537 @@
+/* Reset y configuración base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f0f4f8;
+    margin: 0;
+    min-height: 100vh;
+}
+
+/* Layout principal */
+.main-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Área de contenido - con margen para el sidebar */
+.content {
+    flex-grow: 1;
+    margin-left: 250px; /* Espacio para el sidebar fijo de 250px */
+    padding: 40px;
+    min-height: 100vh;
+}
+
+/* Header del contenido */
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 20px 0;
+}
+
+.header h1 {
+    color: #2c3e50;
+    font-size: 28px;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.header p {
+    color: #7f8c8d;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+/* Contenedor principal del formulario */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    border: 1px solid #e1e8ed;
+}
+
+/* Título del paso */
+.container h2 {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 30px;
+    text-align: center;
+    color: #2c3e50;
+    padding-bottom: 15px;
+    border-bottom: 3px solid #3498db;
+    position: relative;
+}
+
+.container h2::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: #e74c3c;
+    border-radius: 2px;
+}
+
+/* Sección UEN */
+.uen-section {
+    margin-bottom: 40px;
+    padding: 25px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 12px;
+    border-left: 5px solid #6f42c1;
+}
+
+.uen-section h3 {
+    color: #6f42c1;
+    font-size: 20px;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.uen-section p {
+    margin-bottom: 15px;
+    font-style: italic;
+    color: #6c757d;
+    font-size: 14px;
+}
+
+/* Contenedor de objetivos - Layout de tres columnas */
+.objetivos-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+/* Columna de misión */
+.mision-column {
+    background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%);
+    padding: 25px;
+    border-radius: 12px;
+    border: 2px solid #2E7D32;
+    position: relative;
+}
+
+.mision-column h3 {
+    color: #2E7D32;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.mision-display {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #2c3e50;
+    border: 1px solid #2E7D32;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    text-align: center;
+}
+
+/* Columna de objetivos generales */
+.objetivos-generales {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    padding: 25px;
+    border-radius: 12px;
+    border: 2px solid #1976D2;
+}
+
+.objetivos-generales h3 {
+    color: #1976D2;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Columna de objetivos específicos */
+.objetivos-especificos {
+    background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+    padding: 25px;
+    border-radius: 12px;
+    border: 2px solid #F57C00;
+}
+
+.objetivos-especificos h3 {
+    color: #F57C00;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Items de objetivos */
+.objetivo-item {
+    margin-bottom: 20px;
+    position: relative;
+    animation: fadeIn 0.6s ease-out;
+}
+
+.objetivo-item label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #2c3e50;
+    font-size: 14px;
+}
+
+.objetivo-item textarea {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 2px solid #e1e8ed;
+    resize: vertical;
+    font-size: 14px;
+    font-family: Arial, sans-serif;
+    transition: all 0.3s ease;
+    background: #ffffff;
+    min-height: 80px;
+}
+
+.objetivo-item textarea:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.objetivo-item textarea::placeholder {
+    color: #95a5a6;
+    font-style: italic;
+    font-size: 13px;
+}
+
+/* Grupos de objetivos específicos */
+.objetivo-especifico-group {
+    margin-bottom: 25px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 8px;
+    border: 1px solid rgba(245, 124, 0, 0.2);
+}
+
+.objetivo-especifico-group h4 {
+    color: #F57C00;
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    text-align: center;
+    background: white;
+    padding: 8px 15px;
+    border-radius: 20px;
+    border: 1px solid #F57C00;
+}
+
+/* Botones de acción */
+#addObjetivoGeneral {
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    box-shadow: 0 3px 10px rgba(33, 150, 243, 0.2);
+}
+
+#addObjetivoGeneral:hover {
+    background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(33, 150, 243, 0.3);
+}
+
+/* Botones de eliminar */
+button[onclick*="eliminar"] {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+    padding: 5px 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    float: right;
+    margin-top: 8px;
+}
+
+button[onclick*="eliminar"]:hover {
+    background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+    transform: translateY(-1px);
+}
+
+/* Grupos de formulario generales */
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #2c3e50;
+    font-size: 16px;
+}
+
+.form-group textarea {
+    width: 100%;
+    height: 120px;
+    padding: 15px;
+    border-radius: 8px;
+    border: 2px solid #e1e8ed;
+    resize: vertical;
+    font-size: 16px;
+    font-family: Arial, sans-serif;
+    transition: all 0.3s ease;
+    background: #fafbfc;
+}
+
+.form-group textarea:focus {
+    outline: none;
+    border-color: #6f42c1;
+    box-shadow: 0 0 0 3px rgba(111, 66, 193, 0.1);
+    background: #ffffff;
+}
+
+/* Contenedor de botones principales */
+.buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 40px;
+    gap: 15px;
+    flex-wrap: wrap;
+    padding: 20px 0;
+    border-top: 2px solid #e1e8ed;
+}
+
+/* Botón principal (Guardar) */
+.buttons button[type="submit"] {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    padding: 15px 35px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 200px;
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+}
+
+.buttons button[type="submit"]:hover {
+    background: linear-gradient(135deg, #218838 0%, #1e7e34 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+}
+
+/* Botones de navegación */
+.buttons a {
+    padding: 15px 30px;
+    border-radius: 8px;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    min-width: 120px;
+    display: inline-block;
+}
+
+/* Botón Anterior */
+.buttons a:not([href*="home"]) {
+    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+    color: white;
+    box-shadow: 0 3px 10px rgba(108, 117, 125, 0.2);
+}
+
+.buttons a:not([href*="home"]):hover {
+    background: linear-gradient(135deg, #5a6268 0%, #495057 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+}
+
+/* Botón Cancelar */
+.buttons a[href*="home"] {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+    box-shadow: 0 3px 10px rgba(220, 53, 69, 0.2);
+}
+
+.buttons a[href*="home"]:hover {
+    background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .objetivos-container {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .content {
+        margin-left: 200px;
+        padding: 30px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .content {
+        margin-left: 200px;
+        padding: 25px;
+    }
+    
+    .container {
+        padding: 30px;
+    }
+}
+
+@media (max-width: 768px) {
+    .content {
+        margin-left: 0;
+        padding: 20px;
+    }
+    
+    .container {
+        padding: 25px;
+        margin: 0 10px;
+    }
+    
+    .header h1 {
+        font-size: 24px;
+    }
+    
+    .container h2 {
+        font-size: 20px;
+    }
+    
+    .buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .buttons button,
+    .buttons a {
+        width: 100%;
+        text-align: center;
+        min-width: unset;
+    }
+    
+    .objetivos-container {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .content {
+        padding: 15px;
+    }
+    
+    .container {
+        padding: 20px;
+        border-radius: 8px;
+    }
+    
+    .uen-section {
+        padding: 20px;
+    }
+    
+    .objetivos-generales,
+    .objetivos-especificos,
+    .mision-column {
+        padding: 20px;
+    }
+    
+    .header h1 {
+        font-size: 20px;
+    }
+    
+    .container h2 {
+        font-size: 18px;
+    }
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.container {
+    animation: fadeIn 0.5s ease-out;
+}
+
+.uen-section {
+    animation: fadeIn 0.6s ease-out;
+    animation-delay: 0.1s;
+    animation-fill-mode: both;
+}
+
+.objetivos-container {
+    animation: fadeIn 0.7s ease-out;
+    animation-delay: 0.2s;
+    animation-fill-mode: both;
+}
+
+/* Estados de validación */
+.objetivo-item textarea:valid:not(:placeholder-shown) {
+    border-color: #28a745;
+    background: rgba(40, 167, 69, 0.05);
+}
+
+.objetivo-item textarea:invalid:not(:placeholder-shown) {
+    border-color: #dc3545;
+    background: rgba(220, 53, 69, 0.05);
+}
+
+/* Efectos adicionales */
+.objetivo-item:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s ease;
+}
+
+.mision-column,
+.objetivos-generales,
+.objetivos-especificos {
+    transition: all 0.3s ease;
+}
+
+.mision-column:hover,
+.objetivos-generales:hover,
+.objetivos-especificos:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}

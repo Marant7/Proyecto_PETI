@@ -1,0 +1,482 @@
+       /* Reset y configuración base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f4f8;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        /* Container principal */
+        .container {
+            margin-left: 240px;
+            padding: 40px;
+            min-height: 100vh;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* Header principal */
+        h2 {
+            color: #2c3e50;
+            font-size: 28px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        /* Barra de progreso */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: #e1e8ed;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            width: 90%; /* Paso 10 de 11 */
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        /* Texto de progreso */
+        .container > p {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        /* Alertas y cajas informativas */
+        .alert-success {
+            background: #E8F5E8;
+            border: 2px solid #4CAF50;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+
+        .alert-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border: 1px solid #e1e8ed;
+        }
+
+        .alert-success h3,
+        .alert-warning h4,
+        .alert-info h4 {
+            margin: 0 0 10px 0;
+            font-size: 18px;
+        }
+
+        .alert-success h3 {
+            color: #2E7D32;
+        }
+
+        .alert-warning h4 {
+            color: #856404;
+        }
+
+        .alert-success p,
+        .alert-warning p,
+        .alert-info p {
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .alert-success p {
+            color: #2E7D32;
+        }
+
+        .alert-warning p {
+            color: #856404;
+        }
+
+        /* Grid para información consolidada */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            font-size: 14px;
+        }
+
+        /* Formulario principal */
+        #formMatrizCame {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Título de sección */
+        .section-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            text-align: center;
+            color: #2c3e50;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #3498db;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: #e74c3c;
+            border-radius: 2px;
+        }
+
+        /* Descripción de sección */
+        .section-title + p {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #666;
+            font-size: 16px;
+            font-style: italic;
+        }
+
+        /* Secciones CAME */
+        .came-section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border: 1px solid #e1e8ed;
+            animation: fadeIn 0.6s ease-out;
+            animation-fill-mode: both;
+        }
+
+        .came-section:nth-child(1) { animation-delay: 0.1s; }
+        .came-section:nth-child(2) { animation-delay: 0.2s; }
+        .came-section:nth-child(3) { animation-delay: 0.3s; }
+        .came-section:nth-child(4) { animation-delay: 0.4s; }
+
+        .came-section h3 {
+            margin: -30px -30px 20px -30px;
+            padding: 15px 30px;
+            border-radius: 12px 12px 0 0;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        /* Colores específicos para cada sección CAME */
+        .came-section h3.corregir {
+            background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+            color: white;
+        }
+
+        .came-section h3.afrontar {
+            background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+            color: white;
+        }
+
+        .came-section h3.mantener {
+            background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
+            color: white;
+        }
+
+        .came-section h3.explotar {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            color: white;
+        }
+
+        /* Filas de estrategia FODA */
+        .foda-strategy-row {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 25px;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #fafbfc;
+            border-radius: 8px;
+            border: 1px solid #e1e8ed;
+            transition: all 0.3s ease;
+        }
+
+        .foda-strategy-row:hover {
+            background: #f8f9fa;
+            border-color: #3498db;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.1);
+        }
+
+        .foda-element {
+            padding-right: 15px;
+        }
+
+        .foda-element strong {
+            color: #2c3e50;
+            font-size: 16px;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .foda-element p {
+            color: #555;
+            line-height: 1.5;
+            font-size: 14px;
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #e1e8ed;
+        }
+
+        /* Inputs de estrategia */
+        .strategy-input {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .strategy-input label {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .strategy-input textarea {
+            width: 100%;
+            height: 100px;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #e1e8ed;
+            resize: vertical;
+            font-size: 14px;
+            font-family: Arial, sans-serif;
+            transition: all 0.3s ease;
+            background: #ffffff;
+        }
+
+        .strategy-input textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .strategy-input textarea::placeholder {
+            color: #95a5a6;
+            font-style: italic;
+        }
+
+        /* Navegación */
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 40px;
+            padding: 30px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border: 1px solid #e1e8ed;
+        }
+
+        /* Botones */
+        .btn-primary {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+            text-align: center;
+            min-width: 120px;
+            box-shadow: 0 3px 10px rgba(52, 152, 219, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2980b9 0%, #21618c 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-primary:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Botón guardar (verde) */
+        button[type="submit"].btn-primary {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            box-shadow: 0 3px 10px rgba(39, 174, 96, 0.2);
+        }
+
+        button[type="submit"].btn-primary:hover {
+            background: linear-gradient(135deg, #229954 0%, #1e8449 100%);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+        }
+
+        /* Botón finalizar (especial) */
+        .btn-finalizar {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 14px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-left: 15px;
+            box-shadow: 0 3px 10px rgba(231, 76, 60, 0.2);
+        }
+
+        .btn-finalizar:hover {
+            background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        /* Contenedor de botones derecho */
+        .navigation > div {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .navigation > div > div {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .navigation small {
+            color: #666;
+            text-align: right;
+            max-width: 400px;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        /* Animaciones */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes successPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Loading spinner */
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .container {
+                margin-left: 200px;
+                padding: 30px;
+            }
+            
+            .foda-strategy-row {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin-left: 0;
+                padding: 20px;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .navigation {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+            
+            .navigation > div {
+                align-items: center;
+            }
+            
+            .navigation > div > div {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .btn-finalizar {
+                margin-left: 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .came-section {
+                padding: 20px;
+            }
+            
+            .came-section h3 {
+                margin: -20px -20px 15px -20px;
+                padding: 12px 20px;
+                font-size: 18px;
+            }
+            
+            h2 {
+                font-size: 24px;
+            }
+            
+            .section-title {
+                font-size: 20px;
+            }
+        }
