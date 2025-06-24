@@ -19,10 +19,11 @@ if (!isset($plan_id)) $plan_id = $_GET['id_plan'] ?? '';
         <!-- Barra lateral -->
         <?php include 'sidebar.php'; ?>
 
-        <div class="content">    <div class="header">
-        <h1>Paso 4: Cadena de Valor</h1>
-        <p>Usuario: <?php echo $user ? htmlspecialchars($user['nombre'] . ' ' . $user['apellido']) : 'Invitado'; ?></p>
-    </div>
+        <div class="content">    
+            <div class="header">
+                <h1>Paso 4: Cadena de Valor</h1>
+                <p>Usuario: <?php echo $user ? htmlspecialchars($user['nombre'] . ' ' . $user['apellido']) : 'Invitado'; ?></p>
+            </div>
 
     <div class="container content">
         <h2 style="text-align: center; margin-bottom: 20px;">Cadena de Valor</h2>
